@@ -177,25 +177,19 @@ const MountainsMap = ({ onBackToMenu, mountainType = 'all' }) => {
           >
             <Home size={24} color="#E2E8F0" />
           </TouchableOpacity>
-          <View style={styles.headerText}>
+          <View style={styles.headerLeft}>
             <Text style={styles.title}>{mountainTypeName}</Text>
             {!isCompleted ? (
-              <>
-                <View style={styles.questionBadge}>
-                  <Text style={styles.questionText}>
-                    {currentMountain?.name} nerede?
-                  </Text>
-                </View>
-                <Text style={styles.progressText}>
-                  {foundMountains.length} / {mountains.length} dağ bulundu
-                </Text>
-              </>
+              <Text style={styles.progressText}>
+                {foundMountains.length} / {mountains.length} dağ bulundu
+              </Text>
             ) : (
               <Text style={styles.completedText}>
                 🎉 Tüm dağları buldunuz!
               </Text>
             )}
           </View>
+          <View style={styles.headerSpacer} />
           {feedback && (
             <View style={[
               styles.feedbackIcon,
@@ -209,6 +203,13 @@ const MountainsMap = ({ onBackToMenu, mountainType = 'all' }) => {
             </View>
           )}
         </View>
+        {!isCompleted && currentMountain && (
+          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+            <View style={styles.questionBadge}>
+              <Text style={styles.questionText}>{currentMountain.name} nerede?</Text>
+            </View>
+          </View>
+        )}
       </View>
 
       <View
@@ -347,10 +348,9 @@ const styles = StyleSheet.create({
     padding: 6,
     marginRight: 8,
   },
-  headerText: {
-    flex: 1,
-    alignItems: 'center',
-  },
+  headerLeft: { justifyContent: 'center' },
+  headerSpacer: { flex: 1 },
+  questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: {
     fontSize: 14,
     fontWeight: 'bold',

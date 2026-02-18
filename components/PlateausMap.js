@@ -150,27 +150,30 @@ const PlateausMap = ({ onBackToMenu }) => {
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
             <Home size={24} color="#E2E8F0" />
           </TouchableOpacity>
-          <View style={styles.headerText}>
+          <View style={styles.headerLeft}>
             <Text style={styles.title}>Platolar Quiz</Text>
             {!isCompleted ? (
-              <>
-                <View style={styles.questionBadge}>
-                  <Text style={styles.questionText}>{currentPlateau?.name} nerede?</Text>
-                </View>
-                <Text style={styles.progressText}>
-                  {foundPlateaus.length} / {plateaus.length} plato bulundu
-                </Text>
-              </>
+              <Text style={styles.progressText}>
+                {foundPlateaus.length} / {plateaus.length} plato bulundu
+              </Text>
             ) : (
               <Text style={styles.completedText}>🎉 Tüm platoları buldunuz!</Text>
             )}
           </View>
+          <View style={styles.headerSpacer} />
           {feedback && (
             <View style={[styles.feedbackIcon, feedback === 'correct' ? styles.correctIcon : styles.wrongIcon]}>
               {feedback === 'correct' ? <Check size={24} color="#FFFFFF" strokeWidth={3} /> : <X size={24} color="#FFFFFF" strokeWidth={3} />}
             </View>
           )}
         </View>
+        {!isCompleted && currentPlateau && (
+          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+            <View style={styles.questionBadge}>
+              <Text style={styles.questionText}>{currentPlateau.name} nerede?</Text>
+            </View>
+          </View>
+        )}
       </View>
 
       <View style={styles.mapContainer}>
@@ -259,10 +262,12 @@ const PlateausMap = ({ onBackToMenu }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F9FAFB' },
-  header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)' },
+  header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: { padding: 6, marginRight: 8 },
-  headerText: { flex: 1, alignItems: 'center' },
+  headerLeft: { justifyContent: 'center' },
+  headerSpacer: { flex: 1 },
+  questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
   questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginBottom: 3 },
   questionText: { fontSize: 11, fontWeight: '600', color: '#92400E' },

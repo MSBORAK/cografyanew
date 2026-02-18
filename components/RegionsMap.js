@@ -116,25 +116,19 @@ const RegionsMap = ({ onBackToMenu }) => {
           >
             <Home size={24} color="#E2E8F0" />
           </TouchableOpacity>
-          <View style={styles.headerText}>
+          <View style={styles.headerLeft}>
             <Text style={styles.title}>Bölgeler Quiz</Text>
             {!isCompleted ? (
-              <>
-                <View style={styles.questionBadge}>
-                  <Text style={styles.questionText}>
-                    {regions[currentRegion]?.name} nerede?
-                  </Text>
-                </View>
-                <Text style={styles.progressText}>
-                  {foundRegions.length} / {regionList.length} bölge bulundu
-                </Text>
-              </>
+              <Text style={styles.progressText}>
+                {foundRegions.length} / {regionList.length} bölge bulundu
+              </Text>
             ) : (
               <Text style={styles.completedText}>
                 🎉 Tüm bölgeleri buldunuz!
               </Text>
             )}
           </View>
+          <View style={styles.headerSpacer} />
           {feedback && (
             <View style={[
               styles.feedbackIcon,
@@ -148,6 +142,13 @@ const RegionsMap = ({ onBackToMenu }) => {
             </View>
           )}
         </View>
+        {!isCompleted && currentRegion && (
+          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+            <View style={styles.questionBadge}>
+              <Text style={styles.questionText}>{regions[currentRegion].name} nerede?</Text>
+            </View>
+          </View>
+        )}
       </View>
 
       <View style={styles.mapContainer}>
@@ -255,6 +256,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
+    position: 'relative',
   },
   headerContent: {
     flexDirection: 'row',
@@ -264,10 +266,9 @@ const styles = StyleSheet.create({
     padding: 8,
     marginRight: 12,
   },
-  headerText: {
-    flex: 1,
-    alignItems: 'center',
-  },
+  headerLeft: { justifyContent: 'center' },
+  headerSpacer: { flex: 1 },
+  questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: {
     fontSize: 16,
     fontWeight: 'bold',

@@ -314,24 +314,23 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
           >
             <Home size={20} color="#E2E8F0" />
           </TouchableOpacity>
-          <View style={styles.headerText}>
-            <View style={styles.titleRow}>
-              <Text style={styles.title}>{regionName}</Text>
-              <View style={styles.titleRowSpacer} />
-              {currentQuestion ? (
-                <View style={styles.questionBadge}>
-                  <Text style={styles.questionText}>
-                    {currentQuestion.name} nerede?
-                  </Text>
-                </View>
-              ) : null}
-              <View style={styles.titleRowSpacer} />
-            </View>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>{regionName}</Text>
             <Text style={styles.subtitle}>
               {correctAnswers.length} / {filteredCities.length} şehir bulundu
             </Text>
           </View>
+          <View style={styles.headerSpacer} />
         </View>
+        {currentQuestion && (
+          <View style={[styles.questionOverlay, { width: Math.max(screenWidth, screenHeight) }]} pointerEvents="box-none">
+            <View style={styles.questionBadge}>
+              <Text style={styles.questionText}>
+                {currentQuestion.name} nerede?
+              </Text>
+            </View>
+          </View>
+        )}
       </View>
 
       <View style={styles.mapContainer} onLayout={onLayout} {...panResponder.panHandlers}>
@@ -505,6 +504,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
+    position: 'relative',
   },
   headerContent: {
     flexDirection: 'row',
@@ -514,16 +514,15 @@ const styles = StyleSheet.create({
     padding: 6,
     marginRight: 8,
   },
-  headerText: {
-    flex: 1,
+  headerLeft: { justifyContent: 'center' },
+  headerSpacer: { flex: 1 },
+  questionOverlay: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
     justifyContent: 'center',
-  },
-  titleRow: {
-    flexDirection: 'row',
     alignItems: 'center',
-  },
-  titleRowSpacer: {
-    flex: 1,
   },
   title: {
     fontSize: 16,

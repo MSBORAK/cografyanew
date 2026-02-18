@@ -243,22 +243,21 @@ const UnescoMap = ({ onBackToMenu }) => {
           >
             <Home size={20} color="#E2E8F0" />
           </TouchableOpacity>
-          <View style={styles.headerText}>
-            <View style={styles.titleRow}>
-              <Text style={styles.title}>UNESCO Dünya Mirası</Text>
-              {currentQuestion && (
-                <View style={styles.questionBadge}>
-                  <Text style={styles.questionText}>
-                    {currentQuestion.name} hangi şehirde?
-                  </Text>
-                </View>
-              )}
-            </View>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>UNESCO Dünya Mirası</Text>
             <Text style={styles.subtitle}>
               {correctAnswers.length} / {unescoSites.length} alan bulundu
             </Text>
           </View>
+          <View style={styles.headerSpacer} />
         </View>
+        {currentQuestion && (
+          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+            <View style={styles.questionBadge}>
+              <Text style={styles.questionText}>{currentQuestion.name} hangi şehirde?</Text>
+            </View>
+          </View>
+        )}
       </View>
 
       <View
@@ -416,6 +415,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
+    position: 'relative',
   },
   headerContent: {
     flexDirection: 'row',
@@ -425,16 +425,9 @@ const styles = StyleSheet.create({
     padding: 6,
     marginRight: 8,
   },
-  headerText: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
+  headerLeft: { justifyContent: 'center' },
+  headerSpacer: { flex: 1 },
+  questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: {
     fontSize: 16,
     fontWeight: 'bold',

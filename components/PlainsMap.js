@@ -177,25 +177,19 @@ const PlainsMap = ({ onBackToMenu, onAdjust, plainType = 'all' }) => {
           >
             <Home size={24} color="#E2E8F0" />
           </TouchableOpacity>
-          <View style={styles.headerText}>
+          <View style={styles.headerLeft}>
             <Text style={styles.title}>{plainTypeName}</Text>
             {!isCompleted ? (
-              <>
-                <View style={styles.questionBadge}>
-                  <Text style={styles.questionText}>
-                    {currentPlain?.name} nerede?
-                  </Text>
-                </View>
-                <Text style={styles.progressText}>
-                  {foundPlains.length} / {plains.length} ova bulundu
-                </Text>
-              </>
+              <Text style={styles.progressText}>
+                {foundPlains.length} / {plains.length} ova bulundu
+              </Text>
             ) : (
               <Text style={styles.completedText}>
                 🎉 Tüm ovaları buldunuz!
               </Text>
             )}
           </View>
+          <View style={styles.headerSpacer} />
           {feedback && (
             <View style={[
               styles.feedbackIcon,
@@ -216,6 +210,13 @@ const PlainsMap = ({ onBackToMenu, onAdjust, plainType = 'all' }) => {
           >
             <Text style={styles.adjustButtonText}>⚙️ Konum Ayarla</Text>
           </TouchableOpacity>
+        )}
+        {!isCompleted && currentPlain && (
+          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+            <View style={styles.questionBadge}>
+              <Text style={styles.questionText}>{currentPlain.name} nerede?</Text>
+            </View>
+          </View>
         )}
       </View>
 
@@ -348,6 +349,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
+    position: 'relative',
   },
   headerContent: {
     flexDirection: 'row',
@@ -357,10 +359,9 @@ const styles = StyleSheet.create({
     padding: 6,
     marginRight: 8,
   },
-  headerText: {
-    flex: 1,
-    alignItems: 'center',
-  },
+  headerLeft: { justifyContent: 'center' },
+  headerSpacer: { flex: 1 },
+  questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: {
     fontSize: 14,
     fontWeight: 'bold',

@@ -41,7 +41,7 @@ export const cityCenters = {
   "36": { x: 887, y: 124 },  // Kars
   "37": { x: 415, y: 59 },   // Kastamonu
   "38": { x: 520, y: 257 },  // Kayseri
-  "39": { x: 104, y: 32 },   // Kırklareli
+  "39": { x: 78, y: 32 },   // Kırklareli
   "40": { x: 429, y: 208 },  // Kırşehir
   "41": { x: 231, y: 84 },   // Kocaeli
   "42": { x: 349, y: 286 },  // Konya
