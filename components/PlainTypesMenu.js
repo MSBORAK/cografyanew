@@ -26,105 +26,36 @@ const PlainTypesMenu = ({ onSelectType, onSelectAdjust, onBackToTurkeyMenu }) =>
             <Text style={styles.subtitle}>Ova tipini seç</Text>
           </View>
 
-          {/* Menu Buttons - Grid Layout */}
+          {/* Menu Buttons - Yatay 4'lü */}
           <View style={styles.menuContainer}>
-            {/* İlk Satır */}
             <View style={styles.row}>
-              {/* Delta Ovaları */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.deltaButton]}
-                onPress={() => {
-                  console.log('Delta Ovaları butonu tıklandı');
-                  onSelectType('delta');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.deltaButton]} onPress={() => onSelectType('delta')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🏞️</Text>
                 <Text style={styles.buttonTitle}>Delta</Text>
               </TouchableOpacity>
-
-              {/* Karstik Ovalar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.karsticButton]}
-                onPress={() => {
-                  console.log('Karstik Ovalar butonu tıklandı');
-                  onSelectType('karstic');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.karsticButton]} onPress={() => onSelectType('karstic')} activeOpacity={0.9}>
                 <Text style={styles.icon}>💧</Text>
                 <Text style={styles.buttonTitle}>Karstik</Text>
               </TouchableOpacity>
-            </View>
-
-            {/* İkinci Satır */}
-            <View style={styles.row}>
-              {/* Tektonik Ovalar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.tectonicButton]}
-                onPress={() => {
-                  console.log('Tektonik Ovalar butonu tıklandı');
-                  onSelectType('tectonic');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🌊</Text>
                 <Text style={styles.buttonTitle}>Tektonik</Text>
               </TouchableOpacity>
-
-              {/* Dağ Eteği Ovaları */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.piedmontButton]}
-                onPress={() => {
-                  console.log('Dağ Eteği Ovaları butonu tıklandı');
-                  onSelectType('piedmont');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.piedmontButton]} onPress={() => onSelectType('piedmont')} activeOpacity={0.9}>
                 <Text style={styles.icon}>⛰️</Text>
                 <Text style={styles.buttonTitle}>Dağ Eteği</Text>
               </TouchableOpacity>
             </View>
-
-            {/* Üçüncü Satır */}
             <View style={styles.row}>
-              {/* Volkanik Ovalar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.volcanicButton]}
-                onPress={() => {
-                  console.log('Volkanik Ovalar butonu tıklandı');
-                  onSelectType('volcanic');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🌋</Text>
                 <Text style={styles.buttonTitle}>Volkanik</Text>
               </TouchableOpacity>
-
-              {/* Göl Tabanı Ovaları */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.lacustrineButton]}
-                onPress={() => {
-                  console.log('Göl Tabanı Ovaları butonu tıklandı');
-                  onSelectType('lacustrine');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.lacustrineButton]} onPress={() => onSelectType('lacustrine')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🏔️</Text>
                 <Text style={styles.buttonTitle}>Göl Tabanı</Text>
               </TouchableOpacity>
-            </View>
-
-            {/* Dördüncü Satır - Konum Ayarla */}
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={[styles.menuButton, styles.adjustButton, styles.singleButton]}
-                onPress={() => {
-                  console.log('Konum Ayarla butonu tıklandı');
-                  onSelectAdjust();
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.adjustButton]} onPress={() => onSelectAdjust()} activeOpacity={0.9}>
                 <Text style={styles.icon}>⚙️</Text>
                 <Text style={styles.buttonTitle}>Konum Ayarla</Text>
               </TouchableOpacity>
@@ -190,14 +121,17 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginBottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 12,
+    marginBottom: 12,
   },
   menuButton: {
     flex: 1,
-    aspectRatio: 1,
-    maxWidth: 130,
+    aspectRatio: 1.2,
+    maxWidth: 140,
+    marginHorizontal: 6,
     borderRadius: 16,
     padding: 12,
     alignItems: 'center',
@@ -209,9 +143,6 @@ const styles = StyleSheet.create({
     elevation: 6,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  singleButton: {
-    maxWidth: 130,
   },
   deltaButton: {
     backgroundColor: '#10B981',

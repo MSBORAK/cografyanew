@@ -63,7 +63,7 @@ export const continents = {
   antarctica: {
     name: 'Antarktika',
     color: '#94A3B8',
-    countries: []
+    countries: ['ATA']
   }
 };
 

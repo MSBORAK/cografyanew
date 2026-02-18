@@ -26,77 +26,26 @@ const LakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
             <Text style={styles.subtitle}>Göl tipini seç</Text>
           </View>
 
-          {/* Menu Buttons - Grid Layout */}
+          {/* Menu Buttons - Yatay 4'lü */}
           <View style={styles.menuContainer}>
-            {/* İlk Satır */}
             <View style={styles.row}>
-              {/* Tektonik Göller */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.tectonicButton]}
-                onPress={() => {
-                  console.log('Tektonik Göller butonu tıklandı');
-                  onSelectType('tectonic');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🌊</Text>
                 <Text style={styles.buttonTitle}>Tektonik</Text>
               </TouchableOpacity>
-
-              {/* Volkanik Göller */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.volcanicButton]}
-                onPress={() => {
-                  console.log('Volkanik Göller butonu tıklandı');
-                  onSelectType('volcanic');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🌋</Text>
                 <Text style={styles.buttonTitle}>Volkanik</Text>
               </TouchableOpacity>
-            </View>
-
-            {/* İkinci Satır */}
-            <View style={styles.row}>
-              {/* Karstik Göller */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.karsticButton]}
-                onPress={() => {
-                  console.log('Karstik Göller butonu tıklandı');
-                  onSelectType('karstic');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.karsticButton]} onPress={() => onSelectType('karstic')} activeOpacity={0.9}>
                 <Text style={styles.icon}>💧</Text>
                 <Text style={styles.buttonTitle}>Karstik</Text>
               </TouchableOpacity>
-
-              {/* Set Göller */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.damButton]}
-                onPress={() => {
-                  console.log('Set Göller butonu tıklandı');
-                  onSelectType('dam');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.damButton]} onPress={() => onSelectType('dam')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🏞️</Text>
                 <Text style={styles.buttonTitle}>Set</Text>
               </TouchableOpacity>
-            </View>
-
-            {/* Üçüncü Satır - Tek Buton Ortada */}
-            <View style={styles.row}>
-              {/* Buzul Gölleri */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.glacialButton, styles.singleButton]}
-                onPress={() => {
-                  console.log('Buzul Gölleri butonu tıklandı');
-                  onSelectType('glacial');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.glacialButton]} onPress={() => onSelectType('glacial')} activeOpacity={0.9}>
                 <Text style={styles.icon}>❄️</Text>
                 <Text style={styles.buttonTitle}>Buzul</Text>
               </TouchableOpacity>
@@ -162,14 +111,16 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginBottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 12,
   },
   menuButton: {
     flex: 1,
-    aspectRatio: 1,
-    maxWidth: 130,
+    aspectRatio: 1.2,
+    maxWidth: 140,
+    marginHorizontal: 6,
     borderRadius: 16,
     padding: 12,
     alignItems: 'center',
@@ -181,9 +132,6 @@ const styles = StyleSheet.create({
     elevation: 6,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  singleButton: {
-    maxWidth: 130,
   },
   tectonicButton: {
     backgroundColor: '#06B6D4',

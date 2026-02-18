@@ -14,12 +14,12 @@ import { Home, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { worldPaths, countryNames } from '../constants/worldPaths';
 import { continents } from '../constants/continents';
+import { continentViewBox } from '../constants/continentViewBox';
 import { getCountryColor } from '../constants/worldColors';
-import { getCountryCenter } from '../constants/countryCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.75;
+const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
 const AfricaMap = ({ onBackToMenu }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -92,7 +92,7 @@ const AfricaMap = ({ onBackToMenu }) => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     loadSounds(); // Sesleri yükle
     return () => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
       unloadSounds(); // Sesleri temizle
     };
   }, []);
@@ -154,7 +154,7 @@ const AfricaMap = ({ onBackToMenu }) => {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Home size={24} color="#EF4444" />
+            <Home size={24} color="#E2E8F0" />
           </TouchableOpacity>
           <View style={styles.headerText}>
             <Text style={styles.title}>Afrika Quiz</Text>
@@ -183,7 +183,7 @@ const AfricaMap = ({ onBackToMenu }) => {
 
       <View style={styles.mapContainer}>
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
-          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.507} viewBox="0 0 1000 507" style={styles.svg}>
+          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.507} viewBox={continentViewBox.africa.viewBox} preserveAspectRatio={continentViewBox.africa.preserveAspectRatio} style={styles.svg}>
             <Path d="M0,0 L1000,0 L1000,507 L0,507 Z" fill="#A5D8FF" opacity={0.3} />
             <G>
               {worldPaths.map((country, index) => {
@@ -215,33 +215,7 @@ const AfricaMap = ({ onBackToMenu }) => {
               })}
             </G>
             
-            {/* Gri ülkelerin isimleri (Afrika dışı) */}
-            <G>
-              {worldPaths.map((country) => {
-                const isAfrica = africaCountries.includes(country.id);
-                const isFound = foundCountries.includes(country.id);
-                
-                if (isAfrica || isFound) return null;
-                
-                const center = getCountryCenter(country.id);
-                const countryName = countryNames[country.id] || country.id;
-                
-                return (
-                  <SvgText
-                    key={`gray-label-${country.id}`}
-                    x={center.x}
-                    y={center.y}
-                    fontSize="8"
-                    fontWeight="600"
-                    fill="#374151"
-                    textAnchor="middle"
-                    opacity={0.9}
-                  >
-                    {countryName}
-                  </SvgText>
-                );
-              })}
-            </G>
+            {/* Ülke isimleri gösterilmiyor - karışıklığı önlemek için */}
           </Svg>
         </Animated.View>
         <TouchableOpacity style={styles.zoomResetButton} onPress={resetZoom}>
@@ -262,22 +236,22 @@ const AfricaMap = ({ onBackToMenu }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 6, paddingBottom: 6, paddingHorizontal: 10, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
+  header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)' },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: { padding: 6, marginRight: 8 },
-  headerText: { flex: 1 },
-  title: { fontSize: 14, fontWeight: 'bold', color: '#111827', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start', marginBottom: 3 },
+  headerText: { flex: 1, alignItems: 'center' },
+  title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
+  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginBottom: 3 },
   questionText: { fontSize: 11, fontWeight: '600', color: '#92400E' },
-  progressText: { fontSize: 10, color: '#6B7280' },
-  completedText: { fontSize: 12, fontWeight: '600', color: '#10B981' },
+  progressText: { fontSize: 10, color: '#94A3B8' },
+  completedText: { fontSize: 12, fontWeight: '600', color: '#34D399' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },
   correctIcon: { backgroundColor: '#10B981' },
   wrongIcon: { backgroundColor: '#000000' },
   mapContainer: { flex: 1, overflow: 'hidden' },
-  mapWrapper: { alignItems: 'center', justifyContent: 'center', padding: 8 },
+  mapWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 4 },
   svg: { backgroundColor: '#FFFFFF', borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
-  footer: { backgroundColor: '#FFFFFF', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: '#E5E7EB', alignItems: 'center' },
+  footer: { backgroundColor: 'rgba(15, 23, 42, 0.92)', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: 'rgba(148, 163, 184, 0.2)', alignItems: 'center' },
   resetButton: { backgroundColor: '#EF4444', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, alignItems: 'center' },
   resetButtonText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
   zoomResetButton: { position: 'absolute', bottom: 16, right: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5 },

@@ -26,77 +26,26 @@ const ArtificialLakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
             <Text style={styles.subtitle}>Baraj tipini seç</Text>
           </View>
 
-          {/* Menu Buttons - Grid Layout */}
+          {/* Menu Buttons - Yatay 5'li */}
           <View style={styles.menuContainer}>
-            {/* İlk Satır */}
             <View style={styles.row}>
-              {/* Tektonik Barajlar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.tectonicButton]}
-                onPress={() => {
-                  console.log('Tektonik Barajlar butonu tıklandı');
-                  onSelectType('artificial-tectonic');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.tectonicButton]} onPress={() => onSelectType('artificial-tectonic')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🌊</Text>
                 <Text style={styles.buttonTitle}>Tektonik</Text>
               </TouchableOpacity>
-
-              {/* Volkanik Barajlar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.volcanicButton]}
-                onPress={() => {
-                  console.log('Volkanik Barajlar butonu tıklandı');
-                  onSelectType('artificial-volcanic');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.volcanicButton]} onPress={() => onSelectType('artificial-volcanic')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🌋</Text>
                 <Text style={styles.buttonTitle}>Volkanik</Text>
               </TouchableOpacity>
-            </View>
-
-            {/* İkinci Satır */}
-            <View style={styles.row}>
-              {/* Karstik Barajlar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.karsticButton]}
-                onPress={() => {
-                  console.log('Karstik Barajlar butonu tıklandı');
-                  onSelectType('artificial-karstic');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.karsticButton]} onPress={() => onSelectType('artificial-karstic')} activeOpacity={0.9}>
                 <Text style={styles.icon}>💧</Text>
                 <Text style={styles.buttonTitle}>Karstik</Text>
               </TouchableOpacity>
-
-              {/* Set Barajlar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.damButton]}
-                onPress={() => {
-                  console.log('Set Barajlar butonu tıklandı');
-                  onSelectType('artificial-dam');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.damButton]} onPress={() => onSelectType('artificial-dam')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🏞️</Text>
                 <Text style={styles.buttonTitle}>Set</Text>
               </TouchableOpacity>
-            </View>
-
-            {/* Üçüncü Satır - Tek Buton Ortada */}
-            <View style={styles.row}>
-              {/* Karma Yapılı Barajlar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.mixedButton, styles.singleButton]}
-                onPress={() => {
-                  console.log('Karma Yapılı Barajlar butonu tıklandı');
-                  onSelectType('artificial-mixed');
-                }}
-                activeOpacity={0.9}
-              >
+              <TouchableOpacity style={[styles.menuButton, styles.mixedButton]} onPress={() => onSelectType('artificial-mixed')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🌀</Text>
                 <Text style={styles.buttonTitle}>Karma</Text>
               </TouchableOpacity>
@@ -162,14 +111,16 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginBottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 12,
   },
   menuButton: {
     flex: 1,
-    aspectRatio: 1,
-    maxWidth: 130,
+    aspectRatio: 1.2,
+    maxWidth: 140,
+    marginHorizontal: 6,
     borderRadius: 16,
     padding: 12,
     alignItems: 'center',
@@ -181,9 +132,6 @@ const styles = StyleSheet.create({
     elevation: 6,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  singleButton: {
-    maxWidth: 130,
   },
   tectonicButton: {
     backgroundColor: '#06B6D4',

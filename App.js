@@ -17,6 +17,7 @@ import AsiaMap from './components/AsiaMap';
 import AfricaMap from './components/AfricaMap';
 import AmericaMap from './components/AmericaMap';
 import OceaniaMap from './components/OceaniaMap';
+import AntarcticaMap from './components/AntarcticaMap';
 import FlagsQuiz from './components/FlagsQuiz';
 import HomeScreen from './components/HomeScreen';
 import TurkeyMap from './components/TurkeyMap';
@@ -118,23 +119,17 @@ export default function App() {
     } else if (currentScreen === 'world-map' || currentScreen === 'continents' || 
                currentScreen === 'europe' || currentScreen === 'asia' || 
                currentScreen === 'africa' || currentScreen === 'america' || 
-               currentScreen === 'oceania' || currentScreen === 'flags') {
+               currentScreen === 'oceania' || currentScreen === 'antarctica' || currentScreen === 'flags') {
       handleBackToWorldMenu();
     }
   };
 
-  // Ana sayfa ve menüler açıldığında dikey moda geç
+  // Uygulama açılışında ve her ekran değişiminde yatay mod (iOS için kritik)
   useEffect(() => {
-    if (currentScreen === 'main' || currentScreen === 'turkey-menu' || 
-        currentScreen === 'world-menu' || currentScreen === 'turkey-regions' ||
-        currentScreen === 'mountain-types-menu' || currentScreen === 'plain-types-menu' ||
-        currentScreen === 'lake-main-menu' || currentScreen === 'lake-types-menu' || 
-        currentScreen === 'artificial-lake-types-menu' || currentScreen === 'quiz-menu' ||
-        currentScreen === 'turkey-quiz' || currentScreen === 'world-quiz' ||
-        currentScreen === 'world-flags-quiz' || currentScreen === 'practice-mode' ||
-        currentScreen === 'learning-mode') {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-    }
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+  }, []);
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
   }, [currentScreen]);
 
   const handleSelectTurkey = () => {
@@ -315,6 +310,9 @@ export default function App() {
 
   const handleSelectContinents = () => {
     setCurrentScreen('continents');
+  };
+  const handleSelectAntarctica = () => {
+    setCurrentScreen('antarctica');
   };
 
   const handleSelectEurope = () => {
@@ -772,6 +770,7 @@ export default function App() {
           onSelectAfrica={handleSelectAfrica}
           onSelectAmerica={handleSelectAmerica}
           onSelectOceania={handleSelectOceania}
+          onSelectAntarctica={handleSelectAntarctica}
           onSelectFlags={handleSelectFlags}
         />
         <StatusBar style="auto" />
@@ -856,6 +855,18 @@ export default function App() {
     return (
       <View style={styles.container}>
         <OceaniaMap 
+          onBackToMenu={handleBackToWorldMenu}
+        />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  // Antarktika Haritası
+  if (currentScreen === 'antarctica') {
+    return (
+      <View style={styles.container}>
+        <AntarcticaMap 
           onBackToMenu={handleBackToWorldMenu}
         />
         <StatusBar style="auto" />

@@ -1,5 +1,17 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+
+const menuItems = [
+  { id: 'world', title: 'Tüm Dünya', icon: '🌐', style: 'worldButton', onPress: 'onSelectWorldMap' },
+  { id: 'continents', title: 'Kıtalar', icon: '🌍', style: 'continentsButton', onPress: 'onSelectContinents' },
+  { id: 'europe', title: 'Avrupa', icon: '🇪🇺', style: 'europeButton', onPress: 'onSelectEurope' },
+  { id: 'asia', title: 'Asya', icon: '🌏', style: 'asiaButton', onPress: 'onSelectAsia' },
+  { id: 'africa', title: 'Afrika', icon: '🌍', style: 'africaButton', onPress: 'onSelectAfrica' },
+  { id: 'america', title: 'Amerika', icon: '🌎', style: 'americaButton', onPress: 'onSelectAmerica' },
+  { id: 'oceania', title: 'Okyanusya', icon: '🏝️', style: 'oceaniaButton', onPress: 'onSelectOceania' },
+  { id: 'antarctica', title: 'Antarktika', icon: '🧊', style: 'antarcticaButton', onPress: 'onSelectAntarctica' },
+  { id: 'flags', title: 'Bayrak Quiz', icon: '🚩', style: 'flagsButton', onPress: 'onSelectFlags' },
+];
 
 const WorldMenu = ({ 
   onSelectWorldMap,
@@ -9,9 +21,12 @@ const WorldMenu = ({
   onSelectAfrica,
   onSelectAmerica,
   onSelectOceania,
+  onSelectAntarctica,
   onSelectFlags,
   onBackToMain 
 }) => {
+  const handlers = { onSelectWorldMap, onSelectContinents, onSelectEurope, onSelectAsia, onSelectAfrica, onSelectAmerica, onSelectOceania, onSelectAntarctica, onSelectFlags };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -20,15 +35,8 @@ const WorldMenu = ({
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={() => {
-                console.log('Geri butonu tıklandı');
-                onBackToMain();
-              }}
-            >
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Ana Menü</Text>
             </TouchableOpacity>
@@ -36,122 +44,32 @@ const WorldMenu = ({
             <Text style={styles.subtitle}>Keşfetmek istediğin bölgeyi seç</Text>
           </View>
 
-          {/* Menu Buttons - Grid Layout */}
           <View style={styles.menuContainer}>
-            {/* İlk Satır */}
             <View style={styles.row}>
-              {/* Tüm Dünya */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.worldButton]}
-                onPress={() => {
-                  console.log('Tüm Dünya butonu tıklandı');
-                  onSelectWorldMap();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🌐</Text>
-                <Text style={styles.buttonTitle}>Tüm Dünya</Text>
-              </TouchableOpacity>
-
-              {/* Kıtalar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.continentsButton]}
-                onPress={() => {
-                  console.log('Kıtalar butonu tıklandı');
-                  onSelectContinents();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🌍</Text>
-                <Text style={styles.buttonTitle}>Kıtalar</Text>
-              </TouchableOpacity>
+              {menuItems.slice(0, 5).map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[styles.menuButton, styles[item.style]]}
+                  onPress={handlers[item.onPress]}
+                  activeOpacity={0.9}
+                >
+                  <Text style={styles.icon}>{item.icon}</Text>
+                  <Text style={styles.buttonTitle}>{item.title}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
-
-            {/* İkinci Satır */}
             <View style={styles.row}>
-              {/* Avrupa */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.europeButton]}
-                onPress={() => {
-                  console.log('Avrupa butonu tıklandı');
-                  onSelectEurope();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🇪🇺</Text>
-                <Text style={styles.buttonTitle}>Avrupa</Text>
-              </TouchableOpacity>
-
-              {/* Asya */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.asiaButton]}
-                onPress={() => {
-                  console.log('Asya butonu tıklandı');
-                  onSelectAsia();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🌏</Text>
-                <Text style={styles.buttonTitle}>Asya</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Üçüncü Satır */}
-            <View style={styles.row}>
-              {/* Afrika */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.africaButton]}
-                onPress={() => {
-                  console.log('Afrika butonu tıklandı');
-                  onSelectAfrica();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🌍</Text>
-                <Text style={styles.buttonTitle}>Afrika</Text>
-              </TouchableOpacity>
-
-              {/* Amerika */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.americaButton]}
-                onPress={() => {
-                  console.log('Amerika butonu tıklandı');
-                  onSelectAmerica();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🌎</Text>
-                <Text style={styles.buttonTitle}>Amerika</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Dördüncü Satır */}
-            <View style={styles.row}>
-              {/* Okyanusya */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.oceaniaButton]}
-                onPress={() => {
-                  console.log('Okyanusya butonu tıklandı');
-                  onSelectOceania();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🏝️</Text>
-                <Text style={styles.buttonTitle}>Okyanusya</Text>
-              </TouchableOpacity>
-
-              {/* Bayrak Quiz */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.flagsButton]}
-                onPress={() => {
-                  console.log('Bayrak Quiz butonu tıklandı');
-                  onSelectFlags();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🚩</Text>
-                <Text style={styles.buttonTitle}>Bayrak Quiz</Text>
-              </TouchableOpacity>
+              {menuItems.slice(5, 9).map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[styles.menuButton, styles[item.style]]}
+                  onPress={handlers[item.onPress]}
+                  activeOpacity={0.9}
+                >
+                  <Text style={styles.icon}>{item.icon}</Text>
+                  <Text style={styles.buttonTitle}>{item.title}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         </View>
@@ -225,6 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
     aspectRatio: 1,
     maxWidth: 130,
+    marginHorizontal: 6,
     borderRadius: 16,
     padding: 12,
     alignItems: 'center',
@@ -257,6 +176,9 @@ const styles = StyleSheet.create({
   },
   oceaniaButton: {
     backgroundColor: '#14B8A6',
+  },
+  antarcticaButton: {
+    backgroundColor: '#0EA5E9',
   },
   flagsButton: {
     backgroundColor: '#EC4899',

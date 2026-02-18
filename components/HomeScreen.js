@@ -37,114 +37,33 @@ const HomeScreen = ({ onStartGame, onBackToMain }) => {
             <Text style={styles.subtitle}>Hangi bölgeyi öğrenmek istersin?</Text>
           </View>
 
-          {/* Menu Buttons - Grid Layout */}
+          {/* Menu Buttons - Yatay 4'lü gruplar */}
           <View style={styles.menuContainer}>
-            {/* İlk Satır */}
             <View style={styles.row}>
-              <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: categories[0].color }]}
-                onPress={() => {
-                  console.log('Marmara butonu tıklandı');
-                  onStartGame(categories[0].id);
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>{categories[0].emoji}</Text>
-                <Text style={styles.buttonTitle}>{categories[0].name}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: categories[1].color }]}
-                onPress={() => {
-                  console.log('Ege butonu tıklandı');
-                  onStartGame(categories[1].id);
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>{categories[1].emoji}</Text>
-                <Text style={styles.buttonTitle}>{categories[1].name}</Text>
-              </TouchableOpacity>
+              {categories.slice(0, 4).map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[styles.menuButton, { backgroundColor: cat.color }]}
+                  onPress={() => onStartGame(cat.id)}
+                  activeOpacity={0.9}
+                >
+                  <Text style={styles.icon}>{cat.emoji}</Text>
+                  <Text style={styles.buttonTitle}>{cat.name}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
-
-            {/* İkinci Satır */}
             <View style={styles.row}>
-              <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: categories[2].color }]}
-                onPress={() => {
-                  console.log('Akdeniz butonu tıklandı');
-                  onStartGame(categories[2].id);
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>{categories[2].emoji}</Text>
-                <Text style={styles.buttonTitle}>{categories[2].name}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: categories[3].color }]}
-                onPress={() => {
-                  console.log('İç Anadolu butonu tıklandı');
-                  onStartGame(categories[3].id);
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>{categories[3].emoji}</Text>
-                <Text style={styles.buttonTitle}>{categories[3].name}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Üçüncü Satır */}
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: categories[4].color }]}
-                onPress={() => {
-                  console.log('Karadeniz butonu tıklandı');
-                  onStartGame(categories[4].id);
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>{categories[4].emoji}</Text>
-                <Text style={styles.buttonTitle}>{categories[4].name}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: categories[5].color }]}
-                onPress={() => {
-                  console.log('Doğu Anadolu butonu tıklandı');
-                  onStartGame(categories[5].id);
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>{categories[5].emoji}</Text>
-                <Text style={styles.buttonTitle}>{categories[5].name}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Dördüncü Satır */}
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: categories[6].color }]}
-                onPress={() => {
-                  console.log('Güneydoğu Anadolu butonu tıklandı');
-                  onStartGame(categories[6].id);
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>{categories[6].emoji}</Text>
-                <Text style={styles.buttonTitle}>{categories[6].name}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: categories[7].color }]}
-                onPress={() => {
-                  console.log('Tüm Şehirler butonu tıklandı');
-                  onStartGame(categories[7].id);
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>{categories[7].emoji}</Text>
-                <Text style={styles.buttonTitle}>{categories[7].name}</Text>
-              </TouchableOpacity>
+              {categories.slice(4, 8).map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[styles.menuButton, { backgroundColor: cat.color }]}
+                  onPress={() => onStartGame(cat.id)}
+                  activeOpacity={0.9}
+                >
+                  <Text style={styles.icon}>{cat.emoji}</Text>
+                  <Text style={styles.buttonTitle}>{cat.name}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         </View>
@@ -213,8 +132,9 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     flex: 1,
-    aspectRatio: 1,
-    maxWidth: 130,
+    aspectRatio: 1.2,
+    maxWidth: 140,
+    marginHorizontal: 6,
     borderRadius: 16,
     padding: 12,
     alignItems: 'center',

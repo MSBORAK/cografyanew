@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
   ScrollView,
   PanResponder,
   Animated,
@@ -21,8 +21,7 @@ import { getCityCenter } from '../constants/cityCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { getRandomFact } from '../constants/cityFacts';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.75;
+const MAP_ASPECT_RATIO = 1007.478 / 527.323;
 
 // Individual City Component
 const CityPath = ({ city, isSelected, isInRegion, isCorrect, isWrong, onPress, cityColor, showingCorrectFeedback }) => {
@@ -58,7 +57,17 @@ const CityPath = ({ city, isSelected, isInRegion, isCorrect, isWrong, onPress, c
 
 // Main Turkey Map Component
 const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false }) => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const [layout, setLayout] = useState({ w: screenWidth, h: Math.max(screenHeight - 50, 300) });
   const [selectedCities, setSelectedCities] = useState([]);
+
+  const onLayout = (e) => {
+    const { width, height } = e.nativeEvent.layout;
+    if (width > 10 && height > 10) setLayout({ w: width, h: height });
+  };
+
+  const mapW = layout.w / layout.h > MAP_ASPECT_RATIO ? layout.h * MAP_ASPECT_RATIO : layout.w;
+  const mapH = mapW / MAP_ASPECT_RATIO;
   const [lastSelectedCity, setLastSelectedCity] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [correctAnswers, setCorrectAnswers] = useState([]);
@@ -88,8 +97,10 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
     
     // Ekran kapandığında dikey moda dön
     return () => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-      unloadSounds(); // Sesleri temizle
+      unloadSounds();
+      ScreenOrientation.unlockAsync().then(() =>
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE)
+      );
     };
   }, []);
 
@@ -301,18 +312,20 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
             style={styles.backButton}
             onPress={onBackToHome}
           >
-            <Home size={20} color="#2563EB" />
+            <Home size={20} color="#E2E8F0" />
           </TouchableOpacity>
           <View style={styles.headerText}>
             <View style={styles.titleRow}>
               <Text style={styles.title}>{regionName}</Text>
-              {currentQuestion && (
+              <View style={styles.titleRowSpacer} />
+              {currentQuestion ? (
                 <View style={styles.questionBadge}>
                   <Text style={styles.questionText}>
                     {currentQuestion.name} nerede?
                   </Text>
                 </View>
-              )}
+              ) : null}
+              <View style={styles.titleRowSpacer} />
             </View>
             <Text style={styles.subtitle}>
               {correctAnswers.length} / {filteredCities.length} şehir bulundu
@@ -321,10 +334,7 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
         </View>
       </View>
 
-      <View
-        style={styles.mapContainer}
-        {...panResponder.panHandlers}
-      >
+      <View style={styles.mapContainer} onLayout={onLayout} {...panResponder.panHandlers}>
         <Animated.View
           style={[
             styles.mapWrapper,
@@ -337,11 +347,12 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
             },
           ]}
         >
-          <View>
+          <View style={styles.svgContainer}>
             <Svg
-              width={MAP_WIDTH}
-              height={MAP_WIDTH * 0.52}
+              width={mapW}
+              height={mapH}
               viewBox={currentViewBox}
+              preserveAspectRatio="xMidYMid meet"
               style={styles.svg}
             >
               <G>
@@ -488,12 +499,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   header: {
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingTop: 36,
+    paddingBottom: 12,
     paddingHorizontal: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(148, 163, 184, 0.2)',
   },
   headerContent: {
     flexDirection: 'row',
@@ -505,16 +516,19 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
+    justifyContent: 'center',
   },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+  },
+  titleRowSpacer: {
+    flex: 1,
   },
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
   },
   questionBadge: {
     backgroundColor: '#FEF3C7',
@@ -531,7 +545,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 10,
-    color: '#6B7280',
+    color: '#94A3B8',
   },
   mapContainer: {
     flex: 1,
@@ -542,18 +556,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mapWrapper: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 8,
   },
+  svgContainer: {},
   svg: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    flex: 1,
   },
   feedbackOverlay: {
     position: 'absolute',

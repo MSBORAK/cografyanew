@@ -18,7 +18,7 @@ import { countryFlags } from '../constants/countryFlags';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.75;
+const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
 const FlagsQuiz = ({ onBackToMenu }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -92,8 +92,10 @@ const FlagsQuiz = ({ onBackToMenu }) => {
     loadSounds();
     
     return () => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
       unloadSounds();
+      ScreenOrientation.unlockAsync().then(() =>
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE)
+      );
     };
   }, []);
 
@@ -232,7 +234,7 @@ const FlagsQuiz = ({ onBackToMenu }) => {
             style={styles.backButton}
             onPress={onBackToMenu}
           >
-            <Home size={24} color="#2563EB" />
+            <Home size={24} color="#E2E8F0" />
           </TouchableOpacity>
           <View style={styles.headerText}>
             <Text style={styles.title}>Bayrak Bulma Quiz</Text>
@@ -363,12 +365,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingHorizontal: 10,
-    backgroundColor: '#FFFFFF',
+    paddingTop: 36,
+    paddingBottom: 12,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(148, 163, 184, 0.2)',
   },
   headerContent: {
     flexDirection: 'row',
@@ -380,11 +382,12 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
+    alignItems: 'center',
   },
   title: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
     marginBottom: 4,
   },
   questionBadge: {
@@ -392,7 +395,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 16,
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     marginBottom: 3,
     alignItems: 'center',
     justifyContent: 'center',
@@ -402,12 +405,12 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 10,
-    color: '#6B7280',
+    color: '#94A3B8',
   },
   completedText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#10B981',
+    color: '#34D399',
   },
   feedbackIcon: {
     width: 36,
@@ -429,8 +432,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mapWrapper: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 4,
   },
   svg: {
     backgroundColor: '#FFFFFF',
@@ -442,11 +447,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   footer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: 'rgba(148, 163, 184, 0.2)',
     alignItems: 'center',
   },
   resetButton: {

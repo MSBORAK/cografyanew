@@ -54,7 +54,7 @@ const WorldFlagsQuiz = ({ onBackToMenu }) => {
   }, []);
 
   useEffect(() => {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     loadSounds();
     
     return () => {

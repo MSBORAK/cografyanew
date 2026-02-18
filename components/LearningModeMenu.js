@@ -223,6 +223,10 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   categoriesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 12,
     marginBottom: 20,
   },
   categoriesTitle: {
@@ -230,12 +234,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#111827',
     marginBottom: 16,
+    width: '100%',
   },
   categoryCard: {
+    width: '48%',
+    minWidth: 160,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
-    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

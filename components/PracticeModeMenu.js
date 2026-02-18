@@ -202,9 +202,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   categoriesContainer: {
-    gap: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 12,
   },
   categoryCard: {
+    width: '48%',
+    minWidth: 160,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,

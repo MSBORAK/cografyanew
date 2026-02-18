@@ -1,5 +1,20 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, useWindowDimensions, Platform } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+
+const menuItems = [
+  { id: 'cities', title: '81 İl', icon: '🏙️', style: 'citiesButton', onPress: 'onSelectCities' },
+  { id: 'regions', title: '7 Bölge', icon: '🗺️', style: 'regionsButton', onPress: 'onSelectRegions' },
+  { id: 'regionsOnly', title: 'Bölgeler', icon: '📍', style: 'regionsOnlyButton', onPress: 'onSelectRegionsOnly' },
+  { id: 'mountains', title: 'Dağlar', icon: '⛰️', style: 'mountainsButton', onPress: 'onSelectMountains' },
+  { id: 'plains', title: 'Ovalar', icon: '🌾', style: 'plainsButton', onPress: 'onSelectPlains' },
+  { id: 'lakes', title: 'Göller', icon: '🌊', style: 'lakesButton', onPress: 'onSelectLakes' },
+  { id: 'unesco', title: 'UNESCO', icon: '🏛️', style: 'unescoButton', onPress: 'onSelectUnesco' },
+  { id: 'massifs', title: 'Masifler', icon: '🗻', style: 'massifsButton', onPress: 'onSelectMassifs' },
+  { id: 'coasts', title: 'Kıyılar', icon: '🏖️', style: 'coastsButton', onPress: 'onSelectCoasts' },
+  { id: 'plateaus', title: 'Platolar', icon: '🏔️', style: 'plateausButton', onPress: 'onSelectPlateaus' },
+  { id: 'neighbors', title: 'Komşular', icon: '🤝', style: 'neighborsButton', onPress: 'onSelectNeighbors' },
+  { id: 'borderGates', title: 'Sınır Kapıları', icon: '🚪', style: 'borderGatesButton', onPress: 'onSelectBorderGates' },
+];
 
 const TurkeyMenu = ({ 
   onSelectCities, 
@@ -16,6 +31,16 @@ const TurkeyMenu = ({
   onSelectBorderGates,
   onBackToMain 
 }) => {
+  const { width, height } = useWindowDimensions();
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 600;
+  const isIOSTablet = Platform.OS === 'ios' && !isMobile;
+  const handlers = { onSelectCities, onSelectRegions, onSelectRegionsOnly, onSelectMountains, onSelectPlains, onSelectLakes, onSelectUnesco, onSelectMassifs, onSelectCoasts, onSelectPlateaus, onSelectNeighbors, onSelectBorderGates };
+
+  const boxStyle = isIOSTablet ? styles.menuButtonIOSTablet : (isMobile ? styles.menuButtonMobile : styles.menuButton);
+  const iconStyle = isIOSTablet ? styles.iconIOSTablet : (isMobile ? styles.iconMobile : styles.icon);
+  const titleStyle = isIOSTablet ? styles.buttonTitleIOSTablet : (isMobile ? styles.buttonTitleMobile : styles.buttonTitle);
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -24,15 +49,8 @@ const TurkeyMenu = ({
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={() => {
-                console.log('Geri butonu tıklandı');
-                onBackToMain();
-              }}
-            >
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
               <ChevronLeft size={20} color="#FFFFFF" />
               <Text style={styles.backText}>Ana Menü</Text>
             </TouchableOpacity>
@@ -40,180 +58,45 @@ const TurkeyMenu = ({
             <Text style={styles.subtitle}>Öğrenmek istediğin konuyu seç</Text>
           </View>
 
-          {/* Menu Buttons - Grid Layout */}
-          <View style={styles.menuContainer}>
-            {/* İlk Satır */}
-            <View style={styles.row}>
-              {/* 81 İl */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.citiesButton]}
-                onPress={() => {
-                  console.log('81 İl butonu tıklandı');
-                  onSelectCities();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🏙️</Text>
-                <Text style={styles.buttonTitle}>81 İl</Text>
-              </TouchableOpacity>
-
-              {/* 7 Coğrafi Bölge */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.regionsButton]}
-                onPress={() => {
-                  console.log('Bölgeler butonu tıklandı');
-                  onSelectRegions();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🗺️</Text>
-                <Text style={styles.buttonTitle}>7 Bölge</Text>
-              </TouchableOpacity>
+          <View style={[styles.menuContainer, isMobile && styles.menuContainerMobile, isIOSTablet && styles.menuContainerIOSTablet]}>
+            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
+              {menuItems.slice(0, 4).map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[boxStyle, styles[item.style]]}
+                  onPress={handlers[item.onPress]}
+                  activeOpacity={0.9}
+                >
+                  <Text style={iconStyle}>{item.icon}</Text>
+                  <Text style={titleStyle}>{item.title}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
-
-            {/* İkinci Satır */}
-            <View style={styles.row}>
-              {/* Bölgeler Haritası */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.regionsOnlyButton]}
-                onPress={() => {
-                  console.log('Bölgeler Haritası butonu tıklandı');
-                  onSelectRegionsOnly();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>📍</Text>
-                <Text style={styles.buttonTitle}>Bölgeler</Text>
-              </TouchableOpacity>
-
-              {/* Dağlar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.mountainsButton]}
-                onPress={() => {
-                  console.log('Dağlar butonu tıklandı');
-                  onSelectMountains();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>⛰️</Text>
-                <Text style={styles.buttonTitle}>Dağlar</Text>
-              </TouchableOpacity>
+            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
+              {menuItems.slice(4, 8).map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[boxStyle, styles[item.style]]}
+                  onPress={handlers[item.onPress]}
+                  activeOpacity={0.9}
+                >
+                  <Text style={iconStyle}>{item.icon}</Text>
+                  <Text style={titleStyle}>{item.title}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
-
-            {/* Üçüncü Satır */}
-            <View style={styles.row}>
-              {/* Ovalar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.plainsButton]}
-                onPress={() => {
-                  console.log('Ovalar butonu tıklandı');
-                  onSelectPlains();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🌾</Text>
-                <Text style={styles.buttonTitle}>Ovalar</Text>
-              </TouchableOpacity>
-
-              {/* Göller */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.lakesButton]}
-                onPress={() => {
-                  console.log('Göller butonu tıklandı');
-                  onSelectLakes();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🌊</Text>
-                <Text style={styles.buttonTitle}>Göller</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Dördüncü Satır */}
-            <View style={styles.row}>
-              {/* UNESCO Mirası */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.unescoButton]}
-                onPress={() => {
-                  console.log('UNESCO butonu tıklandı');
-                  onSelectUnesco();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🏛️</Text>
-                <Text style={styles.buttonTitle}>UNESCO</Text>
-              </TouchableOpacity>
-
-              {/* Masif Araziler */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.massifsButton]}
-                onPress={() => {
-                  console.log('Masif Araziler butonu tıklandı');
-                  onSelectMassifs();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🗻</Text>
-                <Text style={styles.buttonTitle}>Masifler</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Beşinci Satır */}
-            <View style={styles.row}>
-              {/* Kıyı Tipleri */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.coastsButton]}
-                onPress={() => {
-                  console.log('Kıyı Tipleri butonu tıklandı');
-                  onSelectCoasts();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🏖️</Text>
-                <Text style={styles.buttonTitle}>Kıyılar</Text>
-              </TouchableOpacity>
-
-              {/* Platolar */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.plateausButton]}
-                onPress={() => {
-                  console.log('Platolar butonu tıklandı');
-                  onSelectPlateaus();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🏔️</Text>
-                <Text style={styles.buttonTitle}>Platolar</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Altıncı Satır */}
-            <View style={styles.row}>
-              {/* Komşu Ülkeler */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.neighborsButton]}
-                onPress={() => {
-                  console.log('Komşular butonu tıklandı');
-                  onSelectNeighbors();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🤝</Text>
-                <Text style={styles.buttonTitle}>Komşular</Text>
-              </TouchableOpacity>
-
-              {/* Sınır Kapıları */}
-              <TouchableOpacity
-                style={[styles.menuButton, styles.borderGatesButton]}
-                onPress={() => {
-                  console.log('Sınır Kapıları butonu tıklandı');
-                  onSelectBorderGates();
-                }}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.icon}>🚪</Text>
-                <Text style={styles.buttonTitle}>Sınır Kapıları</Text>
-              </TouchableOpacity>
+            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
+              {menuItems.slice(8, 12).map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[boxStyle, styles[item.style]]}
+                  onPress={handlers[item.onPress]}
+                  activeOpacity={0.9}
+                >
+                  <Text style={iconStyle}>{item.icon}</Text>
+                  <Text style={titleStyle}>{item.title}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         </View>
@@ -277,18 +160,33 @@ const styles = StyleSheet.create({
     padding: 12,
     justifyContent: 'center',
   },
+  menuContainerMobile: {
+    padding: 6,
+  },
+  menuContainerIOSTablet: {
+    padding: 16,
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    marginBottom: 8,
-    gap: 8,
+    marginBottom: 14,
+    gap: 14,
+  },
+  rowMobile: {
+    marginBottom: 5,
+    gap: 5,
+  },
+  rowIOSTablet: {
+    marginBottom: 18,
+    gap: 18,
   },
   menuButton: {
     flex: 1,
-    aspectRatio: 1,
-    maxWidth: 110,
-    borderRadius: 12,
-    padding: 8,
+    aspectRatio: 1.5,
+    maxWidth: 180,
+    minWidth: 140,
+    borderRadius: 16,
+    padding: 14,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -299,8 +197,39 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  singleButton: {
-    maxWidth: 110,
+  menuButtonIOSTablet: {
+    flex: 1,
+    aspectRatio: 1.5,
+    maxWidth: 220,
+    minWidth: 170,
+    borderRadius: 18,
+    padding: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  menuButtonMobile: {
+    flex: 1,
+    aspectRatio: 1.5,
+    maxWidth: 52,
+    minWidth: 40,
+    borderRadius: 8,
+    padding: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   citiesButton: {
     backgroundColor: '#EF4444',
@@ -339,11 +268,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#DC2626',
   },
   icon: {
-    fontSize: 28,
-    marginBottom: 4,
+    fontSize: 38,
+    marginBottom: 6,
+  },
+  iconIOSTablet: {
+    fontSize: 46,
+    marginBottom: 8,
+  },
+  iconMobile: {
+    fontSize: 18,
+    marginBottom: 1,
   },
   buttonTitle: {
-    fontSize: 11,
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  buttonTitleIOSTablet: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  buttonTitleMobile: {
+    fontSize: 8,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',

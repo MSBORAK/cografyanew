@@ -17,7 +17,7 @@ import { getCountryCenter } from '../constants/countryCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.75;
+const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
 // Türkiye'nin komşu ülkeleri
 const neighborCountries = ['GRC', 'BGR', 'GEO', 'ARM', 'IRN', 'IRQ', 'SYR', 'CYP'];
@@ -91,8 +91,10 @@ const NeighborsMap = ({ onBackToMenu }) => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     loadSounds();
     return () => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
       unloadSounds();
+      ScreenOrientation.unlockAsync().then(() =>
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE)
+      );
     };
   }, []);
 
@@ -158,7 +160,7 @@ const NeighborsMap = ({ onBackToMenu }) => {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Home size={24} color="#059669" />
+            <Home size={24} color="#E2E8F0" />
           </TouchableOpacity>
           <View style={styles.headerText}>
             <Text style={styles.title}>Komşu Ülkeler Quiz</Text>
@@ -291,22 +293,22 @@ const NeighborsMap = ({ onBackToMenu }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 6, paddingBottom: 6, paddingHorizontal: 10, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
+  header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)' },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: { padding: 6, marginRight: 8 },
-  headerText: { flex: 1 },
-  title: { fontSize: 14, fontWeight: 'bold', color: '#111827', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#D1FAE5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start', marginBottom: 3 },
+  headerText: { flex: 1, alignItems: 'center' },
+  title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
+  questionBadge: { backgroundColor: '#D1FAE5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginBottom: 3 },
   questionText: { fontSize: 11, fontWeight: '600', color: '#065F46' },
-  progressText: { fontSize: 10, color: '#6B7280' },
+  progressText: { fontSize: 10, color: '#94A3B8' },
   completedText: { fontSize: 12, fontWeight: '600', color: '#10B981' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },
   correctIcon: { backgroundColor: '#10B981' },
   wrongIcon: { backgroundColor: '#000000' },
   mapContainer: { flex: 1, overflow: 'hidden' },
-  mapWrapper: { alignItems: 'center', justifyContent: 'center', padding: 8 },
+  mapWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 4 },
   svg: { backgroundColor: '#FFFFFF', borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
-  footer: { backgroundColor: '#FFFFFF', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: '#E5E7EB', alignItems: 'center' },
+  footer: { backgroundColor: 'rgba(15, 23, 42, 0.92)', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: 'rgba(148, 163, 184, 0.2)', alignItems: 'center' },
   resetButton: { backgroundColor: '#059669', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, alignItems: 'center' },
   resetButtonText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
   zoomResetButton: { position: 'absolute', bottom: 16, right: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5 },

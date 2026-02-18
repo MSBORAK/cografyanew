@@ -36,7 +36,7 @@ const TurkeyQuiz = ({ onBackToMenu }) => {
   }, []);
 
   useEffect(() => {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     loadSounds();
     return () => { unloadSounds(); };
   }, []);

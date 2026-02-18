@@ -9,21 +9,20 @@ import {
   PanResponder,
   ImageBackground,
 } from 'react-native';
-import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
+import Svg, { G, Path } from 'react-native-svg';
 import { Home, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { worldPaths, countryNames } from '../constants/worldPaths';
+import { worldPaths } from '../constants/worldPaths';
 import { continents } from '../constants/continents';
 import { continentViewBox } from '../constants/continentViewBox';
-import { getCountryColor } from '../constants/worldColors';
+import { getContinentColor } from '../constants/continents';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
-const AmericaMap = ({ onBackToMenu }) => {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [foundCountries, setFoundCountries] = useState([]);
+const AntarcticaMap = ({ onBackToMenu }) => {
+  const [found, setFound] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
 
@@ -34,18 +33,14 @@ const AmericaMap = ({ onBackToMenu }) => {
   const lastTranslateX = useRef(0);
   const lastTranslateY = useRef(0);
 
-  // Amerika ülkeleri (Kuzey + Güney)
-  const americaCountries = [...continents.northAmerica.countries, ...continents.southAmerica.countries];
-  const quizCountries = worldPaths.filter(c => americaCountries.includes(c.id));
-  const currentCountry = quizCountries[currentQuestionIndex];
-  const isCompleted = foundCountries.length === quizCountries.length;
+  const antarcticaCountries = continents.antarctica.countries;
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: (evt) => evt.nativeEvent.touches.length === 2,
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return evt.nativeEvent.touches.length === 2 || 
-               (scale._value > 1 && (Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5));
+        return evt.nativeEvent.touches.length === 2 ||
+          (scale._value > 1 && (Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5));
       },
       onPanResponderGrant: (evt) => {
         if (evt.nativeEvent.touches.length === 2) {
@@ -66,7 +61,6 @@ const AmericaMap = ({ onBackToMenu }) => {
             Math.pow(touch2.pageX - touch1.pageX, 2) +
             Math.pow(touch2.pageY - touch1.pageY, 2)
           );
-          
           if (lastScale.current > 0) {
             const scaleChange = distance / lastScale.current;
             const currentScale = scale._value * scaleChange;
@@ -92,33 +86,29 @@ const AmericaMap = ({ onBackToMenu }) => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     loadSounds();
     return () => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
       unloadSounds();
+      ScreenOrientation.unlockAsync().then(() =>
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE)
+      );
     };
   }, []);
 
   const handleCountryPress = async (country) => {
-    if (isCompleted || feedback) return;
-    
-    if (country.id === currentCountry.id) {
+    if (found || feedback) return;
+
+    if (antarcticaCountries.includes(country.id)) {
       await playCorrectSound();
       setFeedback('correct');
       setSelectedCountry(country.id);
-      
       setTimeout(() => {
-        setFoundCountries([...foundCountries, country.id]);
+        setFound(true);
         setFeedback(null);
         setSelectedCountry(null);
-        
-        if (currentQuestionIndex < quizCountries.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
       }, 1000);
     } else {
       await playWrongSound();
       setFeedback('wrong');
       setSelectedCountry(country.id);
-      
       setTimeout(() => {
         setFeedback(null);
         setSelectedCountry(null);
@@ -127,8 +117,7 @@ const AmericaMap = ({ onBackToMenu }) => {
   };
 
   const handleReset = () => {
-    setCurrentQuestionIndex(0);
-    setFoundCountries([]);
+    setFound(false);
     setFeedback(null);
     setSelectedCountry(null);
     resetZoom();
@@ -157,20 +146,16 @@ const AmericaMap = ({ onBackToMenu }) => {
             <Home size={24} color="#E2E8F0" />
           </TouchableOpacity>
           <View style={styles.headerText}>
-            <Text style={styles.title}>Amerika Quiz</Text>
-            {!isCompleted ? (
+            <Text style={styles.title}>Antarktika</Text>
+            {!found ? (
               <>
                 <View style={styles.questionBadge}>
-                  <Text style={styles.questionText}>
-                    {countryNames[currentCountry?.id] || currentCountry?.id} nerede?
-                  </Text>
+                  <Text style={styles.questionText}>Antarktika nerede?</Text>
                 </View>
-                <Text style={styles.progressText}>
-                  {foundCountries.length} / {quizCountries.length} ülke bulundu
-                </Text>
+                <Text style={styles.progressText}>Haritanın en güneyindeki kıtayı bulun</Text>
               </>
             ) : (
-              <Text style={styles.completedText}>🎉 Tüm ülkeleri buldunuz!</Text>
+              <Text style={styles.completedText}>🎉 Doğru! Antarktika'yı buldunuz!</Text>
             )}
           </View>
           {feedback && (
@@ -183,39 +168,37 @@ const AmericaMap = ({ onBackToMenu }) => {
 
       <View style={styles.mapContainer}>
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
-          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.507} viewBox={continentViewBox.america.viewBox} preserveAspectRatio={continentViewBox.america.preserveAspectRatio} style={styles.svg}>
+          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.507} viewBox={continentViewBox.antarctica.viewBox} preserveAspectRatio={continentViewBox.antarctica.preserveAspectRatio} style={styles.svg}>
             <Path d="M0,0 L1000,0 L1000,507 L0,507 Z" fill="#A5D8FF" opacity={0.3} />
             <G>
-              {worldPaths.map((country, index) => {
-                const isAmerica = americaCountries.includes(country.id);
-                const isFound = foundCountries.includes(country.id);
+              {worldPaths.map((country) => {
+                const isAntarctica = antarcticaCountries.includes(country.id);
+                const isFoundCountry = found;
                 const isSelected = selectedCountry === country.id;
-                
-                let fillColor = isAmerica ? getCountryColor(index) : '#E5E7EB';
+
+                let fillColor = isAntarctica ? getContinentColor('antarctica') : '#E5E7EB';
                 let strokeColor = '#FFFFFF';
-                let opacity = isAmerica ? 0.9 : 0.3;
-                
+                let opacity = isAntarctica ? 0.9 : 0.3;
+
                 if (isSelected && feedback === 'correct') {
                   fillColor = '#10B981';
                   strokeColor = '#059669';
                 } else if (isSelected && feedback === 'wrong') {
                   fillColor = '#000000';
                   strokeColor = '#374151';
-                } else if (isFound) {
+                } else if (isFoundCountry && isAntarctica) {
                   fillColor = '#9CA3AF';
                   strokeColor = '#6B7280';
                   opacity = 0.6;
                 }
-                
+
                 return (
-                  <G key={country.id} onPress={() => isAmerica && handleCountryPress(country)} onPressIn={() => isAmerica && handleCountryPress(country)}>
+                  <G key={country.id} onPress={() => handleCountryPress(country)} onPressIn={() => handleCountryPress(country)}>
                     <Path d={country.d} fill={fillColor} stroke={strokeColor} strokeWidth="0.5" opacity={opacity} />
                   </G>
                 );
               })}
             </G>
-            
-            {/* Ülke isimleri gösterilmiyor - karışıklığı önlemek için */}
           </Svg>
         </Animated.View>
         <TouchableOpacity style={styles.zoomResetButton} onPress={resetZoom}>
@@ -223,7 +206,7 @@ const AmericaMap = ({ onBackToMenu }) => {
         </TouchableOpacity>
       </View>
 
-      {isCompleted && (
+      {found && (
         <View style={styles.footer}>
           <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
             <Text style={styles.resetButtonText}>Yeniden Başla</Text>
@@ -241,8 +224,8 @@ const styles = StyleSheet.create({
   backButton: { padding: 6, marginRight: 8 },
   headerText: { flex: 1, alignItems: 'center' },
   title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginBottom: 3 },
-  questionText: { fontSize: 11, fontWeight: '600', color: '#92400E' },
+  questionBadge: { backgroundColor: '#94A3B8', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginBottom: 3 },
+  questionText: { fontSize: 11, fontWeight: '600', color: '#1E293B' },
   progressText: { fontSize: 10, color: '#94A3B8' },
   completedText: { fontSize: 12, fontWeight: '600', color: '#34D399' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },
@@ -252,9 +235,9 @@ const styles = StyleSheet.create({
   mapWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 4 },
   svg: { backgroundColor: '#FFFFFF', borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
   footer: { backgroundColor: 'rgba(15, 23, 42, 0.92)', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: 'rgba(148, 163, 184, 0.2)', alignItems: 'center' },
-  resetButton: { backgroundColor: '#06B6D4', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, alignItems: 'center' },
+  resetButton: { backgroundColor: '#94A3B8', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, alignItems: 'center' },
   resetButtonText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
-  zoomResetButton: { position: 'absolute', bottom: 16, right: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: '#06B6D4', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5 },
+  zoomResetButton: { position: 'absolute', bottom: 16, right: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: '#94A3B8', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5 },
 });
 
-export default AmericaMap;
+export default AntarcticaMap;

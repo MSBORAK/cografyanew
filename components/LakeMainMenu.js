@@ -123,11 +123,15 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 20,
     gap: 20,
   },
   menuButton: {
+    flex: 1,
+    maxWidth: 360,
     borderRadius: 20,
     padding: 24,
     shadowColor: '#000',

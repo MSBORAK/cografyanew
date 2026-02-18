@@ -15,11 +15,10 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { worldPaths, countryNames } from '../constants/worldPaths';
 import { getCountryColor } from '../constants/worldColors';
 import { oceans, getOceanColor } from '../constants/oceans';
-import { getCountryCenter } from '../constants/countryCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.75;
+const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
 // Diziyi karıştıran fonksiyon
 const shuffleArray = (array) => {
@@ -58,8 +57,10 @@ const WorldMap = ({ onBackToMenu }) => {
     loadSounds(); // Sesleri yükle
     
     return () => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-      unloadSounds(); // Sesleri temizle
+      unloadSounds();
+      ScreenOrientation.unlockAsync().then(() =>
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE)
+      );
     };
   }, []);
 
@@ -191,7 +192,7 @@ const WorldMap = ({ onBackToMenu }) => {
             style={styles.backButton}
             onPress={onBackToMenu}
           >
-            <Home size={24} color="#3B82F6" />
+            <Home size={24} color="#E2E8F0" />
           </TouchableOpacity>
           <View style={styles.headerText}>
             <Text style={styles.title}>Dünya Haritası Quiz</Text>
@@ -313,34 +314,7 @@ const WorldMap = ({ onBackToMenu }) => {
               })}
             </G>
 
-            {/* Gri ülkelerin isimleri (kıta dışı) - SADECE BUNLAR */}
-            <G>
-              {worldPaths.map((country) => {
-                const isInContinent = quizCountries.includes(country.id);
-                const isFound = foundCountries.includes(country.id);
-                
-                // Sadece gri ülkeleri göster (kıta dışı ve bulunmamış)
-                if (isInContinent || isFound) return null;
-                
-                const center = getCountryCenter(country.id);
-                const countryName = countryNames[country.id] || country.id;
-                
-                return (
-                  <SvgText
-                    key={`gray-label-${country.id}`}
-                    x={center.x}
-                    y={center.y}
-                    fontSize="8"
-                    fontWeight="600"
-                    fill="#374151"
-                    textAnchor="middle"
-                    opacity={0.9}
-                  >
-                    {countryName}
-                  </SvgText>
-                );
-              })}
-            </G>
+            {/* Ülke isimleri gösterilmiyor - karışıklığı önlemek için (soru üstte: "X nerede?") */}
           </Svg>
         </Animated.View>
 
@@ -372,12 +346,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingHorizontal: 10,
-    backgroundColor: '#FFFFFF',
+    paddingTop: 36,
+    paddingBottom: 12,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(148, 163, 184, 0.2)',
   },
   headerContent: {
     flexDirection: 'row',
@@ -389,11 +363,12 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
+    alignItems: 'center',
   },
   title: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
     marginBottom: 4,
   },
   questionBadge: {
@@ -401,7 +376,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     marginBottom: 3,
   },
   questionText: {
@@ -411,12 +386,12 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 10,
-    color: '#6B7280',
+    color: '#94A3B8',
   },
   completedText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#10B981',
+    color: '#34D399',
   },
   feedbackIcon: {
     width: 36,
@@ -437,9 +412,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   mapWrapper: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 8,
+    padding: 4,
   },
   svg: {
     backgroundColor: '#FFFFFF',
@@ -451,11 +427,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   footer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: 'rgba(148, 163, 184, 0.2)',
     alignItems: 'center',
   },
   resetButton: {

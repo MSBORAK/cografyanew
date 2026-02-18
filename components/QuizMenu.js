@@ -124,10 +124,14 @@ const styles = StyleSheet.create({
   menuContainer: {
     flex: 1,
     padding: 20,
+    flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     gap: 20,
   },
   menuButton: {
+    flex: 1,
+    maxWidth: 360,
     borderRadius: 20,
     padding: 24,
     shadowColor: '#000',
