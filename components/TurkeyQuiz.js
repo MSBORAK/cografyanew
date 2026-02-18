@@ -79,7 +79,7 @@ const TurkeyQuiz = ({ onBackToMenu }) => {
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Home size={24} color="#F97316" />
+            <Home size={24} color="#FB923C" />
             <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
         </View>
@@ -108,7 +108,7 @@ const TurkeyQuiz = ({ onBackToMenu }) => {
     >
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#F97316" />
+          <Home size={24} color="#FB923C" />
           <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
         <View style={styles.progressContainer}>
@@ -162,36 +162,36 @@ const TurkeyQuiz = ({ onBackToMenu }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { paddingTop: 50, paddingBottom: 16, paddingHorizontal: 20, backgroundColor: 'rgba(255, 255, 255, 0.95)', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
+  container: { flex: 1, backgroundColor: '#0F172A' },
+  header: { paddingTop: 50, paddingBottom: 16, paddingHorizontal: 20, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)' },
   backButton: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  backText: { fontSize: 16, color: '#F97316', fontWeight: '600', marginLeft: 8 },
+  backText: { fontSize: 16, color: '#FB923C', fontWeight: '600', marginLeft: 8 },
   progressContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  progressText: { fontSize: 14, color: '#6B7280', fontWeight: '600' },
-  scoreTextHeader: { fontSize: 14, color: '#10B981', fontWeight: 'bold' },
+  progressText: { fontSize: 14, color: '#94A3B8', fontWeight: '600' },
+  scoreTextHeader: { fontSize: 14, color: '#34D399', fontWeight: 'bold' },
   content: { flex: 1 },
   contentContainer: { padding: 20 },
-  questionCard: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 24, marginBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
-  questionTitle: { fontSize: 20, fontWeight: 'bold', color: '#111827', textAlign: 'center', lineHeight: 28 },
+  questionCard: { backgroundColor: 'rgba(30, 41, 59, 0.9)', borderRadius: 20, padding: 24, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(148, 163, 184, 0.2)' },
+  questionTitle: { fontSize: 20, fontWeight: 'bold', color: '#F8FAFC', textAlign: 'center', lineHeight: 28 },
   optionsContainer: { gap: 12 },
-  optionButton: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', borderWidth: 2, borderColor: '#E5E7EB', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
+  optionButton: { backgroundColor: 'rgba(30, 41, 59, 0.9)', borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(148, 163, 184, 0.25)' },
   correctButton: { backgroundColor: '#10B981', borderColor: '#059669' },
   wrongButton: { backgroundColor: '#EF4444', borderColor: '#DC2626' },
-  optionLetter: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: 16, fontWeight: 'bold', textAlign: 'center', lineHeight: 32, marginRight: 12 },
-  optionText: { flex: 1, fontSize: 16, color: '#111827', fontWeight: '600' },
+  optionLetter: { width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(51, 65, 85, 0.8)', color: '#94A3B8', fontSize: 16, fontWeight: 'bold', textAlign: 'center', lineHeight: 32, marginRight: 12 },
+  optionText: { flex: 1, fontSize: 16, color: '#F8FAFC', fontWeight: '600' },
   correctText: { color: '#FFFFFF' },
   wrongText: { color: '#FFFFFF' },
   iconContainer: { marginLeft: 8 },
   completedContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   completedEmoji: { fontSize: 80, marginBottom: 16 },
-  completedTitle: { fontSize: 32, fontWeight: 'bold', color: '#111827', marginBottom: 32 },
-  scoreCard: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 32, alignItems: 'center', width: '100%', maxWidth: 300, marginBottom: 32, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 },
-  scoreText: { fontSize: 18, color: '#6B7280', marginBottom: 8 },
+  completedTitle: { fontSize: 32, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 32 },
+  scoreCard: { backgroundColor: 'rgba(30, 41, 59, 0.9)', borderRadius: 24, padding: 32, alignItems: 'center', width: '100%', maxWidth: 300, marginBottom: 32, borderWidth: 1, borderColor: 'rgba(148, 163, 184, 0.2)' },
+  scoreText: { fontSize: 18, color: '#94A3B8', marginBottom: 8 },
   scoreNumber: { fontSize: 48, fontWeight: 'bold', color: '#F97316', marginVertical: 8 },
   percentageText: { fontSize: 24, fontWeight: '600', color: '#10B981' },
   resetButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F97316', paddingVertical: 16, paddingHorizontal: 32, borderRadius: 16, gap: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
   resetButtonText: { fontSize: 18, fontWeight: 'bold', color: '#FFFFFF' },
-  loadingText: { fontSize: 18, color: '#6B7280', textAlign: 'center', marginTop: 100 },
+  loadingText: { fontSize: 18, color: '#94A3B8', textAlign: 'center', marginTop: 100 },
 });
 
 export default TurkeyQuiz;

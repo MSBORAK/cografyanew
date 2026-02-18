@@ -49,7 +49,7 @@ const LearningModeMenu = ({ onBackToMenu, onSelectCategory }) => {
     >
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#10B981" />
+          <Home size={24} color="#34D399" />
           <Text style={styles.backText}>Ana Menü</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Öğrenme Modu</Text>
@@ -58,7 +58,7 @@ const LearningModeMenu = ({ onBackToMenu, onSelectCategory }) => {
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <View style={styles.infoCard}>
-          <Brain size={40} color="#10B981" />
+          <Brain size={40} color="#34D399" />
           <Text style={styles.infoTitle}>Nasıl Çalışır?</Text>
           <Text style={styles.infoText}>
             Her doğru cevaptan sonra ilginç bilgiler gösterilir. 
@@ -136,9 +136,9 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(148, 163, 184, 0.2)',
   },
   backButton: {
     flexDirection: 'row',
@@ -147,19 +147,19 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 16,
-    color: '#10B981',
+    color: '#34D399',
     fontWeight: '600',
     marginLeft: 8,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#94A3B8',
   },
   content: {
     flex: 1,
@@ -168,41 +168,35 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   infoCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(30, 41, 59, 0.85)',
     borderRadius: 16,
     padding: 24,
     marginBottom: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.2)',
   },
   infoTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
     marginTop: 12,
     marginBottom: 8,
   },
   infoText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#94A3B8',
     textAlign: 'center',
     lineHeight: 20,
   },
   featuresCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(30, 41, 59, 0.85)',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
     gap: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.2)',
   },
   featureRow: {
     flexDirection: 'row',
@@ -215,12 +209,12 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
     marginBottom: 2,
   },
   featureDesc: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#94A3B8',
   },
   categoriesContainer: {
     flexDirection: 'row',
@@ -232,24 +226,21 @@ const styles = StyleSheet.create({
   categoriesTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
     marginBottom: 16,
     width: '100%',
   },
   categoryCard: {
     width: '48%',
     minWidth: 160,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(30, 41, 59, 0.85)',
     borderRadius: 16,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.2)',
     borderLeftWidth: 4,
   },
   categoryLeft: {
@@ -274,12 +265,12 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
     marginBottom: 2,
   },
   categoryDescription: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#94A3B8',
   },
   startButton: {
     paddingHorizontal: 16,
@@ -292,12 +283,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   tipCard: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: 'rgba(45, 55, 72, 0.9)',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#10B981',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
   },
   tipIcon: {
     fontSize: 32,
@@ -306,12 +297,12 @@ const styles = StyleSheet.create({
   tipTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#065F46',
+    color: '#34D399',
     marginBottom: 8,
   },
   tipText: {
     fontSize: 13,
-    color: '#047857',
+    color: '#94A3B8',
     textAlign: 'center',
     lineHeight: 18,
   },

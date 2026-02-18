@@ -32,6 +32,8 @@ import PlateausMap from './components/PlateausMap';
 import NeighborsMap from './components/NeighborsMap';
 import BorderGatesMap from './components/BorderGatesMap';
 import WorldFlagsQuiz from './components/WorldFlagsQuiz';
+import CapitalsQuiz from './components/CapitalsQuiz';
+import ExamCountdown from './components/ExamCountdown';
 import QuizMenu from './components/QuizMenu';
 import TurkeyQuiz from './components/TurkeyQuiz';
 import WorldQuiz from './components/WorldQuiz';
@@ -98,7 +100,8 @@ export default function App() {
                currentScreen === 'coasts' || currentScreen === 'massifs' || 
                currentScreen === 'plateaus' || currentScreen === 'neighbors' ||
                currentScreen === 'border-gates' ||
-               currentScreen === 'world-flags-quiz' ||
+               currentScreen === 'world-flags-quiz' || currentScreen === 'capitals-quiz' ||
+               currentScreen === 'exam-countdown' ||
                currentScreen === 'quiz-menu' || currentScreen === 'practice-mode' ||
                currentScreen === 'learning-mode') {
       handleBackToMain();
@@ -271,6 +274,16 @@ export default function App() {
     setCurrentScreen('world-flags-quiz');
   };
 
+  const handleSelectCapitalsQuiz = () => {
+    // Başkentler Quiz
+    setCurrentScreen('capitals-quiz');
+  };
+
+  const handleSelectExamCountdown = () => {
+    // Sınav Sayaç
+    setCurrentScreen('exam-countdown');
+  };
+
   const handleSelectQuizMode = () => {
     // Quiz Menü
     setCurrentScreen('quiz-menu');
@@ -372,9 +385,11 @@ export default function App() {
           onSelectTurkey={handleSelectTurkey}
           onSelectWorld={handleSelectWorld}
           onSelectWorldFlags={handleSelectWorldFlags}
+          onSelectCapitalsQuiz={handleSelectCapitalsQuiz}
           onSelectQuizMode={handleSelectQuizMode}
           onSelectPracticeMode={handleSelectPracticeMode}
           onSelectLearningMode={handleSelectLearningMode}
+          onSelectExamCountdown={handleSelectExamCountdown}
         />
         <StatusBar style="auto" />
       </View>
@@ -665,7 +680,31 @@ export default function App() {
   if (currentScreen === 'world-flags-quiz') {
     return (
       <View style={styles.container}>
-        <WorldFlagsQuiz 
+        <WorldFlagsQuiz
+          onBackToMenu={handleBackToMain}
+        />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  // Başkentler Quiz
+  if (currentScreen === 'capitals-quiz') {
+    return (
+      <View style={styles.container}>
+        <CapitalsQuiz
+          onBackToMenu={handleBackToMain}
+        />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  // Sınav Sayaç
+  if (currentScreen === 'exam-countdown') {
+    return (
+      <View style={styles.container}>
+        <ExamCountdown
           onBackToMenu={handleBackToMain}
         />
         <StatusBar style="auto" />

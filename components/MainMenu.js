@@ -4,16 +4,17 @@ const menuItems = [
   { id: 'turkey', title: 'Türkiye Haritası', subtitle: 'Şehirleri ve bölgeleri tanı', icon: '🇹🇷', color: '#F97316', onPress: 'onSelectTurkey' },
   { id: 'world', title: 'Dünya Haritası', subtitle: 'Kıtalar ve ülkeler', icon: '🌍', color: '#3B82F6', onPress: 'onSelectWorld' },
   { id: 'flags', title: 'Bayrak Quiz', subtitle: 'Dünya bayraklarını test et', icon: '🚩', color: '#8B5CF6', onPress: 'onSelectWorldFlags' },
+  { id: 'capitals', title: 'Başkentler Quiz', subtitle: 'Ülke başkentlerini test et', icon: '🏛️', color: '#0EA5E9', onPress: 'onSelectCapitalsQuiz' },
   { id: 'quiz', title: 'Quiz Modu', subtitle: 'Bilgini test et', icon: '✅', color: '#10B981', onPress: 'onSelectQuizMode' },
   { id: 'practice', title: 'Pratik Modu', subtitle: 'Yanlışlarını tekrar et', icon: '📚', color: '#EC4899', onPress: 'onSelectPracticeMode' },
   { id: 'learning', title: 'Öğrenme Modu', subtitle: 'İlginç bilgilerle öğren', icon: '🧠', color: '#059669', onPress: 'onSelectLearningMode' },
 ];
 
-const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectQuizMode, onSelectPracticeMode, onSelectLearningMode }) => {
+const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectCapitalsQuiz, onSelectQuizMode, onSelectPracticeMode, onSelectLearningMode, onSelectExamCountdown }) => {
   const { width, height } = useWindowDimensions();
   const shortSide = Math.min(width, height);
   const isIOSTablet = Platform.OS === 'ios' && shortSide >= 600;
-  const handlers = { onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectQuizMode, onSelectPracticeMode, onSelectLearningMode };
+  const handlers = { onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectCapitalsQuiz, onSelectQuizMode, onSelectPracticeMode, onSelectLearningMode, onSelectExamCountdown };
 
   const boxStyle = isIOSTablet ? styles.boxIOSTablet : styles.box;
   const iconStyle = isIOSTablet ? styles.boxIconIOSTablet : styles.boxIcon;
@@ -28,12 +29,25 @@ const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectQ
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          <Text style={styles.title}>🗺️ Harita Quiz</Text>
-          <Text style={styles.subtitle}>Coğrafya bilgini test et!</Text>
+          <View style={styles.headerRow}>
+            <View style={styles.headerSpacer} />
+            <View style={styles.headerCenter}>
+              <Text style={styles.title}>🗺️ Harita Quiz</Text>
+              <Text style={styles.subtitle}>Coğrafya bilgini test et!</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.countdownButton}
+              onPress={handlers.onSelectExamCountdown}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.countdownIcon}>⏱️</Text>
+              <Text style={styles.countdownLabel}>Sınav Sayaç</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={[styles.grid, isIOSTablet && styles.gridIOSTablet]}>
             <View style={[styles.row, isIOSTablet && styles.rowIOSTablet]}>
-              {menuItems.slice(0, 3).map((item) => (
+              {menuItems.slice(0, 4).map((item) => (
                 <TouchableOpacity
                   key={item.id}
                   style={[boxStyle, { backgroundColor: item.color }]}
@@ -47,7 +61,7 @@ const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectQ
               ))}
             </View>
             <View style={[styles.row, isIOSTablet && styles.rowIOSTablet]}>
-              {menuItems.slice(3, 6).map((item) => (
+              {menuItems.slice(4, 7).map((item) => (
                 <TouchableOpacity
                   key={item.id}
                   style={[boxStyle, { backgroundColor: item.color }]}
@@ -83,6 +97,29 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
     padding: 16,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  headerSpacer: { width: 90 },
+  headerCenter: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  countdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F59E0B',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    gap: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  countdownIcon: { fontSize: 20 },
+  countdownLabel: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -96,7 +133,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#94A3B8',
-    marginBottom: 16,
+    marginBottom: 4,
     textAlign: 'center',
   },
   grid: {
