@@ -39,6 +39,8 @@ const MountainsMap = ({ onBackToMenu, mountainType = 'all' }) => {
   const currentMountain = mountains[currentQuestionIndex];
   const isCompleted = foundMountains.length === mountains.length;
 
+  const mountainEmoji = mountainType === 'volcanic' ? '🌋' : mountainType === 'tectonic' ? '⛰️' : '🏔️';
+
   // PanResponder oluştur
   const panResponder = useRef(
     PanResponder.create({
@@ -228,46 +230,32 @@ const MountainsMap = ({ onBackToMenu, mountainType = 'all' }) => {
             },
           ]}
         >
-          <View>
+          <View style={{ width: MAP_WIDTH, height: MAP_WIDTH * 0.52 }}>
             <Svg
               width={MAP_WIDTH}
               height={MAP_WIDTH * 0.52}
               viewBox="0 0 1007.478 527.323"
               style={styles.svg}
             >
-            {/* Türkiye haritası - şehir sınırları çok açık gri */}
+            {/* Türkiye haritası - belirgin arka plan ve sınırlar */}
             <G>
               {turkeyPaths.map((city) => (
                 <Path
                   key={city.id}
                   d={city.d}
-                  fill="#F3F4F6"
-                  stroke="#E5E7EB"
-                  strokeWidth="0.3"
+                  fill="#E2E8F0"
+                  stroke="#94A3B8"
+                  strokeWidth="0.8"
                   opacity={1}
                 />
               ))}
             </G>
 
-            {/* Dağlar */}
+            {/* Dağlar - tipe göre emoji (dokunmak için altta görünmez daire) */}
             <G>
               {mountains.map((mountain) => {
                 const isFound = foundMountains.includes(mountain.id);
-                const isSelected = selectedMountain === mountain.id;
-                
-                let fillColor = '#F97316'; // Turuncu
-                let strokeColor = '#EA580C';
-                
-                if (isSelected && feedback === 'correct') {
-                  fillColor = '#10B981'; // Yeşil
-                  strokeColor = '#059669';
-                } else if (isSelected && feedback === 'wrong') {
-                  fillColor = '#000000'; // Siyah
-                  strokeColor = '#374151';
-                } else if (isFound) {
-                  fillColor = '#9CA3AF'; // Gri
-                  strokeColor = '#6B7280';
-                }
+                const hitRadius = 28;
                 
                 return (
                   <G 
@@ -275,23 +263,31 @@ const MountainsMap = ({ onBackToMenu, mountainType = 'all' }) => {
                     onPress={() => handleMountainPress(mountain)}
                     onPressIn={() => handleMountainPress(mountain)}
                   >
-                    {/* Dağ işareti (üçgen) */}
-                    <Path
-                      d={`M ${mountain.x} ${mountain.y - 15} L ${mountain.x - 12} ${mountain.y + 8} L ${mountain.x + 12} ${mountain.y + 8} Z`}
-                      fill={fillColor}
-                      stroke={strokeColor}
-                      strokeWidth="2"
+                    {/* Görünmez dokunma alanı - emojiye basılabilsin */}
+                    <Circle
+                      cx={mountain.x}
+                      cy={mountain.y}
+                      r={hitRadius}
+                      fill="transparent"
                     />
+                    <SvgText
+                      x={mountain.x}
+                      y={mountain.y + 6}
+                      fontSize="22"
+                      textAnchor="middle"
+                    >
+                      {mountainEmoji}
+                    </SvgText>
                     
                     {/* Dağ adı (bulunanlar için) */}
                     {isFound && (
                       <SvgText
                         x={mountain.x}
-                        y={mountain.y + 25}
-                        fontSize="10"
-                        fill="#374151"
+                        y={mountain.y + 32}
+                        fontSize="11"
+                        fill="#1E293B"
                         textAnchor="middle"
-                        fontWeight="600"
+                        fontWeight="700"
                       >
                         {mountain.name}
                       </SvgText>
@@ -330,7 +326,6 @@ const MountainsMap = ({ onBackToMenu, mountainType = 'all' }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
   },
   header: {
     paddingTop: 36,
@@ -352,27 +347,33 @@ const styles = StyleSheet.create({
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#F8FAFC',
     marginBottom: 4,
   },
   questionBadge: {
     backgroundColor: '#FCD34D',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 14,
     alignSelf: 'center',
-    marginBottom: 3,
+    marginBottom: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   questionText: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '700',
     color: '#92400E',
   },
   progressText: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#94A3B8',
+    fontWeight: '600',
   },
   completedText: {
     fontSize: 12,
@@ -404,13 +405,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   svg: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: 'transparent',
   },
   footer: {
     backgroundColor: 'rgba(15, 23, 42, 0.92)',

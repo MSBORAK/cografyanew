@@ -11,7 +11,7 @@ import {
   Animated,
   PanResponder,
 } from 'react-native';
-import Svg, { G, Path, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
 import { Home, Save, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
@@ -259,21 +259,29 @@ export const otherPlains = ${JSON.stringify(other, null, 2)};`;
                 
                 return (
                   <G key={plain.id}>
-                    <Rect
-                      x={plain.x}
-                      y={plain.y}
-                      width={plain.width}
-                      height={plain.height}
+                    <Circle
+                      cx={plain.x}
+                      cy={plain.y}
+                      r={14}
                       fill={fillColor}
                       stroke={strokeColor}
                       strokeWidth="2"
                       opacity={0.6}
                     />
                     <SvgText
-                      x={plain.x + plain.width / 2}
-                      y={plain.y + plain.height / 2}
+                      x={plain.x}
+                      y={plain.y}
+                      fontSize="18"
+                      textAnchor="middle"
+                      alignmentBaseline="middle"
+                    >
+                      🌳
+                    </SvgText>
+                    <SvgText
+                      x={plain.x}
+                      y={plain.y + 20}
                       fontSize="8"
-                      fill="#FFFFFF"
+                      fill="#374151"
                       textAnchor="middle"
                       fontWeight="600"
                     >

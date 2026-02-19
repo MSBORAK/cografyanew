@@ -1,14 +1,14 @@
-// Türkiye'nin önemli platoları
+// Türkiye'nin önemli platoları - il merkezlerine göre (cityCenters viewBox)
 
 export const plateaus = [
-  { id: 1, name: 'Anadolu Platosu', x: 500, y: 270, width: 200, height: 120, icon: '🏔️' },
-  { id: 2, name: 'Doğu Anadolu Platosu', x: 780, y: 250, width: 140, height: 100, icon: '🏔️' },
-  { id: 3, name: 'Yıldız Dağları Platosu', x: 180, y: 200, width: 60, height: 45, icon: '🏔️' },
-  { id: 4, name: 'Ayder Yaylası', x: 760, y: 145, width: 40, height: 30, icon: '🌿' },
-  { id: 5, name: 'Gümüşhane Yaylaları', x: 700, y: 180, width: 45, height: 35, icon: '🌿' },
-  { id: 6, name: 'Uludağ Yaylaları', x: 280, y: 220, width: 35, height: 28, icon: '🌿' },
-  { id: 7, name: 'Erciyes Yaylaları', x: 580, y: 280, width: 38, height: 30, icon: '🌿' },
-  { id: 8, name: 'Kaçkar Yaylaları', x: 750, y: 140, width: 42, height: 32, icon: '🌿' },
+  { id: 1, name: 'Anadolu Platosu', x: 356, y: 170, icon: '🏔️' },           // Ankara (İç Anadolu)
+  { id: 2, name: 'Doğu Anadolu Platosu', x: 816, y: 156, icon: '🏔️' },     // Erzurum
+  { id: 3, name: 'Yıldız Dağları Platosu', x: 78, y: 32, icon: '🏔️' },    // Kırklareli (Trakya)
+  { id: 4, name: 'Ayder Yaylası', x: 780, y: 102, icon: '🌿' },            // Rize
+  { id: 5, name: 'Gümüşhane Yaylaları', x: 707, y: 140, icon: '🌿' },       // Gümüşhane
+  { id: 6, name: 'Uludağ Yaylaları', x: 177, y: 141, icon: '🌿' },         // Bursa
+  { id: 7, name: 'Erciyes Yaylaları', x: 520, y: 257, icon: '🌿' },         // Kayseri
+  { id: 8, name: 'Kaçkar Yaylaları', x: 782, y: 106, icon: '🌿' },          // Rize (Ayder’e yakın, hafif ofset)
 ];
 
 export const getPlateauColor = (index) => {

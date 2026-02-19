@@ -39,6 +39,13 @@ const LearningModeMenu = ({ onBackToMenu, onSelectCategory }) => {
       color: '#EC4899',
       description: 'Bayrakların anlamlarını öğren'
     },
+    { 
+      id: 'geography_keywords', 
+      name: 'Coğrafya Anahtar Kelimeler', 
+      icon: '📖', 
+      color: '#F59E0B',
+      description: 'Kritik kavramlar ve tanımlar'
+    },
   ];
 
   return (

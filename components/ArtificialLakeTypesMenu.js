@@ -23,33 +23,20 @@ const ArtificialLakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
               <Text style={styles.backText}>Göller Menü</Text>
             </TouchableOpacity>
             <Text style={styles.title}>🏗️ Yapay Göller</Text>
-            <Text style={styles.subtitle}>Baraj tipini seç</Text>
+            <Text style={styles.subtitle}>Baraj gölleri</Text>
           </View>
 
-          {/* Menu Buttons - Yatay 5'li */}
+          {/* Sadece Baraj Gölleri */}
           <View style={styles.menuContainer}>
-            <View style={styles.row}>
-              <TouchableOpacity style={[styles.menuButton, styles.tectonicButton]} onPress={() => onSelectType('artificial-tectonic')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🌊</Text>
-                <Text style={styles.buttonTitle}>Tektonik</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.volcanicButton]} onPress={() => onSelectType('artificial-volcanic')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🌋</Text>
-                <Text style={styles.buttonTitle}>Volkanik</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.karsticButton]} onPress={() => onSelectType('artificial-karstic')} activeOpacity={0.9}>
-                <Text style={styles.icon}>💧</Text>
-                <Text style={styles.buttonTitle}>Karstik</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.damButton]} onPress={() => onSelectType('artificial-dam')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🏞️</Text>
-                <Text style={styles.buttonTitle}>Set</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.mixedButton]} onPress={() => onSelectType('artificial-mixed')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🌀</Text>
-                <Text style={styles.buttonTitle}>Karma</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[styles.menuButton, styles.artificialOnlyButton]}
+              onPress={() => onSelectType('artificial')}
+              activeOpacity={0.9}
+            >
+              <Text style={styles.icon}>🏗️</Text>
+              <Text style={styles.buttonTitle}>Baraj Gölleri</Text>
+              <Text style={styles.buttonSubtitle}>Su hazneleri ve barajlar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ImageBackground>
@@ -117,12 +104,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   menuButton: {
-    flex: 1,
-    aspectRatio: 1.2,
-    maxWidth: 140,
-    marginHorizontal: 6,
-    borderRadius: 16,
-    padding: 12,
+    alignSelf: 'center',
+    width: '85%',
+    maxWidth: 320,
+    borderRadius: 20,
+    padding: 28,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -133,33 +119,27 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  tectonicButton: {
-    backgroundColor: '#06B6D4',
-  },
-  volcanicButton: {
-    backgroundColor: '#EF4444',
-  },
-  karsticButton: {
-    backgroundColor: '#10B981',
-  },
-  damButton: {
+  artificialOnlyButton: {
     backgroundColor: '#F97316',
   },
-  mixedButton: {
-    backgroundColor: '#8B5CF6',
-  },
   icon: {
-    fontSize: 40,
-    marginBottom: 6,
+    fontSize: 48,
+    marginBottom: 10,
   },
   buttonTitle: {
-    fontSize: 14,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+    marginBottom: 6,
+  },
+  buttonSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'center',
   },
 });
 

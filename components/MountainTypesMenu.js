@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 
-const MountainTypesMenu = ({ onSelectType, onSelectAdjust, onBackToTurkeyMenu }) => {
+const MountainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -40,10 +40,6 @@ const MountainTypesMenu = ({ onSelectType, onSelectAdjust, onBackToTurkeyMenu })
               <TouchableOpacity style={[styles.menuButton, styles.faultButton]} onPress={() => onSelectType('fault')} activeOpacity={0.9}>
                 <Text style={styles.icon}>🏔️</Text>
                 <Text style={styles.buttonTitle}>Kırıklı</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.adjustButton]} onPress={() => onSelectAdjust()} activeOpacity={0.9}>
-                <Text style={styles.icon}>⚙️</Text>
-                <Text style={styles.buttonTitle}>Konum Ayarla</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -140,9 +136,6 @@ const styles = StyleSheet.create({
   },
   faultButton: {
     backgroundColor: '#8B5CF6',
-  },
-  adjustButton: {
-    backgroundColor: '#10B981',
   },
   icon: {
     fontSize: 48,

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { AppState } from 'react-native';
+import { setupDailyReminder, rescheduleAndroidReminder } from './utils/notificationSetup';
 import { StyleSheet, View, BackHandler } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import MainMenu from './components/MainMenu';
@@ -39,12 +41,13 @@ import TurkeyQuiz from './components/TurkeyQuiz';
 import WorldQuiz from './components/WorldQuiz';
 import PracticeModeMenu from './components/PracticeModeMenu';
 import LearningModeMenu from './components/LearningModeMenu';
+import GeographyKeywords from './components/GeographyKeywords';
+import DidYouKnowTrivia from './components/DidYouKnowTrivia';
 import MountainsMapManualAdjust from './components/MountainsMapManualAdjust';
-import PlainsMapManualAdjust from './components/PlainsMapManualAdjust';
 import LakesMapManualAdjust from './components/LakesMapManualAdjust';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState('main'); // 'main', 'turkey-menu', 'mountain-types-menu', 'plain-types-menu', 'lake-main-menu', 'lake-types-menu', 'artificial-lake-types-menu', 'world-menu', 'world-map', 'continents', 'europe', 'asia', 'africa', 'america', 'oceania', 'flags', 'turkey-regions', 'turkey-map', 'regions-only', 'mountains', 'plains', 'lakes', 'unesco', 'coasts', 'massifs', 'plateaus', 'world-flags-quiz', 'quiz-menu', 'turkey-quiz', 'world-quiz', 'practice-mode', 'learning-mode', 'mountains-adjust', 'plains-adjust', 'lakes-adjust'
+  const [currentScreen, setCurrentScreen] = useState('main'); // 'main', 'turkey-menu', 'mountain-types-menu', 'plain-types-menu', 'lake-main-menu', 'lake-types-menu', 'artificial-lake-types-menu', 'world-menu', 'world-map', 'continents', 'europe', 'asia', 'africa', 'america', 'oceania', 'flags', 'turkey-regions', 'turkey-map', 'regions-only', 'mountains', 'plains', 'lakes', 'unesco', 'coasts', 'massifs', 'plateaus', 'world-flags-quiz', 'quiz-menu', 'turkey-quiz', 'world-quiz', 'practice-mode', 'learning-mode', 'mountains-adjust', 'lakes-adjust'
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [selectedMountainType, setSelectedMountainType] = useState(null);
   const [selectedPlainType, setSelectedPlainType] = useState(null);
@@ -102,6 +105,8 @@ export default function App() {
                currentScreen === 'border-gates' ||
                currentScreen === 'world-flags-quiz' || currentScreen === 'capitals-quiz' ||
                currentScreen === 'exam-countdown' ||
+               currentScreen === 'geography-keywords' ||
+               currentScreen === 'did-you-know' ||
                currentScreen === 'quiz-menu' || currentScreen === 'practice-mode' ||
                currentScreen === 'learning-mode') {
       handleBackToMain();
@@ -113,8 +118,6 @@ export default function App() {
       handleBackToMountainTypesMenu();
     } else if (currentScreen === 'plains') {
       handleBackToTurkeyMenu();
-    } else if (currentScreen === 'plains-adjust') {
-      setCurrentScreen('plains');
     } else if (currentScreen === 'lakes-adjust') {
       setCurrentScreen('lakes');
     } else if (currentScreen === 'lakes') {
@@ -130,6 +133,16 @@ export default function App() {
   // Uygulama açılışında ve her ekran değişiminde yatay mod (iOS için kritik)
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+  }, []);
+
+  useEffect(() => {
+    setupDailyReminder().then(() => {
+      rescheduleAndroidReminder();
+    });
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') rescheduleAndroidReminder();
+    });
+    return () => sub.remove();
   }, []);
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -187,11 +200,6 @@ export default function App() {
     setCurrentScreen('plains');
   };
 
-  const handleSelectPlainAdjust = () => {
-    // Ova konumlarını ayarlama ekranına git
-    setCurrentScreen('plains-adjust');
-  };
-
   const handleBackToPlainTypesMenu = () => {
     setCurrentScreen('plain-types-menu');
     setSelectedPlainType(null);
@@ -230,8 +238,8 @@ export default function App() {
   };
 
   const handleBackToLakeTypesMenu = () => {
-    // Eğer yapay göl ise yapay göl tip menüsüne, doğal göl ise doğal göl tip menüsüne dön
-    if (selectedLakeType && selectedLakeType.startsWith('artificial-')) {
+    // Yapay gölse yapay menüye, doğal gölse doğal menüye dön
+    if (selectedLakeType === 'artificial') {
       setCurrentScreen('artificial-lake-types-menu');
     } else {
       setCurrentScreen('lake-types-menu');
@@ -302,6 +310,14 @@ export default function App() {
   const handleSelectLearningMode = () => {
     // Öğrenme Modu
     setCurrentScreen('learning-mode');
+  };
+
+  const handleSelectGeographyKeywords = () => {
+    setCurrentScreen('geography-keywords');
+  };
+
+  const handleSelectDidYouKnow = () => {
+    setCurrentScreen('did-you-know');
   };
 
   const handleSelectWorldQuiz = () => {
@@ -389,6 +405,8 @@ export default function App() {
           onSelectQuizMode={handleSelectQuizMode}
           onSelectPracticeMode={handleSelectPracticeMode}
           onSelectLearningMode={handleSelectLearningMode}
+          onSelectGeographyKeywords={handleSelectGeographyKeywords}
+          onSelectDidYouKnow={handleSelectDidYouKnow}
           onSelectExamCountdown={handleSelectExamCountdown}
         />
         <StatusBar style="auto" />
@@ -424,9 +442,8 @@ export default function App() {
   if (currentScreen === 'mountain-types-menu') {
     return (
       <View style={styles.container}>
-        <MountainTypesMenu 
+        <MountainTypesMenu
           onSelectType={handleSelectMountainType}
-          onSelectAdjust={handleSelectMountainAdjust}
           onBackToTurkeyMenu={handleBackToTurkeyMenu}
         />
         <StatusBar style="auto" />
@@ -452,20 +469,7 @@ export default function App() {
       <View style={styles.container}>
         <PlainTypesMenu 
           onSelectType={handleSelectPlainType}
-          onSelectAdjust={handleSelectPlainAdjust}
           onBackToTurkeyMenu={handleBackToTurkeyMenu}
-        />
-        <StatusBar style="auto" />
-      </View>
-    );
-  }
-
-  // Ova Konumlarını Ayarlama
-  if (currentScreen === 'plains-adjust') {
-    return (
-      <View style={styles.container}>
-        <PlainsMapManualAdjust 
-          onBackToMenu={handleBackToPlainTypesMenu}
         />
         <StatusBar style="auto" />
       </View>
@@ -582,7 +586,6 @@ export default function App() {
       <View style={styles.container}>
         <PlainsMap 
           onBackToMenu={handleBackToTurkeyMenu}
-          onAdjust={() => setCurrentScreen('plains-adjust')}
           plainType="all"
         />
         <StatusBar style="auto" />
@@ -766,6 +769,26 @@ export default function App() {
     );
   }
 
+  // Nerede Olduğunu Biliyor muydunuz?
+  if (currentScreen === 'did-you-know') {
+    return (
+      <View style={styles.container}>
+        <DidYouKnowTrivia onBackToMenu={handleBackToMain} />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  // Coğrafya Anahtar Kelimeler
+  if (currentScreen === 'geography-keywords') {
+    return (
+      <View style={styles.container}>
+        <GeographyKeywords onBackToMenu={handleBackToMain} />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
   // Öğrenme Modu
   if (currentScreen === 'learning-mode') {
     return (
@@ -788,6 +811,8 @@ export default function App() {
               setCurrentScreen('world-map');
             } else if (category === 'world_flags') {
               setCurrentScreen('world-flags-quiz');
+            } else if (category === 'geography_keywords') {
+              setCurrentScreen('geography-keywords');
             }
           }}
         />
@@ -931,6 +956,5 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
   },
 });

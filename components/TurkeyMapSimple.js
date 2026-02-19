@@ -43,7 +43,6 @@ const TurkeyMapSimple = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
     padding: 20,
   },
   title: {
@@ -56,8 +55,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   svg: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: 'transparent',
   },
 });
 

@@ -84,8 +84,7 @@ const NeighborsMap = ({ onBackToMenu }) => {
         lastTranslateX.current = translateX._value;
         lastTranslateY.current = translateY._value;
       },
-    })
-  ).current;
+    })  ).current;
 
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -190,8 +189,9 @@ const NeighborsMap = ({ onBackToMenu }) => {
 
       <View style={styles.mapContainer}>
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
-          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.7} viewBox="525 100 160 112" style={styles.svg}>
-            <Path d="M525,100 L685,100 L685,212 L525,212 Z" fill="#A5D8FF" opacity={0.3} />
+          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.7} viewBox="525 100 160 112" style={[styles.svg, { opacity: 1 }]}>
+            {/* Harita arka planı - tam opak, saydamlık yok */}
+            <Path d="M525,100 L685,100 L685,212 L525,212 Z" fill="#1E293B" fillOpacity={1} opacity={1} />
             <G>
               {worldPaths.map((country) => {
                 const isNeighbor = neighborCountries.includes(country.id);
@@ -199,19 +199,15 @@ const NeighborsMap = ({ onBackToMenu }) => {
                 const isSelected = selectedCountry === country.id;
                 const isTurkey = country.id === 'TUR';
                 
-                // Sadece Türkiye ve komşu ülkeleri göster
                 if (!isTurkey && !isNeighbor) return null;
                 
                 let fillColor = '#E5E7EB';
                 let strokeColor = '#FFFFFF';
-                let opacity = 0.3;
                 
                 if (isTurkey) {
                   fillColor = '#9CA3AF';
-                  opacity = 0.6;
                 } else if (isNeighbor) {
                   fillColor = getCountryColor(neighborCountries.indexOf(country.id));
-                  opacity = 0.9;
                 }
                 
                 if (isSelected && feedback === 'correct') {
@@ -223,12 +219,11 @@ const NeighborsMap = ({ onBackToMenu }) => {
                 } else if (isFound) {
                   fillColor = '#4B5563';
                   strokeColor = '#374151';
-                  opacity = 0.9;
                 }
                 
                 return (
                   <G key={country.id} onPress={() => isNeighbor && handleCountryPress(country)} onPressIn={() => isNeighbor && handleCountryPress(country)}>
-                    <Path d={country.d} fill={fillColor} stroke={strokeColor} strokeWidth="0.5" opacity={opacity} />
+                    <Path d={country.d} fill={fillColor} fillOpacity={1} stroke={strokeColor} strokeWidth="0.0" opacity={1} />
                   </G>
                 );
               })}
@@ -310,7 +305,7 @@ const styles = StyleSheet.create({
   wrongIcon: { backgroundColor: '#000000' },
   mapContainer: { flex: 1, overflow: 'hidden' },
   mapWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 4 },
-  svg: { backgroundColor: '#FFFFFF', borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
+  svg: { backgroundColor: 'transparent' },
   footer: { backgroundColor: 'rgba(15, 23, 42, 0.92)', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: 'rgba(148, 163, 184, 0.2)', alignItems: 'center' },
   resetButton: { backgroundColor: '#059669', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, alignItems: 'center' },
   resetButtonText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },

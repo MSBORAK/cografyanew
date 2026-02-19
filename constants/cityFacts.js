@@ -449,3 +449,31 @@ export const getRandomFact = (cityName) => {
   }
   return facts[Math.floor(Math.random() * facts.length)];
 };
+
+// Rastgele şehir + bilgi çifti (trivia için)
+export const getRandomCityFact = () => {
+  const cities = Object.keys(cityFacts);
+  const city = cities[Math.floor(Math.random() * cities.length)];
+  const fact = getRandomFact(city);
+  return { city, fact };
+};
+
+// Trivia için karıştırılmış liste oluştur
+export const buildTriviaList = (count = 50) => {
+  const list = [];
+  const seen = new Set();
+  const cities = Object.keys(cityFacts);
+  let attempts = 0;
+  while (list.length < count && attempts < 200) {
+    attempts++;
+    const city = cities[Math.floor(Math.random() * cities.length)];
+    const facts = cityFacts[city];
+    if (!facts || facts.length === 0) continue;
+    const fact = facts[Math.floor(Math.random() * facts.length)];
+    const key = `${city}|${fact}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    list.push({ city, fact });
+  }
+  return list;
+};

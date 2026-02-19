@@ -9,7 +9,7 @@ import {
   PanResponder,
   ImageBackground,
 } from 'react-native';
-import Svg, { G, Path, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
 import { Home, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
@@ -179,60 +179,36 @@ const PlateausMap = ({ onBackToMenu }) => {
       <View style={styles.mapContainer}>
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
           <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.52} viewBox="0 0 1007.478 527.323" style={styles.svg}>
+            {/* Türkiye haritası - belirgin il sınırları */}
             <G>
               {turkeyPaths.map((city) => (
-                <Path key={city.id} d={city.d} fill="#F3F4F6" stroke="#E5E7EB" strokeWidth="0.3" opacity={1} />
+                <Path key={city.id} d={city.d} fill="#E2E8F0" stroke="#94A3B8" strokeWidth="0.8" opacity={1} />
               ))}
             </G>
+            {/* Platolar - nokta + emoji, tıklanabilir alan */}
             <G>
-              {plateaus.map((plateau, index) => {
+              {plateaus.map((plateau) => {
                 const isFound = foundPlateaus.includes(plateau.id);
-                const isSelected = selectedPlateau === plateau.id;
-                
-                let fillColor = getPlateauColor(index);
-                let strokeColor = '#FFFFFF';
-                
-                if (isSelected && feedback === 'correct') {
-                  fillColor = '#10B981';
-                  strokeColor = '#059669';
-                } else if (isSelected && feedback === 'wrong') {
-                  fillColor = '#000000';
-                  strokeColor = '#374151';
-                } else if (isFound) {
-                  fillColor = '#9CA3AF';
-                  strokeColor = '#6B7280';
-                }
-                
+                const hitRadius = 28;
                 return (
                   <G key={plateau.id} onPress={() => handlePlateauPress(plateau)} onPressIn={() => handlePlateauPress(plateau)}>
-                    <Rect 
-                      x={plateau.x} 
-                      y={plateau.y} 
-                      width={plateau.width} 
-                      height={plateau.height} 
-                      fill={fillColor} 
-                      stroke={strokeColor} 
-                      strokeWidth="2" 
-                      opacity={0.6}
-                      rx="4"
-                    />
-                    <SvgText 
-                      x={plateau.x + plateau.width / 2} 
-                      y={plateau.y + plateau.height / 2 + 6} 
-                      fontSize="16" 
-                      fill="#FFFFFF" 
-                      textAnchor="middle" 
-                      fontWeight="600"
+                    <Circle cx={plateau.x} cy={plateau.y} r={hitRadius} fill="transparent" />
+                    <SvgText
+                      x={plateau.x}
+                      y={plateau.y}
+                      fontSize="22"
+                      textAnchor="middle"
+                      alignmentBaseline="middle"
                     >
                       {plateau.icon}
                     </SvgText>
                     {isFound && (
-                      <SvgText 
-                        x={plateau.x + plateau.width / 2} 
-                        y={plateau.y + plateau.height + 15} 
-                        fontSize="9" 
-                        fill="#374151" 
-                        textAnchor="middle" 
+                      <SvgText
+                        x={plateau.x}
+                        y={plateau.y + 24}
+                        fontSize="10"
+                        fill="#374151"
+                        textAnchor="middle"
                         fontWeight="600"
                       >
                         {plateau.name}
@@ -261,7 +237,7 @@ const PlateausMap = ({ onBackToMenu }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  container: { flex: 1 },
   header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: { padding: 6, marginRight: 8 },
@@ -278,7 +254,7 @@ const styles = StyleSheet.create({
   wrongIcon: { backgroundColor: '#000000' },
   mapContainer: { flex: 1, overflow: 'hidden' },
   mapWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 4 },
-  svg: { backgroundColor: '#FFFFFF', borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
+  svg: { backgroundColor: 'transparent' },
   footer: { backgroundColor: 'rgba(15, 23, 42, 0.92)', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: 'rgba(148, 163, 184, 0.2)', alignItems: 'center' },
   resetButton: { backgroundColor: '#DC2626', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, alignItems: 'center' },
   resetButtonText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },

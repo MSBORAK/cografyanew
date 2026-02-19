@@ -245,7 +245,7 @@ const MassifsMap = ({ onBackToMenu }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  container: { flex: 1 },
   header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: { padding: 6, marginRight: 8 },
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   wrongIcon: { backgroundColor: '#000000' },
   mapContainer: { flex: 1, overflow: 'hidden' },
   mapWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 4 },
-  svg: { backgroundColor: '#FFFFFF', borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
+  svg: { backgroundColor: 'transparent' },
   footer: { backgroundColor: 'rgba(15, 23, 42, 0.92)', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: 'rgba(148, 163, 184, 0.2)', alignItems: 'center' },
   resetButton: { backgroundColor: '#78716C', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, alignItems: 'center' },
   resetButtonText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },

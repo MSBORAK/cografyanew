@@ -1,14 +1,14 @@
-// Türkiye'nin kıyı tipleri
+// Türkiye'nin kıyı tipleri - il merkezlerine göre (cityCenters viewBox)
 
 export const coasts = [
-  { id: 1, name: 'Karadeniz Kıyıları', x: 600, y: 150, type: 'Yüksek ve Dik', icon: '🏔️' },
-  { id: 2, name: 'Marmara Kıyıları', x: 250, y: 210, type: 'Girintili Çıkıntılı', icon: '🏖️' },
-  { id: 3, name: 'Ege Kıyıları', x: 260, y: 320, type: 'Girintili Çıkıntılı', icon: '🏖️' },
-  { id: 4, name: 'Akdeniz Kıyıları', x: 480, y: 380, type: 'Düz ve Kumlu', icon: '🏝️' },
-  { id: 5, name: 'Çukurova Kıyıları', x: 600, y: 370, type: 'Delta Kıyısı', icon: '🌊' },
-  { id: 6, name: 'Antalya Körfezi', x: 420, y: 390, type: 'Körfez', icon: '⚓' },
-  { id: 7, name: 'İzmir Körfezi', x: 280, y: 310, type: 'Körfez', icon: '⚓' },
-  { id: 8, name: 'İzmit Körfezi', x: 320, y: 220, type: 'Körfez', icon: '⚓' },
+  { id: 1, name: 'Karadeniz Kıyıları', x: 530, y: 81, type: 'Yüksek ve Dik', icon: '🏔️' },     // Samsun (Karadeniz orta)
+  { id: 2, name: 'Marmara Kıyıları', x: 177, y: 141, type: 'Girintili Çıkıntılı', icon: '🏖️' },  // Bursa (Marmara)
+  { id: 3, name: 'Ege Kıyıları', x: 79, y: 261, type: 'Girintili Çıkıntılı', icon: '🏖️' },       // İzmir
+  { id: 4, name: 'Akdeniz Kıyıları', x: 256, y: 352, type: 'Düz ve Kumlu', icon: '🏝️' },        // Antalya
+  { id: 5, name: 'Çukurova Kıyıları', x: 502, y: 345, type: 'Delta Kıyısı', icon: '🌊' },       // Adana
+  { id: 6, name: 'Antalya Körfezi', x: 248, y: 362, type: 'Körfez', icon: '⚓' },               // Antalya körfezi (güneye kaydırıldı – net ayrı)
+  { id: 7, name: 'İzmir Körfezi', x: 66, y: 252, type: 'Körfez', icon: '⚓' },                   // İzmir körfezi (batıya kaydırıldı – net ayrı)
+  { id: 8, name: 'İzmit Körfezi', x: 231, y: 84, type: 'Körfez', icon: '⚓' },                  // Kocaeli (İzmit)
 ];
 
 export const getCoastColor = (type) => {

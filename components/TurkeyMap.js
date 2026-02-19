@@ -495,7 +495,6 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
   },
   header: {
     paddingTop: 36,

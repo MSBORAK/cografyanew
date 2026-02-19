@@ -329,7 +329,6 @@ const CoastsMap = ({ onBackToMenu }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
   },
   header: {
     paddingTop: 36,
@@ -404,13 +403,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   svg: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: 'transparent',
   },
   footer: {
     backgroundColor: 'rgba(15, 23, 42, 0.92)',

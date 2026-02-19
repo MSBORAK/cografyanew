@@ -9,7 +9,7 @@ import {
   PanResponder,
   ImageBackground,
 } from 'react-native';
-import Svg, { G, Path, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
 import { Home, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
@@ -19,7 +19,7 @@ import { getPlainsByType, getPlainTypeName } from '../constants/plainTypes';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
-const PlainsMap = ({ onBackToMenu, onAdjust, plainType = 'all' }) => {
+const PlainsMap = ({ onBackToMenu, plainType = 'all' }) => {
   // Ova tipine göre ovaları al
   const plains = getPlainsByType(plainType);
   const plainTypeName = getPlainTypeName(plainType);
@@ -203,14 +203,6 @@ const PlainsMap = ({ onBackToMenu, onAdjust, plainType = 'all' }) => {
             </View>
           )}
         </View>
-        {onAdjust && (
-          <TouchableOpacity 
-            style={styles.adjustButton}
-            onPress={onAdjust}
-          >
-            <Text style={styles.adjustButtonText}>⚙️ Konum Ayarla</Text>
-          </TouchableOpacity>
-        )}
         {!isCompleted && currentPlain && (
           <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
@@ -240,15 +232,15 @@ const PlainsMap = ({ onBackToMenu, onAdjust, plainType = 'all' }) => {
             viewBox="0 0 1007.478 527.323"
             style={styles.svg}
           >
-            {/* Türkiye haritası - şehir sınırları çok açık gri */}
+            {/* Türkiye haritası - belirgin arka plan ve il sınırları */}
             <G>
               {turkeyPaths.map((city) => (
                 <Path
                   key={city.id}
                   d={city.d}
-                  fill="#F3F4F6"
-                  stroke="#E5E7EB"
-                  strokeWidth="0.3"
+                  fill="#E2E8F0"
+                  stroke="#94A3B8"
+                  strokeWidth="0.8"
                   opacity={1}
                 />
               ))}
@@ -260,19 +252,7 @@ const PlainsMap = ({ onBackToMenu, onAdjust, plainType = 'all' }) => {
                 const isFound = foundPlains.includes(plain.id);
                 const isSelected = selectedPlain === plain.id;
                 
-                let fillColor = '#84CC16'; // Yeşil-sarı
-                let strokeColor = '#65A30D';
-                
-                if (isSelected && feedback === 'correct') {
-                  fillColor = '#10B981'; // Yeşil
-                  strokeColor = '#059669';
-                } else if (isSelected && feedback === 'wrong') {
-                  fillColor = '#000000'; // Siyah
-                  strokeColor = '#374151';
-                } else if (isFound) {
-                  fillColor = '#9CA3AF'; // Gri
-                  strokeColor = '#6B7280';
-                }
+                const hitRadius = 28;
                 
                 return (
                   <G 
@@ -280,25 +260,28 @@ const PlainsMap = ({ onBackToMenu, onAdjust, plainType = 'all' }) => {
                     onPress={() => handlePlainPress(plain)}
                     onPressIn={() => handlePlainPress(plain)}
                   >
-                    {/* Ova işareti (oval/elips) */}
-                    <Rect
-                      x={plain.x - plain.width / 2}
-                      y={plain.y - plain.height / 2}
-                      width={plain.width}
-                      height={plain.height}
-                      rx={plain.width / 2}
-                      ry={plain.height / 2}
-                      fill={fillColor}
-                      stroke={strokeColor}
-                      strokeWidth="2"
-                      opacity={0.7}
+                    {/* Tıklanabilir alan (görünmez daire) */}
+                    <Circle
+                      cx={plain.x}
+                      cy={plain.y}
+                      r={hitRadius}
+                      fill="transparent"
                     />
-                    
+                    {/* Ova işareti: 🌳 emoji */}
+                    <SvgText
+                      x={plain.x}
+                      y={plain.y}
+                      fontSize="22"
+                      textAnchor="middle"
+                      alignmentBaseline="middle"
+                    >
+                      🌳
+                    </SvgText>
                     {/* Ova adı (bulunanlar için) */}
                     {isFound && (
                       <SvgText
                         x={plain.x}
-                        y={plain.y + plain.height / 2 + 15}
+                        y={plain.y + 24}
                         fontSize="10"
                         fill="#374151"
                         textAnchor="middle"
@@ -340,7 +323,6 @@ const PlainsMap = ({ onBackToMenu, onAdjust, plainType = 'all' }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
   },
   header: {
     paddingTop: 36,
@@ -415,13 +397,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   svg: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: 'transparent',
   },
   footer: {
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
@@ -458,25 +434,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-  },
-  adjustButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: '#10B981',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  adjustButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#FFFFFF',
   },
 });
 
