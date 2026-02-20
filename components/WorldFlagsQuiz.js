@@ -7,12 +7,13 @@ import {
   ScrollView,
   ImageBackground,
 } from 'react-native';
-import { Home, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { countryFlags } from '../constants/countryFlags';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
+import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 
-const WorldFlagsQuiz = ({ onBackToMenu }) => {
+const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
   const [quizFlags, setQuizFlags] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -75,10 +76,12 @@ const WorldFlagsQuiz = ({ onBackToMenu }) => {
     setSelectedAnswer(option.id);
 
     if (option.id === currentFlag.id) {
+      removeWrongAnswer('world_flags', currentFlag.id);
       setFeedback('correct');
       setScore(score + 1);
       playCorrectSound();
     } else {
+      saveWrongAnswer('world_flags', currentFlag.id, currentFlag.name || currentFlag.id);
       setFeedback('wrong');
       playWrongSound();
     }
@@ -123,9 +126,15 @@ const WorldFlagsQuiz = ({ onBackToMenu }) => {
         blurRadius={3}
       >
         <View style={styles.header}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#60A5FA" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Home size={24} color="#60A5FA" />
-            <Text style={styles.backText}>Ana Menü</Text>
+            <ChevronLeft size={24} color="#60A5FA" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
         </View>
 
@@ -154,9 +163,15 @@ const WorldFlagsQuiz = ({ onBackToMenu }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
+        {onBackToMain && (
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+            <Home size={24} color="#60A5FA" />
+            <Text style={styles.backText}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#60A5FA" />
-          <Text style={styles.backText}>Ana Menü</Text>
+          <ChevronLeft size={24} color="#60A5FA" />
+          <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>

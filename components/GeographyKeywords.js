@@ -10,7 +10,7 @@ import {
 import { Home, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { GEOGRAPHY_KEYWORDS } from '../constants/geographyKeywords';
 
-const GeographyKeywords = ({ onBackToMenu }) => {
+const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showDefinition, setShowDefinition] = useState(false);
 
@@ -38,8 +38,14 @@ const GeographyKeywords = ({ onBackToMenu }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
+        {onBackToMain && (
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+            <Home size={24} color="#F59E0B" />
+            <Text style={styles.backText}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#F59E0B" />
+          <ChevronLeft size={24} color="#F59E0B" />
           <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Coğrafya Anahtar Kelimeler</Text>

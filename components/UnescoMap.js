@@ -11,7 +11,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
-import { RotateCcw, Home, Maximize2, Check, X } from 'lucide-react-native';
+import { RotateCcw, Home, ChevronLeft, Maximize2, Check, X } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { unescoSites } from '../constants/unescoSites';
@@ -55,7 +55,7 @@ const CityPath = ({ city, isSelected, isInRegion, isCorrect, isWrong, onPress, c
 };
 
 // Main UNESCO Map Component
-const UnescoMap = ({ onBackToMenu }) => {
+const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [correctAnswers, setCorrectAnswers] = useState([]);
   const [wrongAttempts, setWrongAttempts] = useState([]);
@@ -237,11 +237,15 @@ const UnescoMap = ({ onBackToMenu }) => {
     >
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={onBackToMenu}
-          >
-            <Home size={20} color="#E2E8F0" />
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={20} color="#E2E8F0" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={20} color="#E2E8F0" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>UNESCO Dünya Mirası</Text>
@@ -421,8 +425,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 6,
     marginRight: 8,
+    gap: 4,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#E2E8F0',
+    fontWeight: '600',
   },
   headerLeft: { justifyContent: 'center' },
   headerSpacer: { flex: 1 },

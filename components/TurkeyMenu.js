@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, useWindowDimensions, Platform } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Home } from 'lucide-react-native';
 
 const menuItems = [
   { id: 'cities', title: '81 İl', icon: '🏙️', style: 'citiesButton', onPress: 'onSelectCities' },
@@ -51,8 +51,12 @@ const TurkeyMenu = ({
         <View style={styles.overlay}>
           <View style={styles.header}>
             <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <ChevronLeft size={20} color="#FFFFFF" />
+              <Home size={20} color="#FFFFFF" />
               <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <ChevronLeft size={20} color="#FFFFFF" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
             <Text style={styles.title}>🇹🇷 Türkiye Haritası</Text>
             <Text style={styles.subtitle}>Öğrenmek istediğin konuyu seç</Text>

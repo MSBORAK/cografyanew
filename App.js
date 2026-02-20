@@ -41,6 +41,7 @@ import TurkeyQuiz from './components/TurkeyQuiz';
 import WorldQuiz from './components/WorldQuiz';
 import PracticeModeMenu from './components/PracticeModeMenu';
 import LearningModeMenu from './components/LearningModeMenu';
+import { getWrongAnswers } from './utils/practiceMode';
 import GeographyKeywords from './components/GeographyKeywords';
 import DidYouKnowTrivia from './components/DidYouKnowTrivia';
 import MountainsMapManualAdjust from './components/MountainsMapManualAdjust';
@@ -53,6 +54,8 @@ export default function App() {
   const [selectedPlainType, setSelectedPlainType] = useState(null);
   const [selectedLakeType, setSelectedLakeType] = useState(null);
   const [isLearningMode, setIsLearningMode] = useState(false);
+  const [practiceIds, setPracticeIds] = useState(null);
+  const [fromPracticeMode, setFromPracticeMode] = useState(false);
 
   // Android geri tuşu için BackHandler
   useEffect(() => {
@@ -78,7 +81,8 @@ export default function App() {
   const handleBackPress = () => {
     // Her ekran için geri gitme mantığı
     if (currentScreen === 'turkey-menu') {
-      handleBackToMain();
+      if (isLearningMode) handleBackToLearningMode();
+      else handleBackToMain();
     } else if (currentScreen === 'world-menu') {
       handleBackToMain();
     } else if (currentScreen === 'mountain-types-menu') {
@@ -94,13 +98,23 @@ export default function App() {
     } else if (currentScreen === 'turkey-regions') {
       handleBackToTurkeyMenu();
     } else if (currentScreen === 'turkey-map') {
-      if (selectedRegion === 'all') {
+      if (fromPracticeMode) {
+        setFromPracticeMode(false);
+        setPracticeIds(null);
+        setCurrentScreen('practice-mode');
+      } else if (isLearningMode) {
+        handleBackToLearningMode();
+      } else if (selectedRegion === 'all') {
         handleBackToTurkeyMenu();
       } else {
         handleBackToRegions();
       }
-    } else if (currentScreen === 'regions-only' || currentScreen === 'unesco' || 
-               currentScreen === 'coasts' || currentScreen === 'massifs' || 
+    } else if ((currentScreen === 'world-flags-quiz' || currentScreen === 'mountains' || currentScreen === 'lakes') && fromPracticeMode) {
+      setFromPracticeMode(false);
+      setPracticeIds(null);
+      setCurrentScreen('practice-mode');
+    } else if (currentScreen === 'regions-only' || currentScreen === 'unesco' ||
+               currentScreen === 'coasts' || currentScreen === 'massifs' ||
                currentScreen === 'plateaus' || currentScreen === 'neighbors' ||
                currentScreen === 'border-gates' ||
                currentScreen === 'world-flags-quiz' || currentScreen === 'capitals-quiz' ||
@@ -122,11 +136,21 @@ export default function App() {
       setCurrentScreen('lakes');
     } else if (currentScreen === 'lakes') {
       handleBackToLakeTypesMenu();
-    } else if (currentScreen === 'world-map' || currentScreen === 'continents' || 
-               currentScreen === 'europe' || currentScreen === 'asia' || 
-               currentScreen === 'africa' || currentScreen === 'america' || 
+    } else if ((currentScreen === 'world-flags-quiz' || currentScreen === 'geography-keywords') && isLearningMode) {
+      handleBackToLearningMode();
+    } else if (currentScreen === 'world-map' || currentScreen === 'continents' ||
+               currentScreen === 'europe' || currentScreen === 'asia' ||
+               currentScreen === 'africa' || currentScreen === 'america' ||
                currentScreen === 'oceania' || currentScreen === 'antarctica' || currentScreen === 'flags') {
-      handleBackToWorldMenu();
+      if (fromPracticeMode && currentScreen === 'world-map') {
+        setFromPracticeMode(false);
+        setPracticeIds(null);
+        setCurrentScreen('practice-mode');
+      } else if (isLearningMode && currentScreen === 'world-map') {
+        handleBackToLearningMode();
+      } else {
+        handleBackToWorldMenu();
+      }
     }
   };
 
@@ -303,8 +327,42 @@ export default function App() {
   };
 
   const handleSelectPracticeMode = () => {
-    // Pratik Modu
     setCurrentScreen('practice-mode');
+  };
+
+  const handleBackToPracticeMode = () => {
+    setFromPracticeMode(false);
+    setPracticeIds(null);
+    setCurrentScreen('practice-mode');
+  };
+
+  const handleSelectPracticeCategory = async (category) => {
+    const items = await getWrongAnswers(category);
+    if (!items || items.length === 0) return;
+    const ids = items.map((i) => i.id);
+    setPracticeIds(ids);
+    setFromPracticeMode(true);
+    switch (category) {
+      case 'turkey_cities':
+        setSelectedRegion('all');
+        setCurrentScreen('turkey-map');
+        break;
+      case 'world_countries':
+        setCurrentScreen('world-map');
+        break;
+      case 'turkey_mountains':
+        setCurrentScreen('mountains');
+        break;
+      case 'turkey_lakes':
+        setCurrentScreen('lakes');
+        break;
+      case 'world_flags':
+        setCurrentScreen('world-flags-quiz');
+        break;
+      default:
+        setFromPracticeMode(false);
+        setPracticeIds(null);
+    }
   };
 
   const handleSelectLearningMode = () => {
@@ -393,6 +451,10 @@ export default function App() {
     setCurrentScreen('world-menu');
   };
 
+  const handleBackToLearningMode = () => {
+    setCurrentScreen('learning-mode');
+  };
+
   // Ana Menü
   if (currentScreen === 'main') {
     return (
@@ -431,7 +493,7 @@ export default function App() {
           onSelectPlateaus={handleSelectPlateaus}
           onSelectNeighbors={handleSelectNeighbors}
           onSelectBorderGates={handleSelectBorderGates}
-          onBackToMain={handleBackToMain}
+          onBackToMain={isLearningMode ? handleBackToLearningMode : handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -545,10 +607,12 @@ export default function App() {
   if (currentScreen === 'turkey-map') {
     return (
       <View style={styles.container}>
-        <TurkeyMap 
-          onBackToHome={selectedRegion === 'all' ? handleBackToTurkeyMenu : handleBackToRegions}
+        <TurkeyMap
+          onBackToHome={fromPracticeMode ? handleBackToPracticeMode : (isLearningMode ? handleBackToLearningMode : (selectedRegion === 'all' ? handleBackToTurkeyMenu : handleBackToRegions))}
+          onBackToMain={handleBackToMain}
           selectedRegion={selectedRegion}
           learningMode={isLearningMode}
+          practiceCityIds={fromPracticeMode ? practiceIds : null}
         />
         <StatusBar style="auto" />
       </View>
@@ -559,8 +623,9 @@ export default function App() {
   if (currentScreen === 'regions-only') {
     return (
       <View style={styles.container}>
-        <RegionsMap 
+        <RegionsMap
           onBackToMenu={handleBackToTurkeyMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -571,8 +636,9 @@ export default function App() {
   if (currentScreen === 'mountains') {
     return (
       <View style={styles.container}>
-        <MountainsMap 
+        <MountainsMap
           onBackToMenu={handleBackToMountainTypesMenu}
+          onBackToMain={handleBackToMain}
           mountainType={selectedMountainType}
         />
         <StatusBar style="auto" />
@@ -584,8 +650,9 @@ export default function App() {
   if (currentScreen === 'plains') {
     return (
       <View style={styles.container}>
-        <PlainsMap 
+        <PlainsMap
           onBackToMenu={handleBackToTurkeyMenu}
+          onBackToMain={handleBackToMain}
           plainType="all"
         />
         <StatusBar style="auto" />
@@ -597,8 +664,9 @@ export default function App() {
   if (currentScreen === 'lakes') {
     return (
       <View style={styles.container}>
-        <LakesMap 
+        <LakesMap
           onBackToMenu={handleBackToLakeTypesMenu}
+          onBackToMain={handleBackToMain}
           onAdjustPositions={() => setCurrentScreen('lakes-adjust')}
           lakeType={selectedLakeType}
         />
@@ -611,8 +679,9 @@ export default function App() {
   if (currentScreen === 'unesco') {
     return (
       <View style={styles.container}>
-        <UnescoMap 
+        <UnescoMap
           onBackToMenu={handleBackToTurkeyMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -623,8 +692,9 @@ export default function App() {
   if (currentScreen === 'coasts') {
     return (
       <View style={styles.container}>
-        <CoastsMap 
+        <CoastsMap
           onBackToMenu={handleBackToTurkeyMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -635,8 +705,9 @@ export default function App() {
   if (currentScreen === 'massifs') {
     return (
       <View style={styles.container}>
-        <MassifsMap 
+        <MassifsMap
           onBackToMenu={handleBackToTurkeyMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -647,8 +718,9 @@ export default function App() {
   if (currentScreen === 'plateaus') {
     return (
       <View style={styles.container}>
-        <PlateausMap 
+        <PlateausMap
           onBackToMenu={handleBackToTurkeyMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -659,8 +731,9 @@ export default function App() {
   if (currentScreen === 'neighbors') {
     return (
       <View style={styles.container}>
-        <NeighborsMap 
+        <NeighborsMap
           onBackToMenu={handleBackToTurkeyMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -671,8 +744,9 @@ export default function App() {
   if (currentScreen === 'border-gates') {
     return (
       <View style={styles.container}>
-        <BorderGatesMap 
+        <BorderGatesMap
           onBackToMenu={handleBackToTurkeyMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -684,7 +758,8 @@ export default function App() {
     return (
       <View style={styles.container}>
         <WorldFlagsQuiz
-          onBackToMenu={handleBackToMain}
+          onBackToMenu={isLearningMode ? handleBackToLearningMode : handleBackToMain}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -697,6 +772,7 @@ export default function App() {
       <View style={styles.container}>
         <CapitalsQuiz
           onBackToMenu={handleBackToMain}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -709,6 +785,7 @@ export default function App() {
       <View style={styles.container}>
         <ExamCountdown
           onBackToMenu={handleBackToMain}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -733,8 +810,9 @@ export default function App() {
   if (currentScreen === 'turkey-quiz') {
     return (
       <View style={styles.container}>
-        <TurkeyQuiz 
+        <TurkeyQuiz
           onBackToMenu={handleBackToQuizMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -745,8 +823,9 @@ export default function App() {
   if (currentScreen === 'world-quiz') {
     return (
       <View style={styles.container}>
-        <WorldQuiz 
+        <WorldQuiz
           onBackToMenu={handleBackToQuizMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -757,12 +836,10 @@ export default function App() {
   if (currentScreen === 'practice-mode') {
     return (
       <View style={styles.container}>
-        <PracticeModeMenu 
+        <PracticeModeMenu
           onBackToMenu={handleBackToMain}
-          onSelectCategory={(category) => {
-            console.log('Pratik kategori seçildi:', category);
-            // TODO: Kategori bazlı pratik modu başlat
-          }}
+          onBackToMain={handleBackToMain}
+          onSelectCategory={handleSelectPracticeCategory}
         />
         <StatusBar style="auto" />
       </View>
@@ -773,7 +850,7 @@ export default function App() {
   if (currentScreen === 'did-you-know') {
     return (
       <View style={styles.container}>
-        <DidYouKnowTrivia onBackToMenu={handleBackToMain} />
+        <DidYouKnowTrivia onBackToMenu={handleBackToMain} onBackToMain={handleBackToMain} />
         <StatusBar style="auto" />
       </View>
     );
@@ -783,7 +860,7 @@ export default function App() {
   if (currentScreen === 'geography-keywords') {
     return (
       <View style={styles.container}>
-        <GeographyKeywords onBackToMenu={handleBackToMain} />
+        <GeographyKeywords onBackToMenu={isLearningMode ? handleBackToLearningMode : handleBackToMain} onBackToMain={handleBackToMain} />
         <StatusBar style="auto" />
       </View>
     );
@@ -793,8 +870,9 @@ export default function App() {
   if (currentScreen === 'learning-mode') {
     return (
       <View style={styles.container}>
-        <LearningModeMenu 
+        <LearningModeMenu
           onBackToMenu={handleBackToMain}
+          onBackToMain={handleBackToMain}
           onSelectCategory={(category) => {
             console.log('Öğrenme kategori seçildi:', category);
             
@@ -846,8 +924,9 @@ export default function App() {
   if (currentScreen === 'world-map') {
     return (
       <View style={styles.container}>
-        <WorldMap 
-          onBackToMenu={handleBackToWorldMenu}
+        <WorldMap
+          onBackToMenu={isLearningMode ? handleBackToLearningMode : handleBackToWorldMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -858,8 +937,9 @@ export default function App() {
   if (currentScreen === 'continents') {
     return (
       <View style={styles.container}>
-        <ContinentsMap 
+        <ContinentsMap
           onBackToMenu={handleBackToWorldMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -870,8 +950,9 @@ export default function App() {
   if (currentScreen === 'europe') {
     return (
       <View style={styles.container}>
-        <EuropeMap 
+        <EuropeMap
           onBackToMenu={handleBackToWorldMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -882,8 +963,9 @@ export default function App() {
   if (currentScreen === 'asia') {
     return (
       <View style={styles.container}>
-        <AsiaMap 
+        <AsiaMap
           onBackToMenu={handleBackToWorldMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -894,8 +976,9 @@ export default function App() {
   if (currentScreen === 'africa') {
     return (
       <View style={styles.container}>
-        <AfricaMap 
+        <AfricaMap
           onBackToMenu={handleBackToWorldMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -906,8 +989,9 @@ export default function App() {
   if (currentScreen === 'america') {
     return (
       <View style={styles.container}>
-        <AmericaMap 
+        <AmericaMap
           onBackToMenu={handleBackToWorldMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -918,8 +1002,9 @@ export default function App() {
   if (currentScreen === 'oceania') {
     return (
       <View style={styles.container}>
-        <OceaniaMap 
+        <OceaniaMap
           onBackToMenu={handleBackToWorldMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -930,8 +1015,9 @@ export default function App() {
   if (currentScreen === 'antarctica') {
     return (
       <View style={styles.container}>
-        <AntarcticaMap 
+        <AntarcticaMap
           onBackToMenu={handleBackToWorldMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>
@@ -942,8 +1028,9 @@ export default function App() {
   if (currentScreen === 'flags') {
     return (
       <View style={styles.container}>
-        <FlagsQuiz 
+        <FlagsQuiz
           onBackToMenu={handleBackToWorldMenu}
+          onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
       </View>

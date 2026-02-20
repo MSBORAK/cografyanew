@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Home } from 'lucide-react-native';
 
 const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onBackToMain }) => {
   return (
@@ -12,15 +12,13 @@ const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onBackToMain }) => {
         <View style={styles.overlay}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={() => {
-                console.log('Geri butonu tıklandı');
-                onBackToMain();
-              }}
-            >
-              <ChevronLeft size={24} color="#FFFFFF" />
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <ChevronLeft size={24} color="#FFFFFF" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
             <Text style={styles.title}>✅ Quiz Modu</Text>
             <Text style={styles.subtitle}>Test formatında sorular</Text>

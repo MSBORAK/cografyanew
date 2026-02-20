@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
-import { Home, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { worldPaths, countryNames } from '../constants/worldPaths';
 import { continents } from '../constants/continents';
@@ -21,7 +21,7 @@ import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../u
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
-const AsiaMap = ({ onBackToMenu }) => {
+const AsiaMap = ({ onBackToMenu, onBackToMain }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundCountries, setFoundCountries] = useState([]);
   const [feedback, setFeedback] = useState(null);
@@ -155,8 +155,15 @@ const AsiaMap = ({ onBackToMenu }) => {
     >
       <View style={styles.header}>
         <View style={styles.headerContent}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#E2E8F0" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Home size={24} color="#E2E8F0" />
+            <ChevronLeft size={24} color="#E2E8F0" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Asya Quiz</Text>
@@ -187,7 +194,7 @@ const AsiaMap = ({ onBackToMenu }) => {
       <View style={styles.mapContainer}>
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
           <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.507} viewBox={continentViewBox.asia.viewBox} preserveAspectRatio={continentViewBox.asia.preserveAspectRatio} style={styles.svg}>
-            <Path d="M0,0 L1000,0 L1000,507 L0,507 Z" fill="#A5D8FF" opacity={0.3} />
+            {/* Arka plan boş – çerçeve yok */}
             <G>
               {worldPaths.map((country, index) => {
                 const isAsia = asiaCountries.includes(country.id);
@@ -196,7 +203,6 @@ const AsiaMap = ({ onBackToMenu }) => {
                 
                 let fillColor = isAsia ? getCountryColor(index) : '#E5E7EB';
                 let strokeColor = '#FFFFFF';
-                let opacity = isAsia ? 0.9 : 0.3;
                 
                 if (isSelected && feedback === 'correct') {
                   fillColor = '#10B981';
@@ -207,12 +213,11 @@ const AsiaMap = ({ onBackToMenu }) => {
                 } else if (isFound) {
                   fillColor = '#9CA3AF';
                   strokeColor = '#6B7280';
-                  opacity = 0.6;
                 }
                 
                 return (
                   <G key={country.id} onPress={() => isAsia && handleCountryPress(country)} onPressIn={() => isAsia && handleCountryPress(country)}>
-                    <Path d={country.d} fill={fillColor} stroke={strokeColor} strokeWidth="0.5" opacity={opacity} />
+                    <Path d={country.d} fill={fillColor} fillOpacity={1} stroke={strokeColor} strokeWidth="0.5" opacity={1} />
                   </G>
                 );
               })}
@@ -241,7 +246,18 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
-  backButton: { padding: 6, marginRight: 8 },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 6,
+    marginRight: 8,
+    gap: 4,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#E2E8F0',
+    fontWeight: '600',
+  },
   headerLeft: { justifyContent: 'center' },
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },

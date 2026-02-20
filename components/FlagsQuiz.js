@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path } from 'react-native-svg';
-import { Home, Check, X, RotateCcw, Maximize2 } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, RotateCcw, Maximize2 } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { worldPaths } from '../constants/worldPaths';
 import { getCountryColor } from '../constants/worldColors';
@@ -20,7 +20,7 @@ import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../u
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
-const FlagsQuiz = ({ onBackToMenu }) => {
+const FlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundCountries, setFoundCountries] = useState([]);
   const [feedback, setFeedback] = useState(null);
@@ -230,11 +230,15 @@ const FlagsQuiz = ({ onBackToMenu }) => {
     >
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={onBackToMenu}
-          >
-            <Home size={24} color="#E2E8F0" />
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#E2E8F0" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#E2E8F0" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Bayrak Bulma Quiz</Text>
@@ -381,8 +385,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 6,
     marginRight: 8,
+    gap: 4,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#E2E8F0',
+    fontWeight: '600',
   },
   headerLeft: { justifyContent: 'center' },
   headerSpacer: { flex: 1 },

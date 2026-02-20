@@ -7,12 +7,12 @@ import {
   ScrollView,
   ImageBackground,
 } from 'react-native';
-import { Home, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { worldQuizQuestions } from '../constants/worldQuizQuestions';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
-const WorldQuiz = ({ onBackToMenu }) => {
+const WorldQuiz = ({ onBackToMenu, onBackToMain }) => {
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -78,8 +78,14 @@ const WorldQuiz = ({ onBackToMenu }) => {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#3B82F6" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Home size={24} color="#3B82F6" />
+            <ChevronLeft size={24} color="#3B82F6" />
             <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
         </View>
@@ -107,8 +113,14 @@ const WorldQuiz = ({ onBackToMenu }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
+        {onBackToMain && (
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+            <Home size={24} color="#3B82F6" />
+            <Text style={styles.backText}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#3B82F6" />
+          <ChevronLeft size={24} color="#3B82F6" />
           <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
         <View style={styles.progressContainer}>

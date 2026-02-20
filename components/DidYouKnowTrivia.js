@@ -9,7 +9,7 @@ import {
 import { Home, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { buildTriviaList } from '../constants/cityFacts';
 
-const DidYouKnowTrivia = ({ onBackToMenu }) => {
+const DidYouKnowTrivia = ({ onBackToMenu, onBackToMain }) => {
   const triviaList = useMemo(() => buildTriviaList(50), []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCity, setShowCity] = useState(false);
@@ -38,8 +38,14 @@ const DidYouKnowTrivia = ({ onBackToMenu }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
+        {onBackToMain && (
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+            <Home size={24} color="#EC4899" />
+            <Text style={styles.backText}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#EC4899" />
+          <ChevronLeft size={24} color="#EC4899" />
           <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Nerede Olduğunu Biliyor muydunuz?</Text>

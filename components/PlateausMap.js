@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
-import { Home, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
@@ -19,7 +19,7 @@ import { plateaus, getPlateauColor } from '../constants/plateaus';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
-const PlateausMap = ({ onBackToMenu }) => {
+const PlateausMap = ({ onBackToMenu, onBackToMain }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundPlateaus, setFoundPlateaus] = useState([]);
   const [feedback, setFeedback] = useState(null);
@@ -147,8 +147,15 @@ const PlateausMap = ({ onBackToMenu }) => {
     <ImageBackground source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }} style={styles.container} blurRadius={3}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#E2E8F0" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Home size={24} color="#E2E8F0" />
+            <ChevronLeft size={24} color="#E2E8F0" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Platolar Quiz</Text>
@@ -240,7 +247,18 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
-  backButton: { padding: 6, marginRight: 8 },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 6,
+    marginRight: 8,
+    gap: 4,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#E2E8F0',
+    fontWeight: '600',
+  },
   headerLeft: { justifyContent: 'center' },
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },

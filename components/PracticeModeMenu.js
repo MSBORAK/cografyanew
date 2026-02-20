@@ -7,10 +7,10 @@ import {
   ScrollView,
   ImageBackground,
 } from 'react-native';
-import { Home, BookOpen, TrendingUp, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, BookOpen, TrendingUp, RotateCcw } from 'lucide-react-native';
 import { getStatistics, clearWrongAnswers } from '../utils/practiceMode';
 
-const PracticeModeMenu = ({ onBackToMenu, onSelectCategory }) => {
+const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -45,9 +45,15 @@ const PracticeModeMenu = ({ onBackToMenu, onSelectCategory }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
+        {onBackToMain && (
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+            <Home size={24} color="#A78BFA" />
+            <Text style={styles.backText}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#A78BFA" />
-          <Text style={styles.backText}>Ana Menü</Text>
+          <ChevronLeft size={24} color="#A78BFA" />
+          <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Pratik Modu</Text>
         <Text style={styles.subtitle}>Yanlış yaptığın soruları tekrar et</Text>
@@ -60,6 +66,9 @@ const PracticeModeMenu = ({ onBackToMenu, onSelectCategory }) => {
           <Text style={styles.infoText}>
             Oyunlarda yanlış cevapladığın sorular otomatik olarak kaydedilir. 
             Pratik modunda sadece bu soruları tekrar ederek zayıf konularını güçlendirebilirsin!
+          </Text>
+          <Text style={styles.infoHint}>
+            Önce 81 İl, Dünya Haritası veya Bayraklar gibi oyunlarda soru çöz; yanlış yaptığın sorular burada listelenir.
           </Text>
         </View>
 
@@ -81,7 +90,7 @@ const PracticeModeMenu = ({ onBackToMenu, onSelectCategory }) => {
                         </Text>
                       ) : (
                         <Text style={styles.categoryEmpty}>
-                          Henüz yanlış cevap yok 🎉
+                          Henüz yanlış cevap yok
                         </Text>
                       )}
                     </View>
@@ -197,6 +206,14 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     textAlign: 'center',
     lineHeight: 20,
+  },
+  infoHint: {
+    fontSize: 12,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginTop: 12,
+    fontStyle: 'italic',
   },
   categoriesContainer: {
     flexDirection: 'row',

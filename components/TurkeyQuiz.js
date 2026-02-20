@@ -7,12 +7,12 @@ import {
   ScrollView,
   ImageBackground,
 } from 'react-native';
-import { Home, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyQuizQuestions } from '../constants/turkeyQuizQuestions';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
-const TurkeyQuiz = ({ onBackToMenu }) => {
+const TurkeyQuiz = ({ onBackToMenu, onBackToMain }) => {
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -78,8 +78,14 @@ const TurkeyQuiz = ({ onBackToMenu }) => {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#FB923C" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Home size={24} color="#FB923C" />
+            <ChevronLeft size={24} color="#FB923C" />
             <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
         </View>
@@ -107,8 +113,14 @@ const TurkeyQuiz = ({ onBackToMenu }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
+        {onBackToMain && (
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+            <Home size={24} color="#FB923C" />
+            <Text style={styles.backText}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#FB923C" />
+          <ChevronLeft size={24} color="#FB923C" />
           <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
         <View style={styles.progressContainer}>

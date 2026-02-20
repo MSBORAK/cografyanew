@@ -10,16 +10,17 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
-import { Home, Check, X, RotateCcw, Settings } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, RotateCcw, Settings } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { getLakesByType, getLakeTypeName } from '../constants/lakeTypes';
+import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
-const LakesMap = ({ onBackToMenu, onAdjustPositions, lakeType = 'all' }) => {
+const LakesMap = ({ onBackToMenu, onBackToMain, onAdjustPositions, lakeType = 'all' }) => {
   // Göl tipine göre gölleri al
   const lakes = getLakesByType(lakeType);
   const lakeTypeName = getLakeTypeName(lakeType);
@@ -106,6 +107,7 @@ const LakesMap = ({ onBackToMenu, onAdjustPositions, lakeType = 'all' }) => {
     
     if (lake.id === currentLake.id) {
       // Doğru cevap
+      removeWrongAnswer('turkey_lakes', lake.id);
       setFeedback('correct');
       setSelectedLake(lake.id);
       playCorrectSound();
@@ -120,7 +122,8 @@ const LakesMap = ({ onBackToMenu, onAdjustPositions, lakeType = 'all' }) => {
         }
       }, 1000);
     } else {
-      // Yanlış cevap
+      // Yanlış cevap - pratik modu için kaydet
+      saveWrongAnswer('turkey_lakes', currentLake.id, currentLake.name);
       setFeedback('wrong');
       setSelectedLake(lake.id);
       playWrongSound();
@@ -173,11 +176,15 @@ const LakesMap = ({ onBackToMenu, onAdjustPositions, lakeType = 'all' }) => {
     >
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={onBackToMenu}
-          >
-            <Home size={24} color="#E2E8F0" />
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#E2E8F0" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#E2E8F0" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>{lakeTypeName}</Text>
@@ -345,8 +352,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 6,
     marginRight: 8,
+    gap: 4,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#E2E8F0',
+    fontWeight: '600',
   },
   headerLeft: { justifyContent: 'center' },
   headerSpacer: { flex: 1 },

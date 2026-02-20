@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
-import { Home, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { worldPaths, countryNames } from '../constants/worldPaths';
 import { borderGates } from '../constants/borderGates';
@@ -23,7 +23,7 @@ const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 // Türkiye'nin komşu ülkeleri
 const neighborCountries = ['GRC', 'BGR', 'GEO', 'ARM', 'IRN', 'IRQ', 'SYR', 'CYP'];
 
-const BorderGatesMap = ({ onBackToMenu }) => {
+const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundGates, setFoundGates] = useState([]);
   const [feedback, setFeedback] = useState(null);
@@ -154,8 +154,15 @@ const BorderGatesMap = ({ onBackToMenu }) => {
     >
       <View style={styles.header}>
         <View style={styles.headerContent}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#E2E8F0" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Home size={24} color="#E2E8F0" />
+            <ChevronLeft size={24} color="#E2E8F0" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Sınır Kapıları Quiz</Text>
@@ -186,24 +193,20 @@ const BorderGatesMap = ({ onBackToMenu }) => {
       <View style={styles.mapContainer}>
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
           <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.7} viewBox="545 105 90 63" style={styles.svg}>
-            <Path d="M545,105 L635,105 L635,168 L545,168 Z" fill="#A5D8FF" opacity={0.3} />
+            {/* Arka plan boş – çerçeve yok */}
             <G>
               {worldPaths.map((country) => {
                 const isNeighbor = neighborCountries.includes(country.id);
                 const isTurkey = country.id === 'TUR';
                 
-                // Sadece Türkiye ve komşu ülkeleri göster
                 if (!isTurkey && !isNeighbor) return null;
                 
                 let fillColor = '#E5E7EB';
-                let opacity = 0.3;
                 
                 if (isTurkey) {
                   fillColor = '#9CA3AF';
-                  opacity = 0.6;
                 } else if (isNeighbor) {
                   fillColor = '#D1D5DB';
-                  opacity = 0.5;
                 }
                 
                 return (
@@ -211,9 +214,10 @@ const BorderGatesMap = ({ onBackToMenu }) => {
                     key={country.id}
                     d={country.d}
                     fill={fillColor}
+                    fillOpacity={1}
                     stroke="#FFFFFF"
                     strokeWidth="0.5"
-                    opacity={opacity}
+                    opacity={1}
                   />
                 );
               })}
@@ -344,7 +348,18 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
-  backButton: { padding: 6, marginRight: 8 },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 6,
+    marginRight: 8,
+    gap: 4,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#E2E8F0',
+    fontWeight: '600',
+  },
   headerLeft: { justifyContent: 'center' },
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },

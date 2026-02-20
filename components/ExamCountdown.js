@@ -8,10 +8,10 @@ import {
   ImageBackground,
   useWindowDimensions,
 } from 'react-native';
-import { Home } from 'lucide-react-native';
+import { Home, ChevronLeft } from 'lucide-react-native';
 import { EXAM_PRESETS } from '../constants/examPresets';
 
-const ExamCountdown = ({ onBackToMenu }) => {
+const ExamCountdown = ({ onBackToMenu, onBackToMain }) => {
   const { width } = useWindowDimensions();
   const isWide = width >= 600;
   const [countdowns, setCountdowns] = useState([]);
@@ -73,9 +73,15 @@ const ExamCountdown = ({ onBackToMenu }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
+        {onBackToMain && (
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+            <Home size={24} color="#F59E0B" />
+            <Text style={styles.backText}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#F59E0B" />
-          <Text style={styles.backText}>Ana Menü</Text>
+          <ChevronLeft size={24} color="#F59E0B" />
+          <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Sınav Sayaç</Text>
         <Text style={styles.subtitle}>ÖSYM sınavlarına kalan gün</Text>

@@ -7,9 +7,9 @@ import {
   ScrollView,
   ImageBackground,
 } from 'react-native';
-import { Home, BookOpen, Lightbulb, Brain, Globe } from 'lucide-react-native';
+import { Home, ChevronLeft, BookOpen, Lightbulb, Brain, Globe } from 'lucide-react-native';
 
-const LearningModeMenu = ({ onBackToMenu, onSelectCategory }) => {
+const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
   const categories = [
     { 
       id: 'turkey_cities', 
@@ -55,9 +55,15 @@ const LearningModeMenu = ({ onBackToMenu, onSelectCategory }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
+        {onBackToMain && (
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+            <Home size={24} color="#34D399" />
+            <Text style={styles.backText}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <Home size={24} color="#34D399" />
-          <Text style={styles.backText}>Ana Menü</Text>
+          <ChevronLeft size={24} color="#34D399" />
+          <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Öğrenme Modu</Text>
         <Text style={styles.subtitle}>İlginç bilgilerle öğren!</Text>

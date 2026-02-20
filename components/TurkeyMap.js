@@ -11,7 +11,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
-import { RotateCcw, Home, Maximize2, Check, X } from 'lucide-react-native';
+import { RotateCcw, Home, Maximize2, Check, X, ChevronLeft } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { regions, regionColors } from '../constants/regions';
@@ -20,6 +20,7 @@ import { regionViewBox } from '../constants/regionViewBox';
 import { getCityCenter } from '../constants/cityCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { getRandomFact } from '../constants/cityFacts';
+import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 
 const MAP_ASPECT_RATIO = 1007.478 / 527.323;
 
@@ -56,7 +57,7 @@ const CityPath = ({ city, isSelected, isInRegion, isCorrect, isWrong, onPress, c
 };
 
 // Main Turkey Map Component
-const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false }) => {
+const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learningMode = false, practiceCityIds = null }) => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [layout, setLayout] = useState({ w: screenWidth, h: Math.max(screenHeight - 50, 300) });
   const [selectedCities, setSelectedCities] = useState([]);
@@ -104,11 +105,13 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
     };
   }, []);
 
-  // Seçilen bölgeye göre şehirleri filtrele
+  // Seçilen bölgeye göre veya pratik moduna göre şehirleri filtrele
   const regionCities = regions[selectedRegion]?.cities || [];
-  const filteredCities = regionCities.length > 0 
-    ? turkeyPaths.filter(city => regionCities.includes(city.id))
-    : turkeyPaths;
+  const filteredCities = practiceCityIds?.length > 0
+    ? turkeyPaths.filter(city => practiceCityIds.includes(city.id))
+    : regionCities.length > 0
+      ? turkeyPaths.filter(city => regionCities.includes(city.id))
+      : turkeyPaths;
 
   const regionColor = regionColors[selectedRegion] || '#2563EB';
   const regionName = regions[selectedRegion]?.name || 'Tüm Şehirler';
@@ -185,6 +188,7 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
   };
 
   const isCityInRegion = (cityId) => {
+    if (practiceCityIds?.length > 0) return true; // Pratik modunda tüm şehirler tıklanabilir
     if (regionCities.length === 0) return true;
     return regionCities.includes(cityId);
   };
@@ -197,6 +201,7 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
       if (city.id === currentQuestion.id) {
         // Doğru cevap!
         await playCorrectSound(); // Doğru ses çal
+        removeWrongAnswer('turkey_cities', city.id); // Pratik listesinden çıkar
         setCorrectAnswers([...correctAnswers, city.id]);
         setLastSelectedCity(`${city.name} - Doğru!`);
         setShowCheckmark(true);
@@ -219,7 +224,8 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
           setFactMessage(null);
         }, delay);
       } else {
-        // Yanlış cevap - sadece henüz yanlış listede değilse ekle
+        // Yanlış cevap - kaydet ve göster
+        saveWrongAnswer('turkey_cities', currentQuestion.id, currentQuestion.name);
         if (!wrongAttempts.includes(city.id)) {
           await playWrongSound(); // Yanlış ses çal
           setWrongAttempts([...wrongAttempts, city.id]);
@@ -308,11 +314,15 @@ const TurkeyMap = ({ onBackToHome, selectedRegion = 'all', learningMode = false 
     >
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={onBackToHome}
-          >
-            <Home size={20} color="#E2E8F0" />
+          {onBackToMain && (
+            <TouchableOpacity style={styles.mainMenuButton} onPress={onBackToMain}>
+              <Home size={20} color="#E2E8F0" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToHome}>
+            <ChevronLeft size={20} color="#E2E8F0" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>{regionName}</Text>
@@ -510,10 +520,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 6,
     marginRight: 8,
+    gap: 4,
   },
-  headerLeft: { justifyContent: 'center' },
+  mainMenuButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 6,
+    marginRight: 8,
+    gap: 4,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#E2E8F0',
+    fontWeight: '600',
+  },
+  headerLeft: { justifyContent: 'center', marginLeft: 8 },
   headerSpacer: { flex: 1 },
   questionOverlay: {
     position: 'absolute',
