@@ -14,6 +14,7 @@ const menuItems = [
   { id: 'plateaus', title: 'Platolar', icon: '🏔️', style: 'plateausButton', onPress: 'onSelectPlateaus' },
   { id: 'neighbors', title: 'Komşular', icon: '🤝', style: 'neighborsButton', onPress: 'onSelectNeighbors' },
   { id: 'borderGates', title: 'Sınır Kapıları', icon: '🚪', style: 'borderGatesButton', onPress: 'onSelectBorderGates' },
+  { id: 'faultLines', title: 'Fay Hatları', icon: '⛰️', style: 'faultLinesButton', onPress: 'onSelectFaultLines' },
 ];
 
 const TurkeyMenu = ({ 
@@ -29,13 +30,14 @@ const TurkeyMenu = ({
   onSelectPlateaus,
   onSelectNeighbors,
   onSelectBorderGates,
+  onSelectFaultLines,
   onBackToMain 
 }) => {
   const { width, height } = useWindowDimensions();
   const shortSide = Math.min(width, height);
   const isMobile = shortSide < 600;
   const isIOSTablet = Platform.OS === 'ios' && !isMobile;
-  const handlers = { onSelectCities, onSelectRegions, onSelectRegionsOnly, onSelectMountains, onSelectPlains, onSelectLakes, onSelectUnesco, onSelectMassifs, onSelectCoasts, onSelectPlateaus, onSelectNeighbors, onSelectBorderGates };
+  const handlers = { onSelectCities, onSelectRegions, onSelectRegionsOnly, onSelectMountains, onSelectPlains, onSelectLakes, onSelectUnesco, onSelectMassifs, onSelectCoasts, onSelectPlateaus, onSelectNeighbors, onSelectBorderGates, onSelectFaultLines };
 
   const boxStyle = isIOSTablet ? styles.menuButtonIOSTablet : (isMobile ? styles.menuButtonMobile : styles.menuButton);
   const iconStyle = isIOSTablet ? styles.iconIOSTablet : (isMobile ? styles.iconMobile : styles.icon);
@@ -102,6 +104,19 @@ const TurkeyMenu = ({
                 </TouchableOpacity>
               ))}
             </View>
+            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
+              {menuItems.slice(12, 14).map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[boxStyle, styles[item.style]]}
+                  onPress={handlers[item.onPress]}
+                  activeOpacity={0.9}
+                >
+                  <Text style={iconStyle}>{item.icon}</Text>
+                  <Text style={titleStyle}>{item.title}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </View>
       </ImageBackground>
@@ -123,8 +138,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
   },
   header: {
-    paddingTop: 40,
-    paddingBottom: 12,
+    paddingTop: 12,
+    paddingBottom: 8,
     paddingHorizontal: 16,
     alignItems: 'center',
   },
@@ -132,8 +147,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    marginBottom: 12,
-    paddingVertical: 6,
+    marginBottom: 6,
+    paddingVertical: 4,
   },
   backText: {
     fontSize: 14,
@@ -270,6 +285,9 @@ const styles = StyleSheet.create({
   },
   borderGatesButton: {
     backgroundColor: '#DC2626',
+  },
+  faultLinesButton: {
+    backgroundColor: '#B45309',
   },
   icon: {
     fontSize: 38,

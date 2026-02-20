@@ -35,6 +35,7 @@ import MassifsMap from './components/MassifsMap';
 import PlateausMap from './components/PlateausMap';
 import NeighborsMap from './components/NeighborsMap';
 import BorderGatesMap from './components/BorderGatesMap';
+import FaultLinesScreen from './components/FaultLinesScreen';
 import WorldFlagsQuiz from './components/WorldFlagsQuiz';
 import CapitalsQuiz from './components/CapitalsQuiz';
 import ExamCountdown from './components/ExamCountdown';
@@ -126,7 +127,7 @@ export default function App() {
     } else if (currentScreen === 'regions-only' || currentScreen === 'unesco' ||
                currentScreen === 'coasts' || currentScreen === 'massifs' ||
                currentScreen === 'plateaus' || currentScreen === 'neighbors' ||
-               currentScreen === 'border-gates' ||
+               currentScreen === 'border-gates' || currentScreen === 'fault-lines' ||
                currentScreen === 'world-flags-quiz' || currentScreen === 'capitals-quiz' ||
                currentScreen === 'exam-countdown' ||
                currentScreen === 'geography-keywords' ||
@@ -309,6 +310,10 @@ export default function App() {
   const handleSelectBorderGates = () => {
     // Sınır kapıları haritası
     setCurrentScreen('border-gates');
+  };
+
+  const handleSelectFaultLines = () => {
+    setCurrentScreen('fault-lines');
   };
 
   const handleSelectWorldFlags = () => {
@@ -528,6 +533,7 @@ export default function App() {
           onSelectPlateaus={handleSelectPlateaus}
           onSelectNeighbors={handleSelectNeighbors}
           onSelectBorderGates={handleSelectBorderGates}
+          onSelectFaultLines={handleSelectFaultLines}
           onBackToMain={isLearningMode ? handleBackToLearningMode : handleBackToMain}
         />
         <StatusBar style="auto" />
@@ -780,6 +786,19 @@ export default function App() {
     return (
       <View style={styles.container}>
         <BorderGatesMap
+          onBackToMenu={handleBackToTurkeyMenu}
+          onBackToMain={handleBackToMain}
+        />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  // Fay Hatları
+  if (currentScreen === 'fault-lines') {
+    return (
+      <View style={styles.container}>
+        <FaultLinesScreen
           onBackToMenu={handleBackToTurkeyMenu}
           onBackToMain={handleBackToMain}
         />
