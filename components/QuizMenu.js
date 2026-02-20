@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { ChevronLeft, Home } from 'lucide-react-native';
 
-const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onBackToMain }) => {
+const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onSelectMixedQuiz, onBackToMain }) => {
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -29,10 +29,7 @@ const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onBackToMain }) => {
             {/* Türkiye Quiz */}
             <TouchableOpacity
               style={[styles.menuButton, styles.turkeyButton]}
-              onPress={() => {
-                console.log('Türkiye Quiz butonu tıklandı');
-                onSelectTurkeyQuiz();
-              }}
+              onPress={() => onSelectTurkeyQuiz()}
               activeOpacity={0.9}
             >
               <View style={styles.buttonContent}>
@@ -49,10 +46,7 @@ const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onBackToMain }) => {
             {/* Dünya Quiz */}
             <TouchableOpacity
               style={[styles.menuButton, styles.worldButton]}
-              onPress={() => {
-                console.log('Dünya Quiz butonu tıklandı');
-                onSelectWorldQuiz();
-              }}
+              onPress={() => onSelectWorldQuiz()}
               activeOpacity={0.9}
             >
               <View style={styles.buttonContent}>
@@ -62,6 +56,23 @@ const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onBackToMain }) => {
                 </View>
                 <View style={styles.iconContainer}>
                   <Text style={styles.icon}>🌍</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+
+            {/* Karışık Quiz */}
+            <TouchableOpacity
+              style={[styles.menuButton, styles.mixedButton]}
+              onPress={() => onSelectMixedQuiz?.()}
+              activeOpacity={0.9}
+            >
+              <View style={styles.buttonContent}>
+                <View style={styles.textContainer}>
+                  <Text style={styles.buttonTitle}>Karışık Quiz</Text>
+                  <Text style={styles.buttonSubtitle}>Bayrak, başkent, Türkiye ve dünya soruları</Text>
+                </View>
+                <View style={styles.iconContainer}>
+                  <Text style={styles.icon}>🎯</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -122,13 +133,12 @@ const styles = StyleSheet.create({
   menuContainer: {
     flex: 1,
     padding: 20,
-    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
+    gap: 16,
   },
   menuButton: {
-    flex: 1,
+    width: '100%',
     maxWidth: 360,
     borderRadius: 20,
     padding: 24,
@@ -145,6 +155,9 @@ const styles = StyleSheet.create({
   },
   worldButton: {
     backgroundColor: '#3B82F6',
+  },
+  mixedButton: {
+    backgroundColor: '#8B5CF6',
   },
   buttonContent: {
     flexDirection: 'row',

@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { AppState } from 'react-native';
 import { setupDailyReminder, rescheduleAndroidReminder } from './utils/notificationSetup';
 import { StyleSheet, View, BackHandler } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import MainMenu from './components/MainMenu';
+import DailyQuiz from './components/DailyQuiz';
+import BadgeUnlockModal from './components/BadgeUnlockModal';
 import TurkeyMenu from './components/TurkeyMenu';
 import MountainTypesMenu from './components/MountainTypesMenu';
 import PlainTypesMenu from './components/PlainTypesMenu';
@@ -37,6 +39,7 @@ import WorldFlagsQuiz from './components/WorldFlagsQuiz';
 import CapitalsQuiz from './components/CapitalsQuiz';
 import ExamCountdown from './components/ExamCountdown';
 import QuizMenu from './components/QuizMenu';
+import MixedQuiz from './components/MixedQuiz';
 import TurkeyQuiz from './components/TurkeyQuiz';
 import WorldQuiz from './components/WorldQuiz';
 import PracticeModeMenu from './components/PracticeModeMenu';
@@ -56,6 +59,11 @@ export default function App() {
   const [isLearningMode, setIsLearningMode] = useState(false);
   const [practiceIds, setPracticeIds] = useState(null);
   const [fromPracticeMode, setFromPracticeMode] = useState(false);
+  const [newlyUnlockedBadgeIds, setNewlyUnlockedBadgeIds] = useState([]);
+
+  const handleBadgesUnlocked = useCallback((badgeIds) => {
+    if (badgeIds && badgeIds.length > 0) setNewlyUnlockedBadgeIds(badgeIds);
+  }, []);
 
   // Android geri tuşu için BackHandler
   useEffect(() => {
@@ -113,6 +121,8 @@ export default function App() {
       setFromPracticeMode(false);
       setPracticeIds(null);
       setCurrentScreen('practice-mode');
+    } else if (currentScreen === 'daily-quiz') {
+      handleBackToMain();
     } else if (currentScreen === 'regions-only' || currentScreen === 'unesco' ||
                currentScreen === 'coasts' || currentScreen === 'massifs' ||
                currentScreen === 'plateaus' || currentScreen === 'neighbors' ||
@@ -124,7 +134,7 @@ export default function App() {
                currentScreen === 'quiz-menu' || currentScreen === 'practice-mode' ||
                currentScreen === 'learning-mode') {
       handleBackToMain();
-    } else if (currentScreen === 'turkey-quiz' || currentScreen === 'world-quiz') {
+    } else if (currentScreen === 'turkey-quiz' || currentScreen === 'world-quiz' || currentScreen === 'mixed-quiz') {
       handleBackToQuizMenu();
     } else if (currentScreen === 'mountains') {
       handleBackToMountainTypesMenu();
@@ -379,8 +389,11 @@ export default function App() {
   };
 
   const handleSelectWorldQuiz = () => {
-    // Dünya Quiz
     setCurrentScreen('world-quiz');
+  };
+
+  const handleSelectMixedQuiz = () => {
+    setCurrentScreen('mixed-quiz');
   };
 
   const handleBackToQuizMenu = () => {
@@ -455,6 +468,10 @@ export default function App() {
     setCurrentScreen('learning-mode');
   };
 
+  const handleSelectDailyQuiz = () => {
+    setCurrentScreen('daily-quiz');
+  };
+
   // Ana Menü
   if (currentScreen === 'main') {
     return (
@@ -470,7 +487,25 @@ export default function App() {
           onSelectGeographyKeywords={handleSelectGeographyKeywords}
           onSelectDidYouKnow={handleSelectDidYouKnow}
           onSelectExamCountdown={handleSelectExamCountdown}
+          onSelectDailyQuiz={handleSelectDailyQuiz}
+          onBadgesUnlocked={handleBadgesUnlocked}
         />
+        <BadgeUnlockModal badgeIds={newlyUnlockedBadgeIds} onClose={() => setNewlyUnlockedBadgeIds([])} />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  // Günlük Quiz
+  if (currentScreen === 'daily-quiz') {
+    return (
+      <View style={styles.container}>
+        <DailyQuiz
+          onBackToMenu={handleBackToMain}
+          onBackToMain={handleBackToMain}
+          onBadgesUnlocked={handleBadgesUnlocked}
+        />
+        <BadgeUnlockModal badgeIds={newlyUnlockedBadgeIds} onClose={() => setNewlyUnlockedBadgeIds([])} />
         <StatusBar style="auto" />
       </View>
     );
@@ -799,6 +834,7 @@ export default function App() {
         <QuizMenu 
           onSelectTurkeyQuiz={handleSelectTurkeyQuiz}
           onSelectWorldQuiz={handleSelectWorldQuiz}
+          onSelectMixedQuiz={handleSelectMixedQuiz}
           onBackToMain={handleBackToMain}
         />
         <StatusBar style="auto" />
@@ -824,6 +860,18 @@ export default function App() {
     return (
       <View style={styles.container}>
         <WorldQuiz
+          onBackToMenu={handleBackToQuizMenu}
+          onBackToMain={handleBackToMain}
+        />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  if (currentScreen === 'mixed-quiz') {
+    return (
+      <View style={styles.container}>
+        <MixedQuiz
           onBackToMenu={handleBackToQuizMenu}
           onBackToMain={handleBackToMain}
         />
