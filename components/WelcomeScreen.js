@@ -11,13 +11,11 @@ export default function WelcomeScreen({ onStart }) {
         style={styles.background}
         resizeMode="cover"
       >
-        {/* Koyu gradient benzeri katmanlar - profesyonel derinlik */}
         <View style={styles.overlayDark} />
         <View style={styles.overlayVignette} />
 
         <View style={styles.overlay}>
           <View style={styles.card}>
-            {/* Logo alanı - hafif ışık halkası */}
             <View style={styles.logoRing}>
               <Image source={welcomeImage} style={styles.welcomeImage} resizeMode="contain" />
             </View>
@@ -28,9 +26,11 @@ export default function WelcomeScreen({ onStart }) {
 
             <View style={styles.divider} />
 
-            <TouchableOpacity style={styles.startButton} onPress={onStart} activeOpacity={0.85}>
-              <Text style={styles.startButtonText}>Başla</Text>
-              <ChevronRight size={22} color="#fff" strokeWidth={2.5} style={styles.buttonIcon} />
+            <TouchableOpacity style={styles.startButton} onPress={onStart} activeOpacity={0.88}>
+              <View style={styles.startButtonInner}>
+                <Text style={styles.startButtonText}>Başla</Text>
+                <ChevronRight size={20} color="#fff" strokeWidth={2.5} style={styles.buttonIcon} />
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
   overlayVignette: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'transparent',
-    // Kenarları daha koyu hissettirmek için gölge (iOS'ta shadow, Android'de ek overlay gerekebilir)
     ...(Platform.OS === 'ios' && {
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 0 },
@@ -140,36 +139,44 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   startButton: {
+    alignSelf: 'stretch',
+    maxWidth: 260,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 12,
+      },
+      android: { elevation: 8 },
+    }),
+  },
+  startButtonInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0EA5E9',
-    paddingVertical: 16,
-    paddingHorizontal: 36,
-    borderRadius: 16,
-    minWidth: 200,
+    backgroundColor: '#10B981',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#0EA5E9',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   startButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 17,
+    fontWeight: '800',
     color: '#FFFFFF',
-    letterSpacing: 0.3,
+    letterSpacing: 0.8,
   },
   buttonIcon: {
-    marginLeft: 8,
+    marginLeft: 10,
+    opacity: 0.95,
   },
   footer: {
     position: 'absolute',

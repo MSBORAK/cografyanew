@@ -10,7 +10,7 @@ import {
 import { Home, ChevronLeft, Check, X } from 'lucide-react-native';
 import { getDateString, getTodaysMixedQuestions, DAILY_QUIZ_TOTAL_QUESTIONS } from '../utils/dailyQuizSeed';
 import * as geoStorage from '../utils/geoStorage';
-import { updateStreak } from '../utils/streakUtils';
+import { updateStreak, getStreak } from '../utils/streakUtils';
 import { addXP, getTotalXP, getLevelInfo, XP_CORRECT, XP_DAILY_COMPLETE } from '../utils/xpLevelUtils';
 import { checkAndUnlockBadges } from '../utils/badgeUtils';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
@@ -42,8 +42,8 @@ const DailyQuiz = ({ onBackToMenu, onBackToMain, onBadgesUnlocked }) => {
     if (alreadyCompleted || progress.answered >= total) {
       setCompleted(true);
       setCompletedTotal(progress.total || total);
-      const streak = await geoStorage.getJSON(geoStorage.keys.currentStreak(), 0);
-      setStreakResult({ currentStreak: streak });
+      const s = await getStreak();
+      setStreakResult({ currentStreak: s.currentStreak });
       setAnswered(progress.answered || total);
       setCorrect(progress.correct);
       setReady(true);

@@ -39,7 +39,9 @@ export function getLevelInfo(xp) {
 
 export async function getTotalXP() {
   const v = await geoStorage.getJSON(geoStorage.keys.totalXP(), 0);
-  return typeof v === 'number' ? v : 0;
+  if (typeof v === 'number' && !Number.isNaN(v) && v >= 0) return v;
+  if (typeof v === 'string' && /^\d+$/.test(v)) return parseInt(v, 10);
+  return 0;
 }
 
 export async function addXP(amount) {

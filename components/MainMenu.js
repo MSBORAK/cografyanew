@@ -91,31 +91,31 @@ const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectC
                   <Text style={styles.countdownLabel}>Rozetler</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.countdownButton}
-                  onPress={handlers.onSelectExamCountdown}
-                  activeOpacity={0.8}
+                  style={styles.dailyCardCompact}
+                  onPress={handlers.onSelectDailyQuiz}
+                  activeOpacity={0.9}
                 >
-                  <Text style={styles.countdownIcon}>⏱️</Text>
-                  <Text style={styles.countdownLabel}>Sayaç</Text>
+                  <View style={styles.dailyCardCompactRow}>
+                    <Text style={styles.dailyCardCompactStat}>🔥 {streak.currentStreak}</Text>
+                    <Text style={styles.dailyCardCompactStat}>🏆 {streak.bestStreak}</Text>
+                    <Text style={styles.dailyCardCompactStat}>⭐ {xpInfo.level}</Text>
+                    <Text style={styles.dailyCardCompactStat}>⚡ {xpInfo.totalXP}</Text>
+                  </View>
+                  {dailySummary.completed ? (
+                    <Text style={styles.dailyCardCompactDone}>Tamamlandı 🎉</Text>
+                  ) : (
+                    <Text style={styles.dailyCardCompactProgress}>Bugün {dailySummary.answered}/{dailySummary.total}</Text>
+                  )}
                 </TouchableOpacity>
               </View>
               <View style={styles.headerSpacer} />
               <TouchableOpacity
-                style={styles.dailyCardCompact}
-                onPress={handlers.onSelectDailyQuiz}
-                activeOpacity={0.9}
+                style={styles.countdownButton}
+                onPress={handlers.onSelectExamCountdown}
+                activeOpacity={0.8}
               >
-                <View style={styles.dailyCardCompactRow}>
-                  <Text style={styles.dailyCardCompactStat}>🔥 {streak.currentStreak}</Text>
-                  <Text style={styles.dailyCardCompactStat}>🏆 {streak.bestStreak}</Text>
-                  <Text style={styles.dailyCardCompactStat}>⭐ {xpInfo.level}</Text>
-                  <Text style={styles.dailyCardCompactStat}>⚡ {xpInfo.totalXP}</Text>
-                </View>
-                {dailySummary.completed ? (
-                  <Text style={styles.dailyCardCompactDone}>Tamamlandı 🎉</Text>
-                ) : (
-                  <Text style={styles.dailyCardCompactProgress}>Bugün {dailySummary.answered}/{dailySummary.total}</Text>
-                )}
+                <Text style={styles.countdownIcon}>⏱️</Text>
+                <Text style={styles.countdownLabel}>Sayaç</Text>
               </TouchableOpacity>
             </View>
             <BadgeListModal visible={badgeListVisible} onClose={() => setBadgeListVisible(false)} />

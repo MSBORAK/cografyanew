@@ -15,14 +15,20 @@ export function getTodayString() {
   return todayString();
 }
 
+function ensureNumber(val, def = 0) {
+  if (typeof val === 'number' && !Number.isNaN(val) && val >= 0) return val;
+  if (typeof val === 'string' && /^\d+$/.test(val)) return parseInt(val, 10);
+  return def;
+}
+
 export async function getStreak() {
   const last = await geoStorage.getItem(geoStorage.keys.lastCompletedDate());
   const current = await geoStorage.getJSON(geoStorage.keys.currentStreak(), 0);
   const best = await geoStorage.getJSON(geoStorage.keys.bestStreak(), 0);
   return {
     lastCompletedDate: last || null,
-    currentStreak: typeof current === 'number' ? current : 0,
-    bestStreak: typeof best === 'number' ? best : 0,
+    currentStreak: ensureNumber(current, 0),
+    bestStreak: ensureNumber(best, 0),
   };
 }
 
@@ -32,11 +38,8 @@ export async function getStreak() {
  */
 export async function updateStreak(today) {
   const last = await geoStorage.getItem(geoStorage.keys.lastCompletedDate());
-  let current = await geoStorage.getJSON(geoStorage.keys.currentStreak(), 0);
-  let best = await geoStorage.getJSON(geoStorage.keys.bestStreak(), 0);
-
-  if (typeof current !== 'number') current = 0;
-  if (typeof best !== 'number') best = 0;
+  let current = ensureNumber(await geoStorage.getJSON(geoStorage.keys.currentStreak(), 0), 0);
+  let best = ensureNumber(await geoStorage.getJSON(geoStorage.keys.bestStreak(), 0), 0);
 
   const yesterday = yesterdayString();
 

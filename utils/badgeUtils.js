@@ -104,16 +104,17 @@ export function getBadgeById(id) {
 
 export async function getUnlockedBadgeIds() {
   const raw = await geoStorage.getJSON(geoStorage.keys.unlockedBadges(), null);
-  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw)) return raw.filter((id) => typeof id === 'string');
   if (typeof raw === 'string') return [raw];
   return [];
 }
 
 async function addUnlockedBadgeId(id) {
+  if (typeof id !== 'string' || !id) return false;
   const ids = await getUnlockedBadgeIds();
   if (ids.includes(id)) return false;
-  ids.push(id);
-  await geoStorage.setItem(geoStorage.keys.unlockedBadges(), ids);
+  const next = [...ids, id];
+  await geoStorage.setItem(geoStorage.keys.unlockedBadges(), next);
   return true;
 }
 
@@ -125,12 +126,25 @@ async function addUnlockedBadgeId(id) {
 export async function checkAndUnlockBadges(ctx) {
   const unlocked = await getUnlockedBadgeIds();
   const newlyUnlocked = [];
+  const safe = {
+    dailyCompletedToday: !!ctx.dailyCompletedToday,
+    perfectScore: !!ctx.perfectScore,
+    currentStreak: typeof ctx.currentStreak === 'number' ? ctx.currentStreak : (ctx.currentStreak | 0),
+    bestStreak: typeof ctx.bestStreak === 'number' ? ctx.bestStreak : (ctx.bestStreak | 0),
+    totalXP: typeof ctx.totalXP === 'number' && ctx.totalXP >= 0 ? ctx.totalXP : 0,
+    level: typeof ctx.level === 'number' && ctx.level >= 1 ? ctx.level : 1,
+  };
   for (const badge of BADGES) {
     if (unlocked.includes(badge.id)) continue;
     const fn = CONDITION_MAP[badge.id];
-    if (fn && fn(ctx)) {
-      const added = await addUnlockedBadgeId(badge.id);
-      if (added) newlyUnlocked.push(badge.id);
+    if (!fn) continue;
+    try {
+      if (fn(safe)) {
+        const added = await addUnlockedBadgeId(badge.id);
+        if (added) newlyUnlocked.push(badge.id);
+      }
+    } catch (e) {
+      // Bir rozet hatası diğerlerini etkilemesin
     }
   }
   return newlyUnlocked;
