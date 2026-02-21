@@ -34,15 +34,19 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
     return newArray;
   };
 
-  // Generate 4 options (1 correct + 3 wrong)
+  // Generate 4 options (1 correct + 3 wrong). Doğru cevap her zaman şıklarda.
   const generateOptions = (correctFlag) => {
+    if (!correctFlag || !correctFlag.id) return [];
     const wrongOptions = countryFlags
       .filter(f => f.id !== correctFlag.id)
       .sort(() => Math.random() - 0.5)
       .slice(0, 3);
-    
     const allOptions = [correctFlag, ...wrongOptions];
-    return shuffleArray(allOptions);
+    const shuffled = shuffleArray(allOptions);
+    if (!shuffled.some(o => o && o.id === correctFlag.id)) {
+      shuffled[0] = correctFlag;
+    }
+    return shuffled;
   };
 
   // Initialize quiz: pratik modundaysa sadece pratik bayrakları, değilse tümü
@@ -52,26 +56,25 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
       : countryFlags;
     const shuffled = shuffleArray(source);
     setQuizFlags(shuffled);
-    if (shuffled.length > 0) {
-      setOptions(generateOptions(shuffled[0]));
-    }
+    setCurrentQuestionIndex(0);
+    setScore(0);
+    setFeedback(null);
+    setSelectedAnswer(null);
   }, [practiceIds]);
 
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     loadSounds();
-    
-    return () => {
-      unloadSounds();
-    };
+    return () => unloadSounds();
   }, []);
 
-  // Update options when question changes
+  // Şıkları her zaman gösterilen soruya göre güncelle (bayrak ile şıklar senkron)
   useEffect(() => {
-    if (currentFlag) {
-      setOptions(generateOptions(currentFlag));
+    if (quizFlags.length > 0 && currentQuestionIndex < quizFlags.length) {
+      const flagForQuestion = quizFlags[currentQuestionIndex];
+      setOptions(generateOptions(flagForQuestion));
     }
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, quizFlags.length]);
 
   const handleAnswerPress = (option) => {
     if (feedback) return; // Prevent multiple clicks
@@ -146,6 +149,7 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
         <View style={styles.completedContainer}>
           <Text style={styles.completedEmoji}>🎉</Text>
           <Text style={styles.completedTitle}>Quiz Tamamlandı!</Text>
+          <Text style={styles.completedSub}>Bayraklar</Text>
           <View style={styles.scoreCard}>
             <Text style={styles.completedScoreLabel}>Skorunuz</Text>
             <Text style={styles.scoreNumber}>{score} / {quizFlags.length}</Text>
@@ -190,9 +194,11 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <View style={styles.questionCard}>
-          <Text style={styles.questionTitle}>Bu bayrak hangi ülkeye ait?</Text>
-          <View style={styles.flagContainer}>
-            <Text style={styles.flagEmoji}>{currentFlag?.flag}</Text>
+          <Text style={styles.questionLabel}>Bu bayrak hangi ülkeye ait?</Text>
+          <View style={styles.flagWrapper}>
+            <View style={styles.flagContainer}>
+              <Text style={styles.flagEmoji}>{currentFlag?.flag}</Text>
+            </View>
           </View>
         </View>
 
@@ -294,45 +300,62 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   questionCard: {
-    backgroundColor: 'rgba(30, 41, 59, 0.9)',
+    backgroundColor: 'rgba(30, 41, 59, 0.92)',
     borderRadius: 20,
-    padding: 24,
+    padding: 28,
     alignItems: 'center',
     marginBottom: 24,
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  questionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 24,
+  questionLabel: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#94A3B8',
+    marginBottom: 20,
     textAlign: 'center',
+    letterSpacing: 0.3,
+  },
+  flagWrapper: {
+    padding: 16,
+    borderRadius: 24,
+    backgroundColor: 'rgba(15, 23, 42, 0.5)',
   },
   flagContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(51, 65, 85, 0.6)',
+    width: 130,
+    height: 130,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(148, 163, 184, 0.3)',
+    borderColor: 'rgba(148, 163, 184, 0.25)',
+    overflow: 'hidden',
   },
   flagEmoji: {
-    fontSize: 80,
+    fontSize: 88,
   },
   optionsContainer: {
     gap: 12,
   },
   optionButton: {
-    backgroundColor: 'rgba(30, 41, 59, 0.9)',
+    backgroundColor: 'rgba(30, 41, 59, 0.92)',
     borderRadius: 16,
-    padding: 20,
+    padding: 18,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.25)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   correctButton: {
     backgroundColor: '#10B981',
@@ -380,10 +403,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   completedTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#F8FAFC',
-    marginBottom: 32,
+    marginBottom: 4,
+  },
+  completedSub: {
+    fontSize: 16,
+    color: '#94A3B8',
+    marginBottom: 28,
   },
   scoreCard: {
     backgroundColor: 'rgba(30, 41, 59, 0.9)',

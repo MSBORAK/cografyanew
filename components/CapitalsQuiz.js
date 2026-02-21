@@ -131,7 +131,8 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
 
         <View style={styles.completedContainer}>
           <Text style={styles.completedEmoji}>🏛️</Text>
-          <Text style={styles.completedTitle}>Başkentler Quiz Tamamlandı!</Text>
+          <Text style={styles.completedTitle}>Quiz Tamamlandı!</Text>
+          <Text style={styles.completedSub}>Başkentler</Text>
           <View style={styles.scoreCard}>
             <Text style={styles.completedScoreLabel}>Skorunuz</Text>
             <Text style={styles.scoreNumber}>{score} / {quizItems.length}</Text>
@@ -176,10 +177,9 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <View style={styles.questionCard}>
-          <Text style={styles.questionTitle}>
-            {currentItem?.country} ülkesinin başkenti neresidir?
-          </Text>
-          <View style={styles.iconContainer}>
+          <Text style={styles.questionLabel}>{currentItem?.country}</Text>
+          <Text style={styles.questionSub}>Başkenti neresidir?</Text>
+          <View style={styles.iconCircle}>
             <Text style={styles.icon}>🏛️</Text>
           </View>
         </View>
@@ -278,30 +278,42 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   questionCard: {
-    backgroundColor: 'rgba(30, 41, 59, 0.9)',
+    backgroundColor: 'rgba(30, 41, 59, 0.92)',
     borderRadius: 20,
-    padding: 24,
+    padding: 28,
     alignItems: 'center',
     marginBottom: 24,
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  questionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  questionLabel: {
+    fontSize: 22,
+    fontWeight: '800',
     color: '#F8FAFC',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  questionSub: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#94A3B8',
     marginBottom: 20,
     textAlign: 'center',
   },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#E0F2FE',
+  iconCircle: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    backgroundColor: 'rgba(14, 165, 233, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#0EA5E9',
+    borderWidth: 2,
+    borderColor: 'rgba(14, 165, 233, 0.5)',
   },
   icon: {
     fontSize: 44,
@@ -310,13 +322,18 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   optionButton: {
-    backgroundColor: 'rgba(30, 41, 59, 0.9)',
+    backgroundColor: 'rgba(30, 41, 59, 0.92)',
     borderRadius: 16,
-    padding: 20,
+    padding: 18,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.25)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   correctButton: {
     backgroundColor: '#10B981',
@@ -364,10 +381,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   completedTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 32,
+    color: '#F8FAFC',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  completedSub: {
+    fontSize: 16,
+    color: '#94A3B8',
+    marginBottom: 28,
     textAlign: 'center',
   },
   scoreCard: {
