@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,8 +11,27 @@ import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { worldQuizQuestions } from '../constants/worldQuizQuestions';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
+import { getQuestionsForDifficulty } from '../utils/quizDifficulty';
 
-const WorldQuiz = ({ onBackToMenu, onBackToMain }) => {
+const shuffleArray = (array) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
+
+const getOptionsForDifficulty = (options, correctAnswer, difficulty) => {
+  if (!options || !correctAnswer) return options || [];
+  const wrong = options.filter((o) => o !== correctAnswer);
+  if (difficulty === 'easy' || difficulty === 'medium') return shuffleArray(options);
+  if (difficulty === 'hard') return shuffleArray([correctAnswer, ...shuffleArray(wrong).slice(0, 2)]);
+  if (difficulty === 'ultra') return shuffleArray([correctAnswer, ...shuffleArray(wrong).slice(0, 1)]);
+  return shuffleArray(options);
+};
+
+const WorldQuiz = ({ onBackToMenu, onBackToMain, difficulty = 'medium' }) => {
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -22,18 +41,17 @@ const WorldQuiz = ({ onBackToMenu, onBackToMain }) => {
   const currentQuestion = quizQuestions[currentQuestionIndex];
   const isCompleted = currentQuestionIndex >= quizQuestions.length;
 
-  const shuffleArray = (array) => {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-  };
+  const displayOptions = useMemo(
+    () =>
+      currentQuestion
+        ? getOptionsForDifficulty(currentQuestion.options, currentQuestion.correctAnswer, difficulty)
+        : [],
+    [currentQuestion, currentQuestionIndex, difficulty]
+  );
 
   useEffect(() => {
-    setQuizQuestions(shuffleArray(worldQuizQuestions));
-  }, []);
+    setQuizQuestions(getQuestionsForDifficulty(worldQuizQuestions, difficulty, 25));
+  }, [difficulty]);
 
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -62,7 +80,7 @@ const WorldQuiz = ({ onBackToMenu, onBackToMain }) => {
   };
 
   const handleReset = () => {
-    setQuizQuestions(shuffleArray(worldQuizQuestions));
+    setQuizQuestions(getQuestionsForDifficulty(worldQuizQuestions, difficulty, 25));
     setCurrentQuestionIndex(0);
     setScore(0);
     setSelectedAnswer(null);
@@ -78,16 +96,18 @@ const WorldQuiz = ({ onBackToMenu, onBackToMain }) => {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#3B82F6" />
-              <Text style={styles.backText}>Ana Menü</Text>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={24} color="#3B82F6" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+              <ChevronLeft size={24} color="#3B82F6" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#3B82F6" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.completedContainer}>
           <Text style={styles.completedEmoji}>🎉</Text>
@@ -113,16 +133,18 @@ const WorldQuiz = ({ onBackToMenu, onBackToMain }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
-        {onBackToMain && (
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-            <Home size={24} color="#3B82F6" />
-            <Text style={styles.backText}>Ana Menü</Text>
+        <View style={styles.backButtonsColumn}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#3B82F6" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#3B82F6" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <ChevronLeft size={24} color="#3B82F6" />
-          <Text style={styles.backText}>Geri</Text>
-        </TouchableOpacity>
+        </View>
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>Soru {currentQuestionIndex + 1} / {quizQuestions.length}</Text>
           <Text style={styles.scoreTextHeader}>Skor: {score}</Text>
@@ -135,7 +157,7 @@ const WorldQuiz = ({ onBackToMenu, onBackToMain }) => {
         </View>
 
         <View style={styles.optionsContainer}>
-          {currentQuestion?.options.map((option, index) => {
+          {displayOptions.map((option, index) => {
             const isSelected = selectedAnswer === option;
             const isCorrect = option === currentQuestion.correctAnswer;
             
@@ -175,7 +197,8 @@ const WorldQuiz = ({ onBackToMenu, onBackToMain }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0F172A' },
-  header: { paddingTop: 50, paddingBottom: 16, paddingHorizontal: 20, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)' },
+  backButtonsColumn: { flexDirection: 'column', marginRight: 12 },
+  header: { paddingTop: 62, paddingBottom: 4, paddingHorizontal: 20, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)' },
   backButton: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   backText: { fontSize: 16, color: '#60A5FA', fontWeight: '600', marginLeft: 8 },
   progressContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

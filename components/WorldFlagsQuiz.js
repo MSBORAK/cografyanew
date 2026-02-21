@@ -13,7 +13,7 @@ import { countryFlags } from '../constants/countryFlags';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 
-const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
+const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
   const [quizFlags, setQuizFlags] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -45,14 +45,17 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
     return shuffleArray(allOptions);
   };
 
-  // Initialize quiz
+  // Initialize quiz: pratik modundaysa sadece pratik bayrakları, değilse tümü
   useEffect(() => {
-    const shuffled = shuffleArray(countryFlags);
+    const source = practiceIds && practiceIds.length > 0
+      ? countryFlags.filter((f) => practiceIds.includes(f.id))
+      : countryFlags;
+    const shuffled = shuffleArray(source);
     setQuizFlags(shuffled);
     if (shuffled.length > 0) {
       setOptions(generateOptions(shuffled[0]));
     }
-  }, []);
+  }, [practiceIds]);
 
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -126,16 +129,18 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
         blurRadius={3}
       >
         <View style={styles.header}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#60A5FA" />
-              <Text style={styles.backText}>Ana Menü</Text>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={24} color="#60A5FA" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+              <ChevronLeft size={24} color="#60A5FA" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#60A5FA" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.completedContainer}>
@@ -163,16 +168,18 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
-        {onBackToMain && (
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-            <Home size={24} color="#60A5FA" />
-            <Text style={styles.backText}>Ana Menü</Text>
+        <View style={styles.backButtonsColumn}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#60A5FA" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#60A5FA" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <ChevronLeft size={24} color="#60A5FA" />
-          <Text style={styles.backText}>Geri</Text>
-        </TouchableOpacity>
+        </View>
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>
             Soru {currentQuestionIndex + 1} / {quizFlags.length}
@@ -238,9 +245,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
+  },
   header: {
-    paddingTop: 50,
-    paddingBottom: 16,
+    paddingTop: 62,
+    paddingBottom: 4,
     paddingHorizontal: 20,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,

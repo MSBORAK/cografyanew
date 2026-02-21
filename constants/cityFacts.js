@@ -57,7 +57,7 @@ export const cityFacts = {
     '🐝 Bal üretimiyle meşhurdur'
   ],
   'Aydın': [
-    '🏛️ Efes Antik Kenti burada bulunur',
+    '🏛️ Milet ve Didim antik kentleri buradadır',
     '🫒 Zeytinyağı üretimiyle ünlüdür',
     '🍇 İncir başkenti olarak bilinir',
     '♨️ Germencik jeotermal enerji üretir'
@@ -222,7 +222,7 @@ export const cityFacts = {
   ],
   'İzmir': [
     '🌊 Ege\'nin incisi olarak bilinir',
-    '🏛️ Efes Antik Kenti yakınındadır',
+    '🏛️ Efes Antik Kenti (Selçuk) bu ildedir',
     '🎡 Tarihi Asansör simgesidir',
     '🫒 Zeytinyağı üretimiyle ünlüdür'
   ],

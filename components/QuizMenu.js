@@ -12,14 +12,16 @@ const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onSelectMixedQuiz, on
         <View style={styles.overlay}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#FFFFFF" />
-              <Text style={styles.backText}>Ana Menü</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <ChevronLeft size={24} color="#FFFFFF" />
-              <Text style={styles.backText}>Geri</Text>
-            </TouchableOpacity>
+            <View style={styles.backButtonsColumn}>
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={24} color="#FFFFFF" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <ChevronLeft size={24} color="#FFFFFF" />
+                <Text style={styles.backText}>Geri</Text>
+              </TouchableOpacity>
+            </View>
             <Text style={styles.title}>✅ Quiz Modu</Text>
             <Text style={styles.subtitle}>Test formatında sorular</Text>
           </View>
@@ -96,9 +98,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
   },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
+    alignSelf: 'flex-start',
+  },
   header: {
-    paddingTop: 50,
-    paddingBottom: 20,
+    paddingTop: 40,
+    paddingBottom: 2,
     paddingHorizontal: 20,
     alignItems: 'center',
   },
@@ -106,7 +113,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    marginBottom: 20,
+    marginBottom: 10,
     paddingVertical: 8,
   },
   backText: {
@@ -133,7 +140,8 @@ const styles = StyleSheet.create({
   menuContainer: {
     flex: 1,
     padding: 20,
-    justifyContent: 'center',
+    paddingTop: 24,
+    justifyContent: 'flex-start',
     alignItems: 'center',
     gap: 16,
   },

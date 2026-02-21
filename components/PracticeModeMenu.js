@@ -45,16 +45,18 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
-        {onBackToMain && (
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-            <Home size={24} color="#A78BFA" />
-            <Text style={styles.backText}>Ana Menü</Text>
+        <View style={styles.backButtonsColumn}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#A78BFA" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#A78BFA" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <ChevronLeft size={24} color="#A78BFA" />
-          <Text style={styles.backText}>Geri</Text>
-        </TouchableOpacity>
+        </View>
         <Text style={styles.title}>Pratik Modu</Text>
         <Text style={styles.subtitle}>Yanlış yaptığın soruları tekrar et</Text>
       </View>
@@ -150,9 +152,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
+  },
   header: {
-    paddingTop: 50,
-    paddingBottom: 20,
+    paddingTop: 62,
+    paddingBottom: 2,
     paddingHorizontal: 20,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
@@ -161,7 +167,7 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   backText: {
     fontSize: 16,
@@ -170,14 +176,16 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   title: {
-    fontSize: 28,
+    fontSize: 40,
     fontWeight: 'bold',
     color: '#F8FAFC',
-    marginBottom: 4,
+    marginBottom: 1,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#94A3B8',
+    textAlign: 'center',
   },
   content: {
     flex: 1,

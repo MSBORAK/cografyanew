@@ -1,154 +1,58 @@
 // Türkiye Coğrafyası Quiz Soruları
+// level: 'easy' | 'medium' | 'hard' — Zor/Ultra Zor modunda hard sorular kullanılır
 
 export const turkeyQuizQuestions = [
-  {
-    id: 1,
-    question: "Türkiye'nin başkenti neresidir?",
-    options: ["İstanbul", "Ankara", "İzmir", "Bursa"],
-    correctAnswer: "Ankara"
-  },
-  {
-    id: 2,
-    question: "Türkiye'nin en kalabalık şehri hangisidir?",
-    options: ["Ankara", "İzmir", "İstanbul", "Bursa"],
-    correctAnswer: "İstanbul"
-  },
-  {
-    id: 3,
-    question: "Türkiye'nin en yüksek dağı hangisidir?",
-    options: ["Erciyes", "Uludağ", "Ağrı Dağı", "Süphan Dağı"],
-    correctAnswer: "Ağrı Dağı"
-  },
-  {
-    id: 4,
-    question: "Türkiye'nin en büyük gölü hangisidir?",
-    options: ["Tuz Gölü", "Van Gölü", "Beyşehir Gölü", "Eğirdir Gölü"],
-    correctAnswer: "Van Gölü"
-  },
-  {
-    id: 5,
-    question: "Kapadokya hangi bölgede yer alır?",
-    options: ["Marmara", "Ege", "İç Anadolu", "Akdeniz"],
-    correctAnswer: "İç Anadolu"
-  },
-  {
-    id: 6,
-    question: "Pamukkale hangi ilde bulunur?",
-    options: ["Muğla", "Antalya", "Denizli", "Aydın"],
-    correctAnswer: "Denizli"
-  },
-  {
-    id: 7,
-    question: "Türkiye'nin en uzun nehri hangisidir?",
-    options: ["Fırat", "Dicle", "Kızılırmak", "Sakarya"],
-    correctAnswer: "Kızılırmak"
-  },
-  {
-    id: 8,
-    question: "Nemrut Dağı hangi ilde bulunur?",
-    options: ["Adıyaman", "Malatya", "Kahramanmaraş", "Gaziantep"],
-    correctAnswer: "Adıyaman"
-  },
-  {
-    id: 9,
-    question: "Türkiye kaç coğrafi bölgeye ayrılır?",
-    options: ["5", "6", "7", "8"],
-    correctAnswer: "7"
-  },
-  {
-    id: 10,
-    question: "Çanakkale Boğazı hangi iki denizi birleştirir?",
-    options: ["Karadeniz - Marmara", "Marmara - Ege", "Ege - Akdeniz", "Akdeniz - Marmara"],
-    correctAnswer: "Marmara - Ege"
-  },
-  {
-    id: 11,
-    question: "Türkiye'nin en büyük ovası hangisidir?",
-    options: ["Konya Ovası", "Çukurova", "Ege Ovası", "Trakya Ovası"],
-    correctAnswer: "Konya Ovası"
-  },
-  {
-    id: 12,
-    question: "Efes Antik Kenti hangi ilde bulunur?",
-    options: ["İzmir", "Aydın", "Muğla", "Manisa"],
-    correctAnswer: "İzmir"
-  },
-  {
-    id: 13,
-    question: "Türkiye'nin en doğu ili hangisidir?",
-    options: ["Van", "Ağrı", "Iğdır", "Kars"],
-    correctAnswer: "Iğdır"
-  },
-  {
-    id: 14,
-    question: "Safranbolu hangi bölgede yer alır?",
-    options: ["Marmara", "Karadeniz", "İç Anadolu", "Ege"],
-    correctAnswer: "Karadeniz"
-  },
-  {
-    id: 15,
-    question: "Türkiye'nin toplam il sayısı kaçtır?",
-    options: ["79", "80", "81", "82"],
-    correctAnswer: "81"
-  },
-  {
-    id: 16,
-    question: "Uludağ hangi ilde bulunur?",
-    options: ["Bursa", "Balıkesir", "Kütahya", "Eskişehir"],
-    correctAnswer: "Bursa"
-  },
-  {
-    id: 17,
-    question: "Türkiye'nin en batı ili hangisidir?",
-    options: ["İzmir", "Çanakkale", "Edirne", "Tekirdağ"],
-    correctAnswer: "Edirne"
-  },
-  {
-    id: 18,
-    question: "Kaçkar Dağları hangi bölgede yer alır?",
-    options: ["Marmara", "Karadeniz", "Doğu Anadolu", "İç Anadolu"],
-    correctAnswer: "Karadeniz"
-  },
-  {
-    id: 19,
-    question: "Türkiye'nin en büyük barajı hangisidir?",
-    options: ["Atatürk Barajı", "Keban Barajı", "Karakaya Barajı", "İlısu Barajı"],
-    correctAnswer: "Atatürk Barajı"
-  },
-  {
-    id: 20,
-    question: "Mardin hangi bölgede yer alır?",
-    options: ["İç Anadolu", "Akdeniz", "Güneydoğu Anadolu", "Doğu Anadolu"],
-    correctAnswer: "Güneydoğu Anadolu"
-  },
-  {
-    id: 21,
-    question: "Türkiye'nin en kuzey ili hangisidir?",
-    options: ["Sinop", "Samsun", "Trabzon", "Rize"],
-    correctAnswer: "Sinop"
-  },
-  {
-    id: 22,
-    question: "Erciyes Dağı hangi ilde bulunur?",
-    options: ["Kayseri", "Nevşehir", "Niğde", "Sivas"],
-    correctAnswer: "Kayseri"
-  },
-  {
-    id: 23,
-    question: "Türkiye'nin en güney ili hangisidir?",
-    options: ["Hatay", "Adana", "Mersin", "Antalya"],
-    correctAnswer: "Hatay"
-  },
-  {
-    id: 24,
-    question: "Tuz Gölü hangi bölgede yer alır?",
-    options: ["Marmara", "Ege", "İç Anadolu", "Akdeniz"],
-    correctAnswer: "İç Anadolu"
-  },
-  {
-    id: 25,
-    question: "Türkiye'nin en büyük yarımadası hangisidir?",
-    options: ["Gelibolu", "Datça", "Bodrum", "Anadolu"],
-    correctAnswer: "Anadolu"
-  }
+  // ——— Kolay ———
+  { id: 1, level: 'easy', question: "Türkiye'nin başkenti neresidir?", options: ["İstanbul", "Ankara", "İzmir", "Bursa"], correctAnswer: "Ankara" },
+  { id: 2, level: 'easy', question: "Türkiye'nin en kalabalık şehri hangisidir?", options: ["Ankara", "İzmir", "İstanbul", "Bursa"], correctAnswer: "İstanbul" },
+  { id: 3, level: 'easy', question: "Türkiye'nin en yüksek dağı hangisidir?", options: ["Erciyes", "Uludağ", "Ağrı Dağı", "Süphan Dağı"], correctAnswer: "Ağrı Dağı" },
+  { id: 4, level: 'easy', question: "Türkiye'nin en büyük gölü hangisidir?", options: ["Tuz Gölü", "Van Gölü", "Beyşehir Gölü", "Eğirdir Gölü"], correctAnswer: "Van Gölü" },
+  { id: 5, level: 'easy', question: "Kapadokya hangi bölgede yer alır?", options: ["Marmara", "Ege", "İç Anadolu", "Akdeniz"], correctAnswer: "İç Anadolu" },
+  { id: 6, level: 'easy', question: "Pamukkale hangi ilde bulunur?", options: ["Muğla", "Antalya", "Denizli", "Aydın"], correctAnswer: "Denizli" },
+  { id: 7, level: 'easy', question: "Türkiye'nin en uzun nehri hangisidir?", options: ["Fırat", "Dicle", "Kızılırmak", "Sakarya"], correctAnswer: "Kızılırmak" },
+  { id: 8, level: 'easy', question: "Türkiye kaç coğrafi bölgeye ayrılır?", options: ["5", "6", "7", "8"], correctAnswer: "7" },
+  { id: 9, level: 'easy', question: "Türkiye'nin toplam il sayısı kaçtır?", options: ["79", "80", "81", "82"], correctAnswer: "81" },
+  { id: 10, level: 'easy', question: "Çanakkale Boğazı hangi iki denizi birleştirir?", options: ["Karadeniz - Marmara", "Marmara - Ege", "Ege - Akdeniz", "Akdeniz - Marmara"], correctAnswer: "Marmara - Ege" },
+  // ——— Orta ———
+  { id: 11, level: 'medium', question: "Nemrut Dağı hangi ilde bulunur?", options: ["Adıyaman", "Malatya", "Kahramanmaraş", "Gaziantep"], correctAnswer: "Adıyaman" },
+  { id: 12, level: 'medium', question: "Türkiye'nin en büyük ovası hangisidir?", options: ["Konya Ovası", "Çukurova", "Ege Ovası", "Trakya Ovası"], correctAnswer: "Konya Ovası" },
+  { id: 13, level: 'medium', question: "Efes Antik Kenti hangi ilde bulunur?", options: ["İzmir", "Aydın", "Muğla", "Manisa"], correctAnswer: "İzmir" },
+  { id: 14, level: 'medium', question: "Türkiye'nin en doğu ili hangisidir?", options: ["Van", "Ağrı", "Iğdır", "Kars"], correctAnswer: "Iğdır" },
+  { id: 15, level: 'medium', question: "Safranbolu hangi bölgede yer alır?", options: ["Marmara", "Karadeniz", "İç Anadolu", "Ege"], correctAnswer: "Karadeniz" },
+  { id: 16, level: 'medium', question: "Uludağ hangi ilde bulunur?", options: ["Bursa", "Balıkesir", "Kütahya", "Eskişehir"], correctAnswer: "Bursa" },
+  { id: 17, level: 'medium', question: "Türkiye'nin en batı ili hangisidir?", options: ["İzmir", "Çanakkale", "Edirne", "Tekirdağ"], correctAnswer: "Edirne" },
+  { id: 18, level: 'medium', question: "Kaçkar Dağları hangi bölgede yer alır?", options: ["Marmara", "Karadeniz", "Doğu Anadolu", "İç Anadolu"], correctAnswer: "Karadeniz" },
+  { id: 19, level: 'medium', question: "Türkiye'nin en büyük barajı hangisidir?", options: ["Atatürk Barajı", "Keban Barajı", "Karakaya Barajı", "İlısu Barajı"], correctAnswer: "Atatürk Barajı" },
+  { id: 20, level: 'medium', question: "Mardin hangi bölgede yer alır?", options: ["İç Anadolu", "Akdeniz", "Güneydoğu Anadolu", "Doğu Anadolu"], correctAnswer: "Güneydoğu Anadolu" },
+  { id: 21, level: 'medium', question: "Türkiye'nin en kuzey ili hangisidir?", options: ["Sinop", "Samsun", "Trabzon", "Rize"], correctAnswer: "Sinop" },
+  { id: 22, level: 'medium', question: "Erciyes Dağı hangi ilde bulunur?", options: ["Kayseri", "Nevşehir", "Niğde", "Sivas"], correctAnswer: "Kayseri" },
+  { id: 23, level: 'medium', question: "Türkiye'nin en güney ili hangisidir?", options: ["Hatay", "Adana", "Mersin", "Antalya"], correctAnswer: "Hatay" },
+  { id: 24, level: 'medium', question: "Tuz Gölü hangi bölgede yer alır?", options: ["Marmara", "Ege", "İç Anadolu", "Akdeniz"], correctAnswer: "İç Anadolu" },
+  { id: 25, level: 'medium', question: "Türkiye'nin en büyük yarımadası hangisidir?", options: ["Gelibolu", "Datça", "Bodrum", "Anadolu"], correctAnswer: "Anadolu" },
+  { id: 26, level: 'medium', question: "Kapadokya hangi ilimizde yer alır?", options: ["Konya", "Kayseri", "Nevşehir", "Aksaray"], correctAnswer: "Nevşehir" },
+  // ——— Zor ———
+  { id: 27, level: 'hard', question: "Ağrı Dağı'nın yaklaşık yüksekliği kaç metredir?", options: ["3917", "5137", "4058", "3756"], correctAnswer: "5137" },
+  { id: 28, level: 'hard', question: "Kızılırmak'ın yaklaşık uzunluğu (Türkiye sınırları içinde) kaç km'dir?", options: ["1150", "1355", "1260", "1436"], correctAnswer: "1355" },
+  { id: 29, level: 'hard', question: "Türkiye'nin yüzölçümü bakımından en büyük ili hangisidir?", options: ["Sivas", "Konya", "Ankara", "Erzurum"], correctAnswer: "Konya" },
+  { id: 30, level: 'hard', question: "Van Gölü'nün yaklaşık yüzölçümü kaç km²'dir?", options: ["3713", "3238", "2500", "4100"], correctAnswer: "3713" },
+  { id: 31, level: 'hard', question: "İstanbul Boğazı hangi iki denizi birleştirir?", options: ["Marmara - Ege", "Karadeniz - Marmara", "Ege - Akdeniz", "Karadeniz - Ege"], correctAnswer: "Karadeniz - Marmara" },
+  { id: 32, level: 'hard', question: "Türkiye'nin ikinci en uzun nehri hangisidir?", options: ["Fırat", "Dicle", "Sakarya", "Büyük Menderes"], correctAnswer: "Fırat" },
+  { id: 33, level: 'hard', question: "Süphan Dağı hangi il sınırlarındadır?", options: ["Ağrı", "Van", "Bitlis", "Muş"], correctAnswer: "Bitlis" },
+  { id: 34, level: 'hard', question: "Beyşehir Gölü hangi bölgede yer alır?", options: ["Ege", "İç Anadolu", "Akdeniz", "Marmara"], correctAnswer: "İç Anadolu" },
+  { id: 35, level: 'hard', question: "Türkiye'nin en uzun kara sınırı hangi ülkeyledir?", options: ["Suriye", "İran", "Irak", "Yunanistan"], correctAnswer: "Suriye" },
+  { id: 36, level: 'hard', question: "Munzur Dağları hangi ilde bulunur?", options: ["Erzincan", "Tunceli", "Bingöl", "Elazığ"], correctAnswer: "Tunceli" },
+  { id: 37, level: 'hard', question: "Eğirdir Gölü hangi ilde yer alır?", options: ["Burdur", "Isparta", "Konya", "Antalya"], correctAnswer: "Isparta" },
+  { id: 38, level: 'hard', question: "Türkiye'nin en küçük yüzölçümüne sahip ili hangisidir?", options: ["Yalova", "Kilis", "Düzce", "Bartın"], correctAnswer: "Yalova" },
+  { id: 39, level: 'hard', question: "Çıldır Gölü hangi ildedir?", options: ["Erzurum", "Kars", "Ardahan", "Ağrı"], correctAnswer: "Kars" },
+  { id: 40, level: 'hard', question: "Bolu Dağı tüneli hangi iki il arasındadır?", options: ["Bolu - Ankara", "Bolu - İstanbul", "Bolu - Düzce", "Bolu - Zonguldak"], correctAnswer: "Bolu - Ankara" },
+  { id: 41, level: 'hard', question: "Türkiye'nin en doğudaki noktası (Dilucu sınır kapısı) hangi ildedir?", options: ["Iğdır", "Ağrı", "Van", "Hakkari"], correctAnswer: "Iğdır" },
+  { id: 42, level: 'hard', question: "Hazar Gölü hangi ilde bulunur?", options: ["Malatya", "Elazığ", "Tunceli", "Bingöl"], correctAnswer: "Elazığ" },
+  { id: 43, level: 'hard', question: "Türkiye'de en fazla komşu ile sınırı olan il hangisidir?", options: ["Şanlıurfa", "Van", "Iğdır", "Siirt"], correctAnswer: "Van" },
+  { id: 44, level: 'hard', question: "Sakarya Nehri hangi denize dökülür?", options: ["Ege", "Marmara", "Karadeniz", "Akdeniz"], correctAnswer: "Karadeniz" },
+  { id: 45, level: 'hard', question: "Büyük Menderes Nehri hangi denize dökülür?", options: ["Marmara", "Ege", "Akdeniz", "Karadeniz"], correctAnswer: "Ege" },
+  { id: 46, level: 'hard', question: "Tortum Şelalesi hangi bölgededir?", options: ["İç Anadolu", "Karadeniz", "Doğu Anadolu", "Marmara"], correctAnswer: "Doğu Anadolu" },
+  { id: 47, level: 'hard', question: "Türkiye'nin en büyük doğal gölü (Van'dan sonra) hangisidir?", options: ["Tuz Gölü", "Beyşehir Gölü", "Eğirdir Gölü", "Akşehir Gölü"], correctAnswer: "Tuz Gölü" },
+  { id: 48, level: 'hard', question: "Nemrut Krater Gölü hangi ilde bulunur?", options: ["Adıyaman", "Bitlis", "Ağrı", "Van"], correctAnswer: "Bitlis" },
+  { id: 49, level: 'hard', question: "İshak Paşa Sarayı hangi ildedir?", options: ["Van", "Ağrı", "Iğdır", "Kars"], correctAnswer: "Ağrı" },
+  { id: 50, level: 'hard', question: "Türkiye'nin en uzun ikinci nehri (Fırat'tan sonra) hangisidir?", options: ["Sakarya", "Büyük Menderes", "Kızılırmak", "Dicle"], correctAnswer: "Dicle" },
 ];

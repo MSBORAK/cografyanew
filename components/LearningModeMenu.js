@@ -6,8 +6,9 @@ import {
   StyleSheet,
   ScrollView,
   ImageBackground,
+  Platform,
 } from 'react-native';
-import { Home, ChevronLeft, BookOpen, Lightbulb, Brain, Globe } from 'lucide-react-native';
+import { Home, ChevronLeft, BookOpen, Lightbulb, Brain, Globe, ChevronRight } from 'lucide-react-native';
 
 const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
   const categories = [
@@ -16,35 +17,35 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
       name: 'Türkiye Şehirleri', 
       icon: '🏙️', 
       color: '#F97316',
-      description: 'İlginç bilgilerle 81 ili öğren'
+      description: 'Haritada il il gezin, ilginç bilgileri oku'
     },
     { 
       id: 'turkey_geography', 
       name: 'Türkiye Coğrafyası', 
       icon: '⛰️', 
       color: '#8B5CF6',
-      description: 'Dağlar, göller, ovalar hakkında bilgi'
+      description: 'Dağlar, göller, ovalar menüsüne git'
     },
     { 
       id: 'world_countries', 
       name: 'Dünya Ülkeleri', 
       icon: '🌍', 
       color: '#3B82F6',
-      description: 'Ülkeler ve başkentler hakkında'
+      description: 'Dünya haritasında ülke keşfi'
     },
     { 
       id: 'world_flags', 
       name: 'Dünya Bayrakları', 
       icon: '🚩', 
       color: '#EC4899',
-      description: 'Bayrakların anlamlarını öğren'
+      description: 'Bayrak eşleştirme quizi'
     },
     { 
       id: 'geography_keywords', 
       name: 'Coğrafya Anahtar Kelimeler', 
       icon: '📖', 
       color: '#F59E0B',
-      description: 'Kritik kavramlar ve tanımlar'
+      description: 'Kavram kartlarıyla tanımlar'
     },
   ];
 
@@ -55,50 +56,58 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
-        {onBackToMain && (
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-            <Home size={24} color="#34D399" />
-            <Text style={styles.backText}>Ana Menü</Text>
+        <View style={styles.backButtonsColumn}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#10B981" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#10B981" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <ChevronLeft size={24} color="#34D399" />
-          <Text style={styles.backText}>Geri</Text>
-        </TouchableOpacity>
+        </View>
         <Text style={styles.title}>Öğrenme Modu</Text>
         <Text style={styles.subtitle}>İlginç bilgilerle öğren!</Text>
       </View>
 
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.infoCard}>
-          <Brain size={40} color="#34D399" />
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.howItWorksCard}>
+          <View style={styles.brainIconWrap}>
+            <Brain size={36} color="#10B981" />
+          </View>
           <Text style={styles.infoTitle}>Nasıl Çalışır?</Text>
           <Text style={styles.infoText}>
-            Her doğru cevaptan sonra ilginç bilgiler gösterilir. 
-            Eğlenceli kartlarla öğrenirken aynı zamanda bilgini test edersin!
+            Kategori seçerek haritalar, ilginç bilgiler veya kavram kartlarıyla öğrenirsin. 
+            Türkiye Şehirleri ve Anahtar Kelimeler’de bilgi odaklı; diğerlerinde keşfet + test bir arada.
           </Text>
-        </View>
-
-        <View style={styles.featuresCard}>
+          <View style={styles.featureDivider} />
           <View style={styles.featureRow}>
-            <Lightbulb size={24} color="#FCD34D" />
+            <View style={[styles.featureIconWrap, { backgroundColor: 'rgba(252, 211, 77, 0.2)' }]}>
+              <Lightbulb size={22} color="#FCD34D" />
+            </View>
             <View style={styles.featureText}>
               <Text style={styles.featureTitle}>İlginç Bilgiler</Text>
-              <Text style={styles.featureDesc}>Her şehir/ülke için özel bilgiler</Text>
+              <Text style={styles.featureDesc}>81 il için özel bilgiler (Türkiye Şehirleri)</Text>
             </View>
           </View>
           <View style={styles.featureRow}>
-            <BookOpen size={24} color="#3B82F6" />
+            <View style={[styles.featureIconWrap, { backgroundColor: 'rgba(59, 130, 246, 0.2)' }]}>
+              <BookOpen size={22} color="#3B82F6" />
+            </View>
             <View style={styles.featureText}>
               <Text style={styles.featureTitle}>Görsel Öğrenme</Text>
-              <Text style={styles.featureDesc}>Harita üzerinde interaktif öğrenme</Text>
+              <Text style={styles.featureDesc}>Harita üzerinde şehir ve coğrafya keşfi</Text>
             </View>
           </View>
           <View style={styles.featureRow}>
-            <Globe size={24} color="#10B981" />
+            <View style={[styles.featureIconWrap, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
+              <Globe size={22} color="#10B981" />
+            </View>
             <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Kapsamlı İçerik</Text>
-              <Text style={styles.featureDesc}>250+ ilginç bilgi ve daha fazlası</Text>
+              <Text style={styles.featureTitle}>Farklı Kategoriler</Text>
+              <Text style={styles.featureDesc}>Şehirler, coğrafya, bayraklar, kavramlar</Text>
             </View>
           </View>
         </View>
@@ -123,17 +132,20 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
               </View>
               <View style={[styles.startButton, { backgroundColor: category.color }]}>
                 <Text style={styles.startButtonText}>Başla</Text>
+                <ChevronRight size={18} color="#FFFFFF" />
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
         <View style={styles.tipCard}>
-          <Text style={styles.tipIcon}>💡</Text>
+          <View style={styles.tipIconWrap}>
+            <Text style={styles.tipIcon}>💡</Text>
+          </View>
           <Text style={styles.tipTitle}>Öğrenme İpucu</Text>
           <Text style={styles.tipText}>
-            Öğrenme modunda acele etme! Her bilgiyi okuyarak ilerle. 
-            Tekrar yaparak bilgileri pekiştirebilirsin.
+            Türkiye Şehirleri’nde her il için «İlginç Bilgi» butonuna basarak bilgiyi aç. 
+            Anahtar Kelimeler’de kartları çevirerek kavramları pekiştir.
           </Text>
         </View>
       </ScrollView>
@@ -145,9 +157,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
+  },
   header: {
-    paddingTop: 50,
-    paddingBottom: 20,
+    paddingTop: Platform.OS === 'ios' ? 62 : 44,
+    paddingBottom: 2,
     paddingHorizontal: 20,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
@@ -156,11 +172,11 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 4,
   },
   backText: {
     fontSize: 16,
-    color: '#34D399',
+    color: '#10B981',
     fontWeight: '600',
     marginLeft: 8,
   },
@@ -168,32 +184,51 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#F8FAFC',
-    marginBottom: 4,
+    marginBottom: 20,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#94A3B8',
+    textAlign: 'center',
   },
   content: {
     flex: 1,
   },
   contentContainer: {
-    padding: 20,
+    padding: 16,
+    paddingBottom: 24,
   },
-  infoCard: {
-    backgroundColor: 'rgba(30, 41, 59, 0.85)',
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 20,
+  howItWorksCard: {
+    backgroundColor: 'rgba(30, 41, 59, 0.92)',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.2)',
+    borderColor: 'rgba(148, 163, 184, 0.15)',
+    overflow: 'hidden',
+    ...(Platform.OS === 'ios' ? {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+    } : { elevation: 6 }),
+  },
+  brainIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
   },
   infoTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#F8FAFC',
-    marginTop: 12,
+    marginTop: 4,
     marginBottom: 8,
   },
   infoText: {
@@ -202,19 +237,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-  featuresCard: {
-    backgroundColor: 'rgba(30, 41, 59, 0.85)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    gap: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.2)',
+  featureDivider: {
+    height: 1,
+    backgroundColor: 'rgba(148, 163, 184, 0.2)',
+    width: '100%',
+    marginVertical: 14,
+  },
+  featureIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
+    marginBottom: 4,
   },
   featureText: {
     flex: 1,
@@ -234,27 +274,33 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 12,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   categoriesTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#F8FAFC',
-    marginBottom: 16,
+    marginBottom: 12,
     width: '100%',
   },
   categoryCard: {
     width: '48%',
     minWidth: 160,
-    backgroundColor: 'rgba(30, 41, 59, 0.85)',
-    borderRadius: 16,
+    backgroundColor: 'rgba(30, 41, 59, 0.92)',
+    borderRadius: 18,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.2)',
+    borderColor: 'rgba(148, 163, 184, 0.15)',
     borderLeftWidth: 4,
+    ...(Platform.OS === 'ios' ? {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 6,
+    } : { elevation: 4 }),
   },
   categoryLeft: {
     flexDirection: 'row',
@@ -286,8 +332,11 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
   },
   startButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 12,
   },
   startButtonText: {
@@ -296,21 +345,35 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   tipCard: {
-    backgroundColor: 'rgba(45, 55, 72, 0.9)',
-    borderRadius: 16,
+    backgroundColor: 'rgba(30, 41, 59, 0.92)',
+    borderRadius: 20,
     padding: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    borderColor: 'rgba(16, 185, 129, 0.25)',
+    ...(Platform.OS === 'ios' ? {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 6,
+    } : { elevation: 4 }),
+  },
+  tipIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
   tipIcon: {
-    fontSize: 32,
-    marginBottom: 8,
+    fontSize: 28,
   },
   tipTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#34D399',
+    color: '#10B981',
     marginBottom: 8,
   },
   tipText: {

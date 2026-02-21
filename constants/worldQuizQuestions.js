@@ -1,154 +1,58 @@
 // Dünya Coğrafyası Quiz Soruları
+// level: 'easy' | 'medium' | 'hard'
 
 export const worldQuizQuestions = [
-  {
-    id: 1,
-    question: "Dünyanın en büyük kıtası hangisidir?",
-    options: ["Afrika", "Asya", "Avrupa", "Amerika"],
-    correctAnswer: "Asya"
-  },
-  {
-    id: 2,
-    question: "Dünyanın en kalabalık ülkesi hangisidir?",
-    options: ["Hindistan", "Çin", "ABD", "Endonezya"],
-    correctAnswer: "Hindistan"
-  },
-  {
-    id: 3,
-    question: "Dünyanın en yüksek dağı hangisidir?",
-    options: ["K2", "Everest", "Kangchenjunga", "Lhotse"],
-    correctAnswer: "Everest"
-  },
-  {
-    id: 4,
-    question: "Dünyanın en büyük okyanusu hangisidir?",
-    options: ["Atlas", "Hint", "Pasifik", "Arktik"],
-    correctAnswer: "Pasifik"
-  },
-  {
-    id: 5,
-    question: "Nil Nehri hangi kıtada bulunur?",
-    options: ["Asya", "Afrika", "Avrupa", "Güney Amerika"],
-    correctAnswer: "Afrika"
-  },
-  {
-    id: 6,
-    question: "Dünyanın en büyük çölü hangisidir?",
-    options: ["Gobi", "Kalahari", "Sahra", "Arabistan"],
-    correctAnswer: "Sahra"
-  },
-  {
-    id: 7,
-    question: "Amazon Ormanları hangi kıtada bulunur?",
-    options: ["Afrika", "Asya", "Güney Amerika", "Avustralya"],
-    correctAnswer: "Güney Amerika"
-  },
-  {
-    id: 8,
-    question: "Dünyanın en uzun nehri hangisidir?",
-    options: ["Amazon", "Nil", "Yangtze", "Mississippi"],
-    correctAnswer: "Nil"
-  },
-  {
-    id: 9,
-    question: "Eiffel Kulesi hangi şehirde bulunur?",
-    options: ["Londra", "Paris", "Roma", "Berlin"],
-    correctAnswer: "Paris"
-  },
-  {
-    id: 10,
-    question: "Dünyanın en büyük adası hangisidir?",
-    options: ["Madagaskar", "Grönland", "Yeni Gine", "Borneo"],
-    correctAnswer: "Grönland"
-  },
-  {
-    id: 11,
-    question: "Büyük Okyanus hangi iki kıtayı ayırır?",
-    options: ["Asya - Amerika", "Afrika - Güney Amerika", "Avrupa - Amerika", "Asya - Avustralya"],
-    correctAnswer: "Asya - Amerika"
-  },
-  {
-    id: 12,
-    question: "Dünyanın en küçük kıtası hangisidir?",
-    options: ["Avrupa", "Avustralya", "Antarktika", "Güney Amerika"],
-    correctAnswer: "Avustralya"
-  },
-  {
-    id: 13,
-    question: "Piramitler hangi ülkede bulunur?",
-    options: ["Meksika", "Mısır", "Sudan", "Peru"],
-    correctAnswer: "Mısır"
-  },
-  {
-    id: 14,
-    question: "Dünyanın en derin okyanusu hangisidir?",
-    options: ["Atlas", "Hint", "Pasifik", "Arktik"],
-    correctAnswer: "Pasifik"
-  },
-  {
-    id: 15,
-    question: "Kaç tane kıta vardır?",
-    options: ["5", "6", "7", "8"],
-    correctAnswer: "7"
-  },
-  {
-    id: 16,
-    question: "Dünyanın en büyük ülkesi hangisidir?",
-    options: ["Kanada", "Çin", "ABD", "Rusya"],
-    correctAnswer: "Rusya"
-  },
-  {
-    id: 17,
-    question: "Machu Picchu hangi ülkede bulunur?",
-    options: ["Meksika", "Brezilya", "Peru", "Şili"],
-    correctAnswer: "Peru"
-  },
-  {
-    id: 18,
-    question: "Dünyanın en büyük gölü hangisidir?",
-    options: ["Hazar Denizi", "Superior Gölü", "Victoria Gölü", "Baykal Gölü"],
-    correctAnswer: "Hazar Denizi"
-  },
-  {
-    id: 19,
-    question: "Colosseum hangi şehirde bulunur?",
-    options: ["Atina", "Roma", "İstanbul", "Paris"],
-    correctAnswer: "Roma"
-  },
-  {
-    id: 20,
-    question: "Dünyanın en küçük ülkesi hangisidir?",
-    options: ["Monako", "Vatikan", "San Marino", "Lihtenştayn"],
-    correctAnswer: "Vatikan"
-  },
-  {
-    id: 21,
-    question: "Büyük Set Duvarı hangi ülkede bulunur?",
-    options: ["Japonya", "Çin", "Moğolistan", "Kore"],
-    correctAnswer: "Çin"
-  },
-  {
-    id: 22,
-    question: "Dünyanın en soğuk kıtası hangisidir?",
-    options: ["Avrupa", "Asya", "Antarktika", "Kuzey Amerika"],
-    correctAnswer: "Antarktika"
-  },
-  {
-    id: 23,
-    question: "Taj Mahal hangi ülkede bulunur?",
-    options: ["Pakistan", "Hindistan", "Bangladeş", "Nepal"],
-    correctAnswer: "Hindistan"
-  },
-  {
-    id: 24,
-    question: "Dünyanın en sıcak çölü hangisidir?",
-    options: ["Sahra", "Gobi", "Kalahari", "Lut"],
-    correctAnswer: "Lut"
-  },
-  {
-    id: 25,
-    question: "Özgürlük Heykeli hangi şehirde bulunur?",
-    options: ["Washington", "New York", "Los Angeles", "Chicago"],
-    correctAnswer: "New York"
-  }
+  // ——— Kolay ———
+  { id: 1, level: 'easy', question: "Dünyanın en büyük kıtası hangisidir?", options: ["Afrika", "Asya", "Avrupa", "Amerika"], correctAnswer: "Asya" },
+  { id: 2, level: 'easy', question: "Dünyanın en kalabalık ülkesi hangisidir?", options: ["Hindistan", "Çin", "ABD", "Endonezya"], correctAnswer: "Hindistan" },
+  { id: 3, level: 'easy', question: "Dünyanın en yüksek dağı hangisidir?", options: ["K2", "Everest", "Kangchenjunga", "Lhotse"], correctAnswer: "Everest" },
+  { id: 4, level: 'easy', question: "Dünyanın en büyük okyanusu hangisidir?", options: ["Atlas", "Hint", "Pasifik", "Arktik"], correctAnswer: "Pasifik" },
+  { id: 5, level: 'easy', question: "Nil Nehri hangi kıtada bulunur?", options: ["Asya", "Afrika", "Avrupa", "Güney Amerika"], correctAnswer: "Afrika" },
+  { id: 6, level: 'easy', question: "Dünyanın en büyük çölü hangisidir?", options: ["Gobi", "Kalahari", "Sahra", "Arabistan"], correctAnswer: "Sahra" },
+  { id: 7, level: 'easy', question: "Amazon Ormanları hangi kıtada bulunur?", options: ["Afrika", "Asya", "Güney Amerika", "Avustralya"], correctAnswer: "Güney Amerika" },
+  { id: 8, level: 'easy', question: "Dünyanın en uzun nehri hangisidir?", options: ["Amazon", "Nil", "Yangtze", "Mississippi"], correctAnswer: "Nil" },
+  { id: 9, level: 'easy', question: "Eiffel Kulesi hangi şehirde bulunur?", options: ["Londra", "Paris", "Roma", "Berlin"], correctAnswer: "Paris" },
+  { id: 10, level: 'easy', question: "Dünyanın en büyük adası hangisidir?", options: ["Madagaskar", "Grönland", "Yeni Gine", "Borneo"], correctAnswer: "Grönland" },
+  { id: 11, level: 'easy', question: "Dünyanın en küçük kıtası hangisidir?", options: ["Avrupa", "Avustralya", "Antarktika", "Güney Amerika"], correctAnswer: "Avustralya" },
+  { id: 12, level: 'easy', question: "Kaç tane kıta vardır?", options: ["5", "6", "7", "8"], correctAnswer: "7" },
+  { id: 13, level: 'easy', question: "Dünyanın en büyük ülkesi hangisidir?", options: ["Kanada", "Çin", "ABD", "Rusya"], correctAnswer: "Rusya" },
+  { id: 14, level: 'easy', question: "Dünyanın en küçük ülkesi hangisidir?", options: ["Monako", "Vatikan", "San Marino", "Lihtenştayn"], correctAnswer: "Vatikan" },
+  { id: 15, level: 'easy', question: "Çin Seddi hangi ülkede bulunur?", options: ["Japonya", "Çin", "Moğolistan", "Güney Kore"], correctAnswer: "Çin" },
+  // ——— Orta ———
+  { id: 16, level: 'medium', question: "Büyük Okyanus hangi iki kıtayı ayırır?", options: ["Asya - Amerika", "Afrika - Güney Amerika", "Avrupa - Amerika", "Asya - Avustralya"], correctAnswer: "Asya - Amerika" },
+  { id: 17, level: 'medium', question: "Piramitler hangi ülkede bulunur?", options: ["Meksika", "Mısır", "Sudan", "Peru"], correctAnswer: "Mısır" },
+  { id: 18, level: 'medium', question: "Dünyanın en derin okyanusu hangisidir?", options: ["Atlas", "Hint", "Pasifik", "Arktik"], correctAnswer: "Pasifik" },
+  { id: 19, level: 'medium', question: "Machu Picchu hangi ülkede bulunur?", options: ["Meksika", "Brezilya", "Peru", "Şili"], correctAnswer: "Peru" },
+  { id: 20, level: 'medium', question: "Dünyanın en büyük gölü hangisidir?", options: ["Hazar Denizi", "Superior Gölü", "Victoria Gölü", "Baykal Gölü"], correctAnswer: "Hazar Denizi" },
+  { id: 21, level: 'medium', question: "Colosseum hangi şehirde bulunur?", options: ["Atina", "Roma", "İstanbul", "Paris"], correctAnswer: "Roma" },
+  { id: 22, level: 'medium', question: "Dünyanın en soğuk kıtası hangisidir?", options: ["Avrupa", "Asya", "Antarktika", "Kuzey Amerika"], correctAnswer: "Antarktika" },
+  { id: 23, level: 'medium', question: "Taj Mahal hangi ülkede bulunur?", options: ["Pakistan", "Hindistan", "Bangladeş", "Nepal"], correctAnswer: "Hindistan" },
+  { id: 24, level: 'medium', question: "Özgürlük Heykeli hangi şehirde bulunur?", options: ["Washington", "New York", "Los Angeles", "Chicago"], correctAnswer: "New York" },
+  { id: 25, level: 'medium', question: "Hangi kıtada en fazla ülke vardır?", options: ["Asya", "Afrika", "Avrupa", "Güney Amerika"], correctAnswer: "Afrika" },
+  { id: 26, level: 'medium', question: "Everest Dağı hangi iki ülke arasındadır?", options: ["Hindistan - Çin", "Nepal - Çin", "Nepal - Hindistan", "Bhutan - Çin"], correctAnswer: "Nepal - Çin" },
+  { id: 27, level: 'medium', question: "Büyük Set Resifi hangi ülkededir?", options: ["Endonezya", "Filipinler", "Avustralya", "Tayland"], correctAnswer: "Avustralya" },
+  { id: 28, level: 'medium', question: "Dünyanın en sıcak çölü hangisidir?", options: ["Sahra", "Gobi", "Kalahari", "Lut"], correctAnswer: "Lut" },
+  // ——— Zor ———
+  { id: 29, level: 'hard', question: "Dünyanın en derin noktası (Mariana Çukuru) hangi okyanustadır?", options: ["Atlas", "Hint", "Pasifik", "Arktik"], correctAnswer: "Pasifik" },
+  { id: 30, level: 'hard', question: "Everest'in yaklaşık yüksekliği kaç metredir?", options: ["8488", "8849", "8611", "8586"], correctAnswer: "8849" },
+  { id: 31, level: 'hard', question: "Dünyanın ikinci en yüksek dağı hangisidir?", options: ["K2", "Kangchenjunga", "Lhotse", "Makalu"], correctAnswer: "K2" },
+  { id: 32, level: 'hard', question: "Amazon Nehri hangi okyanusa dökülür?", options: ["Atlas", "Pasifik", "Hint", "Arktik"], correctAnswer: "Atlas" },
+  { id: 33, level: 'hard', question: "Dünyanın yüzölçümü bakımından ikinci büyük ülkesi hangisidir?", options: ["Çin", "ABD", "Kanada", "Brezilya"], correctAnswer: "Kanada" },
+  { id: 34, level: 'hard', question: "Victoria Şelalesi hangi iki ülke arasındadır?", options: ["Zambiya - Zimbabwe", "Tanzanya - Kenya", "Uganda - Kenya", "Zambiya - Malawi"], correctAnswer: "Zambiya - Zimbabwe" },
+  { id: 35, level: 'hard', question: "Baykal Gölü hangi ülkededir?", options: ["Kazakistan", "Moğolistan", "Rusya", "Çin"], correctAnswer: "Rusya" },
+  { id: 36, level: 'hard', question: "Dünyanın en uzun ikinci nehri hangisidir?", options: ["Amazon", "Nil", "Yangtze", "Mississippi"], correctAnswer: "Amazon" },
+  { id: 37, level: 'hard', question: "K2 dağı hangi iki ülke sınırındadır?", options: ["Nepal - Çin", "Pakistan - Çin", "Hindistan - Çin", "Afganistan - Pakistan"], correctAnswer: "Pakistan - Çin" },
+  { id: 38, level: 'hard', question: "Sahara Çölü hangi kıtadadır?", options: ["Asya", "Afrika", "Avustralya", "Güney Amerika"], correctAnswer: "Afrika" },
+  { id: 39, level: 'hard', question: "Dünyanın en kalabalık ikinci ülkesi hangisidir?", options: ["ABD", "Endonezya", "Çin", "Hindistan"], correctAnswer: "Çin" },
+  { id: 40, level: 'hard', question: "Angel Şelalesi hangi ülkededir?", options: ["Brezilya", "Peru", "Venezuela", "Kolombiya"], correctAnswer: "Venezuela" },
+  { id: 41, level: 'hard', question: "Üzerinde ülke bulunmayan kıta hangisidir?", options: ["Avustralya", "Antarktika", "Avrupa", "Afrika"], correctAnswer: "Antarktika" },
+  { id: 42, level: 'hard', question: "Süveyş Kanalı hangi iki denizi birleştirir?", options: ["Akdeniz - Kızıldeniz", "Atlas - Akdeniz", "Hint - Pasifik", "Akdeniz - Karadeniz"], correctAnswer: "Akdeniz - Kızıldeniz" },
+  { id: 43, level: 'hard', question: "Panama Kanalı hangi iki okyanusu birleştirir?", options: ["Atlas - Pasifik", "Pasifik - Hint", "Atlas - Arktik", "Pasifik - Arktik"], correctAnswer: "Atlas - Pasifik" },
+  { id: 44, level: 'hard', question: "Dünyanın en büyük tatlı su gölü (Hazar hariç) hangisidir?", options: ["Victoria", "Superior", "Baykal", "Tanganika"], correctAnswer: "Superior" },
+  { id: 45, level: 'hard', question: "Nijer Nehri hangi kıtada bulunur?", options: ["Asya", "Afrika", "Güney Amerika", "Avustralya"], correctAnswer: "Afrika" },
+  { id: 46, level: 'hard', question: "Kangchenjunga Dağı hangi iki ülke sınırındadır?", options: ["Nepal - Hindistan", "Nepal - Çin", "Hindistan - Çin", "Bhutan - Çin"], correctAnswer: "Nepal - Hindistan" },
+  { id: 47, level: 'hard', question: "Dünyanın en uzun nehir (Nil ile tartışmalı) hangisi kabul edilir?", options: ["Amazon", "Nil", "Yangtze", "Mississippi"], correctAnswer: "Nil" },
+  { id: 48, level: 'hard', question: "Büyük Göller (Great Lakes) hangi iki ülke arasında yer alır?", options: ["ABD - Meksika", "ABD - Kanada", "Kanada - Rusya", "ABD - Küba"], correctAnswer: "ABD - Kanada" },
+  { id: 49, level: 'hard', question: "Dünyanın en derin gölü hangisidir?", options: ["Victoria", "Baykal", "Tanganika", "Superior"], correctAnswer: "Baykal" },
+  { id: 50, level: 'hard', question: "Hangi kıta hem Kuzey hem Güney yarımkürede uzanır?", options: ["Avrupa", "Afrika", "Asya", "Avustralya"], correctAnswer: "Afrika" },
 ];

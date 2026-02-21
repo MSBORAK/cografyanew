@@ -1,13 +1,18 @@
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
+import { Info } from 'lucide-react-native';
 import { BADGES, getUnlockedBadgeIds } from '../utils/badgeUtils';
 import { useState, useEffect } from 'react';
 
+const BADGE_LOGIC_TEXT = 'Her rozetin kendi koşulu vardır; sırayla açılması gerekmez. Günlük görevi tamamlamak, üst üste gün serisi yapmak, seviye atlamak veya XP toplamak gibi farklı hedefleri gerçekleştirdiğinde ilgili rozet açılır.';
+
 export default function BadgeListModal({ visible, onClose }) {
   const [unlockedIds, setUnlockedIds] = useState([]);
+  const [showLogic, setShowLogic] = useState(false);
 
   useEffect(() => {
     if (visible) {
       getUnlockedBadgeIds().then(setUnlockedIds);
+      setShowLogic(false);
     }
   }, [visible]);
 
@@ -17,10 +22,22 @@ export default function BadgeListModal({ visible, onClose }) {
         <View style={styles.card}>
           <View style={styles.header}>
             <Text style={styles.title}>🏅 Rozetler</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
-              <Text style={styles.closeIconText}>✕</Text>
-            </TouchableOpacity>
+            <View style={styles.headerRight}>
+              <TouchableOpacity onPress={() => setShowLogic((v) => !v)} style={styles.infoButton} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <Info size={22} color="#94A3B8" />
+                <Text style={styles.infoLabel}>Mantık</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
+                <Text style={styles.closeIconText}>✕</Text>
+              </TouchableOpacity>
+            </View>
           </View>
+          {showLogic && (
+            <View style={styles.logicBox}>
+              <Text style={styles.logicTitle}>Rozetler nasıl açılır?</Text>
+              <Text style={styles.logicText}>{BADGE_LOGIC_TEXT}</Text>
+            </View>
+          )}
           <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             {BADGES.map((b) => {
               const unlocked = unlockedIds.includes(b.id);
@@ -69,12 +86,50 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#F8FAFC',
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  infoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(148, 163, 184, 0.2)',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  infoLabel: {
+    fontSize: 12,
+    color: '#94A3B8',
+    marginLeft: 4,
+    fontWeight: '600',
+  },
   closeIcon: {
     padding: 8,
   },
   closeIconText: {
     fontSize: 20,
     color: '#94A3B8',
+  },
+  logicBox: {
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  logicTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#93C5FD',
+    marginBottom: 6,
+  },
+  logicText: {
+    fontSize: 13,
+    color: '#CBD5E1',
+    lineHeight: 20,
   },
   scroll: { maxHeight: 400 },
   scrollContent: { paddingBottom: 16 },

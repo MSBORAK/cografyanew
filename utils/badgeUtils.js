@@ -10,8 +10,8 @@ export const BADGES = [
   },
   {
     id: 'perfect_10',
-    name: 'Kusursuz 10',
-    description: 'Günlük quizde 10 soruyu da doğru yanıtladın.',
+    name: 'Tam Puan',
+    description: 'Günlük quizde tüm soruları doğru yanıtladın.',
     icon: '💯',
   },
   {

@@ -153,16 +153,18 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
     <ImageBackground source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }} style={styles.container} blurRadius={3}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#E2E8F0" />
-              <Text style={styles.backText}>Ana Menü</Text>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={24} color="#E2E8F0" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+              <ChevronLeft size={24} color="#E2E8F0" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#E2E8F0" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
+          </View>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Masif Araziler Quiz</Text>
             {!isCompleted ? (
@@ -253,7 +255,8 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 36, paddingBottom: 12, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
+  header: { paddingTop: 48, paddingBottom: 2, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
+  backButtonsColumn: { flexDirection: 'column', marginRight: 12 },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: {
     flexDirection: 'row',

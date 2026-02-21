@@ -115,16 +115,18 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
         blurRadius={3}
       >
         <View style={styles.header}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#0EA5E9" />
-              <Text style={styles.backText}>Ana Menü</Text>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={24} color="#0EA5E9" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+              <ChevronLeft size={24} color="#0EA5E9" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#0EA5E9" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.completedContainer}>
@@ -152,16 +154,18 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
-        {onBackToMain && (
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-            <Home size={24} color="#0EA5E9" />
-            <Text style={styles.backText}>Ana Menü</Text>
+        <View style={styles.backButtonsColumn}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#0EA5E9" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#0EA5E9" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <ChevronLeft size={24} color="#0EA5E9" />
-          <Text style={styles.backText}>Geri</Text>
-        </TouchableOpacity>
+        </View>
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>
             Soru {currentQuestionIndex + 1} / {quizItems.length}
@@ -229,9 +233,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
+  },
   header: {
-    paddingTop: 50,
-    paddingBottom: 16,
+    paddingTop: 62,
+    paddingBottom: 4,
     paddingHorizontal: 20,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,

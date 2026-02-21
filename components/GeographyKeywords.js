@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   ImageBackground,
+  Animated,
 } from 'react-native';
 import { Home, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { GEOGRAPHY_KEYWORDS } from '../constants/geographyKeywords';
@@ -13,22 +14,37 @@ import { GEOGRAPHY_KEYWORDS } from '../constants/geographyKeywords';
 const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showDefinition, setShowDefinition] = useState(false);
+  const flipAnim = useRef(new Animated.Value(0)).current;
 
   const item = GEOGRAPHY_KEYWORDS[currentIndex];
   const total = GEOGRAPHY_KEYWORDS.length;
 
   const handleNext = () => {
-    setShowDefinition(false);
+    if (showDefinition) {
+      flipAnim.setValue(0);
+      setShowDefinition(false);
+    }
     setCurrentIndex((prev) => (prev + 1) % total);
   };
 
   const handlePrev = () => {
-    setShowDefinition(false);
+    if (showDefinition) {
+      flipAnim.setValue(0);
+      setShowDefinition(false);
+    }
     setCurrentIndex((prev) => (prev - 1 + total) % total);
   };
 
   const handleFlip = () => {
-    setShowDefinition((prev) => !prev);
+    const toValue = showDefinition ? 0 : 180;
+    Animated.spring(flipAnim, {
+      toValue,
+      useNativeDriver: true,
+      friction: 9,
+      tension: 65,
+    }).start(() => {
+      setShowDefinition((prev) => !prev);
+    });
   };
 
   return (
@@ -38,16 +54,18 @@ const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
-        {onBackToMain && (
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-            <Home size={24} color="#F59E0B" />
-            <Text style={styles.backText}>Ana Menü</Text>
+        <View style={styles.backButtonsColumn}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#F59E0B" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#F59E0B" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <ChevronLeft size={24} color="#F59E0B" />
-          <Text style={styles.backText}>Geri</Text>
-        </TouchableOpacity>
+        </View>
         <Text style={styles.title}>Coğrafya Anahtar Kelimeler</Text>
         <Text style={styles.subtitle}>
           {currentIndex + 1} / {total}
@@ -56,17 +74,56 @@ const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
 
       <View style={styles.cardContainer}>
         <TouchableOpacity
-          style={styles.flashCard}
-          onPress={handleFlip}
           activeOpacity={1}
+          onPress={handleFlip}
+          style={styles.flashCardTouchable}
         >
-          <Text style={styles.cardLabel}>
-            {showDefinition ? 'Tanım' : 'Kavram'}
-          </Text>
-          <Text style={styles.cardText}>
-            {showDefinition ? item.definition : item.term}
-          </Text>
-          <Text style={styles.hintText}>Dokun = çevir</Text>
+          <View style={styles.flashCardWrapper}>
+            <Animated.View
+              style={[
+                styles.flashCardFace,
+                styles.flashCardFront,
+                {
+                  transform: [
+                    { perspective: 1200 },
+                    {
+                      rotateY: flipAnim.interpolate({
+                        inputRange: [0, 180],
+                        outputRange: ['0deg', '180deg'],
+                      }),
+                    },
+                  ],
+                  backfaceVisibility: 'hidden',
+                },
+              ]}
+            >
+              <Text style={styles.cardLabel}>Kavram</Text>
+              <Text style={styles.cardText}>{item.term}</Text>
+              <Text style={styles.hintText}>Dokun = çevir</Text>
+            </Animated.View>
+            <Animated.View
+              style={[
+                styles.flashCardFace,
+                styles.flashCardBack,
+                {
+                  transform: [
+                    { perspective: 1200 },
+                    {
+                      rotateY: flipAnim.interpolate({
+                        inputRange: [0, 180],
+                        outputRange: ['180deg', '360deg'],
+                      }),
+                    },
+                  ],
+                  backfaceVisibility: 'hidden',
+                },
+              ]}
+            >
+              <Text style={styles.cardLabel}>Tanım</Text>
+              <Text style={styles.cardText}>{item.definition}</Text>
+              <Text style={styles.hintText}>Dokun = çevir</Text>
+            </Animated.View>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -108,9 +165,13 @@ const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
+  },
   header: {
-    paddingTop: 50,
-    paddingBottom: 16,
+    paddingTop: 62,
+    paddingBottom: 4,
     paddingHorizontal: 20,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
@@ -123,24 +184,38 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#F8FAFC',
     marginBottom: 4,
+    textAlign: 'center',
   },
-  subtitle: { fontSize: 14, color: '#94A3B8' },
+  subtitle: { fontSize: 14, color: '#94A3B8', textAlign: 'center' },
   cardContainer: {
-    padding: 24,
+    padding: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  flashCard: {
+  flashCardTouchable: {
     width: '100%',
-    maxWidth: 400,
-    minHeight: 160,
+    maxWidth: 320,
+    height: 200,
+  },
+  flashCardWrapper: {
+    width: '100%',
+    height: 200,
+  },
+  flashCardFace: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '100%',
+    height: 200,
     backgroundColor: 'rgba(30, 41, 59, 0.9)',
-    borderRadius: 20,
-    padding: 24,
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 1,
     borderColor: 'rgba(245, 158, 11, 0.3)',
     justifyContent: 'center',
   },
+  flashCardFront: {},
+  flashCardBack: {},
   cardLabel: {
     fontSize: 12,
     fontWeight: '600',

@@ -8,8 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Home, ChevronLeft, Check, X } from 'lucide-react-native';
-import { countryFlags } from '../constants/countryFlags';
-import { getDateString, getTodaysQuestions, getOptionsForQuestion, DAILY_QUIZ_TOTAL_QUESTIONS } from '../utils/dailyQuizSeed';
+import { getDateString, getTodaysMixedQuestions, DAILY_QUIZ_TOTAL_QUESTIONS } from '../utils/dailyQuizSeed';
 import * as geoStorage from '../utils/geoStorage';
 import { updateStreak } from '../utils/streakUtils';
 import { addXP, getTotalXP, getLevelInfo, XP_CORRECT, XP_DAILY_COMPLETE } from '../utils/xpLevelUtils';
@@ -27,25 +26,25 @@ const DailyQuiz = ({ onBackToMenu, onBackToMain, onBadgesUnlocked }) => {
   const [feedback, setFeedback] = useState(null);
   const [completed, setCompleted] = useState(false);
   const [streakResult, setStreakResult] = useState(null);
+  const [completedTotal, setCompletedTotal] = useState(DAILY_QUIZ_TOTAL_QUESTIONS);
 
   const total = DAILY_QUIZ_TOTAL_QUESTIONS;
   const currentQuestion = questions[currentIndex];
-  const options = currentQuestion
-    ? getOptionsForQuestion(currentQuestion, countryFlags, currentIndex, dateStr)
-    : [];
+  const options = currentQuestion?.options ?? [];
 
   const loadProgress = useCallback(async () => {
     const today = getDateString();
     setDateStr(today);
-    const q = getTodaysQuestions(countryFlags, today);
+    const q = getTodaysMixedQuestions(today);
     setQuestions(q);
     const progress = await geoStorage.getDailyProgress(today);
     const alreadyCompleted = await geoStorage.isDailyCompleted(today);
     if (alreadyCompleted || progress.answered >= total) {
       setCompleted(true);
+      setCompletedTotal(progress.total || total);
       const streak = await geoStorage.getJSON(geoStorage.keys.currentStreak(), 0);
       setStreakResult({ currentStreak: streak });
-      setAnswered(total);
+      setAnswered(progress.answered || total);
       setCorrect(progress.correct);
       setReady(true);
       return;
@@ -67,8 +66,8 @@ const DailyQuiz = ({ onBackToMenu, onBackToMain, onBadgesUnlocked }) => {
 
   const handleAnswer = async (option) => {
     if (feedback) return;
-    const isCorrect = option.id === currentQuestion.id;
-    setSelectedId(option.id);
+    const isCorrect = option === currentQuestion.correctAnswer;
+    setSelectedId(option);
     setFeedback(isCorrect ? 'correct' : 'wrong');
     if (isCorrect) {
       playCorrectSound();
@@ -101,7 +100,7 @@ const DailyQuiz = ({ onBackToMenu, onBackToMain, onBadgesUnlocked }) => {
         const level = getLevelInfo(totalXP).level;
         const newBadges = await checkAndUnlockBadges({
           dailyCompletedToday: true,
-          perfectScore: newCorrect === 10,
+          perfectScore: newCorrect === total,
           currentStreak: res.currentStreak,
           bestStreak: res.bestStreak,
           totalXP,
@@ -127,7 +126,7 @@ const DailyQuiz = ({ onBackToMenu, onBackToMain, onBadgesUnlocked }) => {
   }
 
   if (completed) {
-    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const percentage = completedTotal > 0 ? Math.round((correct / completedTotal) * 100) : 0;
     return (
       <ImageBackground
         source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }}
@@ -135,23 +134,25 @@ const DailyQuiz = ({ onBackToMenu, onBackToMain, onBadgesUnlocked }) => {
         blurRadius={3}
       >
         <View style={styles.header}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#F59E0B" />
-              <Text style={styles.backText}>Ana Menü</Text>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={24} color="#F59E0B" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+              <ChevronLeft size={24} color="#F59E0B" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#F59E0B" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.completedContainer}>
           <Text style={styles.completedEmoji}>🎉</Text>
           <Text style={styles.completedTitle}>Bugünün görevini tamamladın!</Text>
           <View style={styles.scoreCard}>
             <Text style={styles.scoreLabel}>Skor</Text>
-            <Text style={styles.scoreNumber}>{correct} / {total}</Text>
+            <Text style={styles.scoreNumber}>{correct} / {completedTotal}</Text>
             <Text style={styles.percentageText}>%{percentage}</Text>
           </View>
           {streakResult && streakResult.currentStreak > 0 && (
@@ -172,40 +173,48 @@ const DailyQuiz = ({ onBackToMenu, onBackToMain, onBadgesUnlocked }) => {
       blurRadius={3}
     >
       <View style={styles.header}>
-        {onBackToMain && (
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-            <Home size={24} color="#F59E0B" />
-            <Text style={styles.backText}>Ana Menü</Text>
+        <View style={styles.backButtonsColumn}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#F59E0B" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#F59E0B" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <ChevronLeft size={24} color="#F59E0B" />
-          <Text style={styles.backText}>Geri</Text>
-        </TouchableOpacity>
+        </View>
         <Text style={styles.progressText}>Günlük Quiz • {answered} / {total}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} style={styles.scroll}>
-        <Text style={styles.questionLabel}>Bu bayrak hangi ülkeye ait?</Text>
-        <View style={styles.flagContainer}>
-          <Text style={styles.flagEmoji}>{currentQuestion?.flag}</Text>
-        </View>
+        {currentQuestion?.type === 'flag' ? (
+          <>
+            <Text style={styles.questionLabel}>Bu bayrak hangi ülkeye ait?</Text>
+            <View style={styles.flagContainer}>
+              <Text style={styles.flagEmoji}>{currentQuestion.displayFlag}</Text>
+            </View>
+          </>
+        ) : (
+          <Text style={styles.questionLabel}>{currentQuestion?.questionText}</Text>
+        )}
         <View style={styles.optionsContainer}>
           {options.map((opt) => {
             let btnStyle = styles.optionButton;
-            if (feedback && selectedId === opt.id) {
+            if (feedback && selectedId === opt) {
               btnStyle = feedback === 'correct' ? styles.optionCorrect : styles.optionWrong;
             }
             return (
               <TouchableOpacity
-                key={opt.id}
+                key={opt}
                 style={btnStyle}
                 onPress={() => handleAnswer(opt)}
                 disabled={!!feedback}
                 activeOpacity={0.8}
               >
-                <Text style={styles.optionText}>{opt.name}</Text>
-                {feedback && selectedId === opt.id && (
+                <Text style={styles.optionText}>{opt}</Text>
+                {feedback && selectedId === opt && (
                   feedback === 'correct' ? <Check size={20} color="#FFF" /> : <X size={20} color="#FFF" />
                 )}
               </TouchableOpacity>
@@ -227,12 +236,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 80,
   },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 12,
+    paddingTop: 62,
+    paddingBottom: 2,
     backgroundColor: 'rgba(15, 23, 42, 0.9)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',

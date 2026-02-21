@@ -314,16 +314,18 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
     >
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.mainMenuButton} onPress={onBackToMain}>
-              <Home size={20} color="#E2E8F0" />
-              <Text style={styles.backText}>Ana Menü</Text>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.mainMenuButton} onPress={onBackToMain}>
+                <Home size={20} color="#E2E8F0" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToHome}>
+              <ChevronLeft size={20} color="#E2E8F0" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToHome}>
-            <ChevronLeft size={20} color="#E2E8F0" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
+          </View>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>{regionName}</Text>
             <Text style={styles.subtitle}>
@@ -507,13 +509,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 36,
-    paddingBottom: 12,
+    paddingTop: 48,
+    paddingBottom: 2,
     paddingHorizontal: 12,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
     position: 'relative',
+  },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
   },
   headerContent: {
     flexDirection: 'row',

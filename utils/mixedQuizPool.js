@@ -2,6 +2,7 @@ import { countryFlags } from '../constants/countryFlags';
 import { countryCapitals } from '../constants/countryCapitals';
 import { turkeyQuizQuestions } from '../constants/turkeyQuizQuestions';
 import { worldQuizQuestions } from '../constants/worldQuizQuestions';
+import { getQuestionsForDifficulty } from './quizDifficulty';
 
 const shuffle = (arr) => {
   const a = [...arr];
@@ -63,32 +64,35 @@ function toUnified(q) {
   };
 }
 
-function buildTurkeyQuestions(count) {
-  return pickRandom(turkeyQuizQuestions, count).map((q) => ({
+function buildTurkeyQuestions(count, difficulty = 'medium') {
+  const pool = getQuestionsForDifficulty(turkeyQuizQuestions, difficulty, count);
+  return pool.map((q) => ({
     ...toUnified(q),
     type: 'turkey',
   }));
 }
 
-function buildWorldQuestions(count) {
-  return pickRandom(worldQuizQuestions, count).map((q) => ({
+function buildWorldQuestions(count, difficulty = 'medium') {
+  const pool = getQuestionsForDifficulty(worldQuizQuestions, difficulty, count);
+  return pool.map((q) => ({
     ...toUnified(q),
     type: 'world',
   }));
 }
 
-const DEFAULT_COUNTS = { flag: 3, capital: 3, turkey: 2, world: 2 };
-const TOTAL = 10;
+const DEFAULT_COUNTS = { flag: 5, capital: 5, turkey: 5, world: 5 };
+const TOTAL = 20;
 
 /**
- * Karışık quiz için 10 soruluk havuz döndürür (bayrak + başkent + Türkiye + dünya).
- * counts: { flag, capital, turkey, world } – her türden kaç soru (varsayılan 3,3,2,2)
+ * Karışık quiz için 20 soruluk havuz (bayrak + başkent + Türkiye + dünya).
+ * counts: { flag, capital, turkey, world } – varsayılan 5,5,5,5
+ * difficulty: Zor/Ultra Zor'da Türkiye ve Dünya soruları zor havuzdan seçilir.
  */
-export function getMixedQuizQuestions(counts = DEFAULT_COUNTS) {
-  const flag = buildFlagQuestions(counts.flag ?? 3);
-  const capital = buildCapitalQuestions(counts.capital ?? 3);
-  const turkey = buildTurkeyQuestions(counts.turkey ?? 2);
-  const world = buildWorldQuestions(counts.world ?? 2);
+export function getMixedQuizQuestions(counts = DEFAULT_COUNTS, difficulty = 'medium') {
+  const flag = buildFlagQuestions(counts.flag ?? 5);
+  const capital = buildCapitalQuestions(counts.capital ?? 5);
+  const turkey = buildTurkeyQuestions(counts.turkey ?? 5, difficulty);
+  const world = buildWorldQuestions(counts.world ?? 5, difficulty);
   return shuffle([...flag, ...capital, ...turkey, ...world]).slice(0, TOTAL);
 }
 

@@ -46,12 +46,12 @@ export async function setItem(key, value) {
 export async function getDailyProgress(date) {
   const data = await getJSON(keys.dailyProgress(date), null);
   if (!data || typeof data.answered !== 'number') {
-    return { answered: 0, correct: 0, total: 10 };
+    return { answered: 0, correct: 0, total: 20 };
   }
   return {
     answered: data.answered,
     correct: data.correct ?? 0,
-    total: data.total ?? 10,
+    total: data.total ?? 20,
   };
 }
 

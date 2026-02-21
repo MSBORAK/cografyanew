@@ -52,14 +52,16 @@ const TurkeyMenu = ({
       >
         <View style={styles.overlay}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={20} color="#FFFFFF" />
-              <Text style={styles.backText}>Ana Menü</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <ChevronLeft size={20} color="#FFFFFF" />
-              <Text style={styles.backText}>Geri</Text>
-            </TouchableOpacity>
+            <View style={styles.backButtonsColumn}>
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={20} color="#FFFFFF" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <ChevronLeft size={20} color="#FFFFFF" />
+                <Text style={styles.backText}>Geri</Text>
+              </TouchableOpacity>
+            </View>
             <Text style={styles.title}>🇹🇷 Türkiye Haritası</Text>
             <Text style={styles.subtitle}>Öğrenmek istediğin konuyu seç</Text>
           </View>
@@ -138,10 +140,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
   },
   header: {
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingTop: Platform.OS === 'ios' ? 64 : 52,
+    paddingBottom: 2,
     paddingHorizontal: 16,
     alignItems: 'center',
+  },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
+    alignSelf: 'flex-start',
   },
   backButton: {
     flexDirection: 'row',
@@ -157,10 +164,11 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   title: {
-    fontSize: 24,
+    fontSize: 34,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 4,
+    marginTop: -50,
+    marginBottom: 0,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 1, height: 1 },
@@ -170,6 +178,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#94A3B8',
     textAlign: 'center',
+    marginTop: 2,
   },
   scrollView: {
     flex: 1,
@@ -188,24 +197,24 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    marginBottom: 14,
-    gap: 14,
+    marginBottom: 10,
+    gap: 10,
   },
   rowMobile: {
     marginBottom: 5,
     gap: 5,
   },
   rowIOSTablet: {
-    marginBottom: 18,
-    gap: 18,
+    marginBottom: 12,
+    gap: 12,
   },
   menuButton: {
     flex: 1,
     aspectRatio: 1.5,
-    maxWidth: 180,
-    minWidth: 140,
-    borderRadius: 16,
-    padding: 14,
+    maxWidth: 150,
+    minWidth: 115,
+    borderRadius: 14,
+    padding: 11,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -219,10 +228,10 @@ const styles = StyleSheet.create({
   menuButtonIOSTablet: {
     flex: 1,
     aspectRatio: 1.5,
-    maxWidth: 220,
-    minWidth: 170,
-    borderRadius: 18,
-    padding: 18,
+    maxWidth: 190,
+    minWidth: 150,
+    borderRadius: 15,
+    padding: 14,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -290,19 +299,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#B45309',
   },
   icon: {
-    fontSize: 38,
-    marginBottom: 6,
+    fontSize: 32,
+    marginBottom: 5,
   },
   iconIOSTablet: {
-    fontSize: 46,
-    marginBottom: 8,
+    fontSize: 38,
+    marginBottom: 6,
   },
   iconMobile: {
     fontSize: 18,
     marginBottom: 1,
   },
   buttonTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
@@ -311,7 +320,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   buttonTitleIOSTablet: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',

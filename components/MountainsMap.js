@@ -20,9 +20,12 @@ import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
-const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all' }) => {
-  // Dağ tipine göre dağları al
-  const mountains = getMountainsByType(mountainType);
+const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practiceIds = null }) => {
+  // Dağ tipine göre dağları al; pratik modundaysa sadece pratik listesindekiler
+  const baseMountains = getMountainsByType(mountainType);
+  const mountains = practiceIds && practiceIds.length > 0
+    ? baseMountains.filter((m) => practiceIds.includes(m.id))
+    : baseMountains;
   const mountainTypeName = getMountainTypeName(mountainType);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundMountains, setFoundMountains] = useState([]);
@@ -176,16 +179,18 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all' }) => {
     >
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#E2E8F0" />
-              <Text style={styles.backText}>Ana Menü</Text>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={24} color="#E2E8F0" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+              <ChevronLeft size={24} color="#E2E8F0" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#E2E8F0" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
+          </View>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>{mountainTypeName}</Text>
             {!isCompleted ? (
@@ -335,12 +340,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 36,
-    paddingBottom: 12,
+    paddingTop: 48,
+    paddingBottom: 2,
     paddingHorizontal: 12,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
+  },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
   },
   headerContent: {
     flexDirection: 'row',

@@ -4,6 +4,7 @@ import { AppState } from 'react-native';
 import { setupDailyReminder, rescheduleAndroidReminder } from './utils/notificationSetup';
 import { StyleSheet, View, BackHandler } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import WelcomeScreen from './components/WelcomeScreen';
 import MainMenu from './components/MainMenu';
 import DailyQuiz from './components/DailyQuiz';
 import BadgeUnlockModal from './components/BadgeUnlockModal';
@@ -25,6 +26,7 @@ import AntarcticaMap from './components/AntarcticaMap';
 import FlagsQuiz from './components/FlagsQuiz';
 import HomeScreen from './components/HomeScreen';
 import TurkeyMap from './components/TurkeyMap';
+import TurkeyLearningMode from './components/TurkeyLearningMode';
 import RegionsMap from './components/RegionsMap';
 import MountainsMap from './components/MountainsMap';
 import PlainsMap from './components/PlainsMap';
@@ -43,16 +45,19 @@ import QuizMenu from './components/QuizMenu';
 import MixedQuiz from './components/MixedQuiz';
 import TurkeyQuiz from './components/TurkeyQuiz';
 import WorldQuiz from './components/WorldQuiz';
+import QuizDifficultyScreen from './components/QuizDifficultyScreen';
 import PracticeModeMenu from './components/PracticeModeMenu';
 import LearningModeMenu from './components/LearningModeMenu';
 import { getWrongAnswers } from './utils/practiceMode';
 import GeographyKeywords from './components/GeographyKeywords';
 import DidYouKnowTrivia from './components/DidYouKnowTrivia';
+import AppLogicScreen from './components/AppLogicScreen';
 import MountainsMapManualAdjust from './components/MountainsMapManualAdjust';
 import LakesMapManualAdjust from './components/LakesMapManualAdjust';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState('main'); // 'main', 'turkey-menu', 'mountain-types-menu', 'plain-types-menu', 'lake-main-menu', 'lake-types-menu', 'artificial-lake-types-menu', 'world-menu', 'world-map', 'continents', 'europe', 'asia', 'africa', 'america', 'oceania', 'flags', 'turkey-regions', 'turkey-map', 'regions-only', 'mountains', 'plains', 'lakes', 'unesco', 'coasts', 'massifs', 'plateaus', 'world-flags-quiz', 'quiz-menu', 'turkey-quiz', 'world-quiz', 'practice-mode', 'learning-mode', 'mountains-adjust', 'lakes-adjust'
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [currentScreen, setCurrentScreen] = useState('main'); // 'main', 'turkey-menu', 'mountain-types-menu', ...
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [selectedMountainType, setSelectedMountainType] = useState(null);
   const [selectedPlainType, setSelectedPlainType] = useState(null);
@@ -61,6 +66,8 @@ export default function App() {
   const [practiceIds, setPracticeIds] = useState(null);
   const [fromPracticeMode, setFromPracticeMode] = useState(false);
   const [newlyUnlockedBadgeIds, setNewlyUnlockedBadgeIds] = useState([]);
+  const [selectedQuizType, setSelectedQuizType] = useState(null);
+  const [quizDifficulty, setQuizDifficulty] = useState('medium');
 
   const handleBadgesUnlocked = useCallback((badgeIds) => {
     if (badgeIds && badgeIds.length > 0) setNewlyUnlockedBadgeIds(badgeIds);
@@ -69,6 +76,7 @@ export default function App() {
   // Android geri tuşu için BackHandler
   useEffect(() => {
     const backAction = () => {
+      if (showWelcome) return false;
       if (currentScreen === 'main') {
         // Ana menüdeyse uygulamadan çık
         return false;
@@ -85,11 +93,13 @@ export default function App() {
     );
 
     return () => backHandler.remove();
-  }, [currentScreen, selectedRegion]);
+  }, [showWelcome, currentScreen, selectedRegion]);
 
   const handleBackPress = () => {
     // Her ekran için geri gitme mantığı
-    if (currentScreen === 'turkey-menu') {
+    if (currentScreen === 'turkey-learning') {
+      handleBackToLearningMode();
+    } else if (currentScreen === 'turkey-menu') {
       if (isLearningMode) handleBackToLearningMode();
       else handleBackToMain();
     } else if (currentScreen === 'world-menu') {
@@ -124,7 +134,8 @@ export default function App() {
       setCurrentScreen('practice-mode');
     } else if (currentScreen === 'daily-quiz') {
       handleBackToMain();
-    } else if (currentScreen === 'regions-only' || currentScreen === 'unesco' ||
+    } else if (currentScreen === 'app-logic' ||
+               currentScreen === 'regions-only' || currentScreen === 'unesco' ||
                currentScreen === 'coasts' || currentScreen === 'massifs' ||
                currentScreen === 'plateaus' || currentScreen === 'neighbors' ||
                currentScreen === 'border-gates' || currentScreen === 'fault-lines' ||
@@ -135,6 +146,8 @@ export default function App() {
                currentScreen === 'quiz-menu' || currentScreen === 'practice-mode' ||
                currentScreen === 'learning-mode') {
       handleBackToMain();
+    } else if (currentScreen === 'quiz-difficulty') {
+      setCurrentScreen('quiz-menu');
     } else if (currentScreen === 'turkey-quiz' || currentScreen === 'world-quiz' || currentScreen === 'mixed-quiz') {
       handleBackToQuizMenu();
     } else if (currentScreen === 'mountains') {
@@ -337,8 +350,8 @@ export default function App() {
   };
 
   const handleSelectTurkeyQuiz = () => {
-    // Türkiye Quiz
-    setCurrentScreen('turkey-quiz');
+    setSelectedQuizType('turkey');
+    setCurrentScreen('quiz-difficulty');
   };
 
   const handleSelectPracticeMode = () => {
@@ -366,9 +379,11 @@ export default function App() {
         setCurrentScreen('world-map');
         break;
       case 'turkey_mountains':
+        setSelectedMountainType('all');
         setCurrentScreen('mountains');
         break;
       case 'turkey_lakes':
+        setSelectedLakeType('all');
         setCurrentScreen('lakes');
         break;
       case 'world_flags':
@@ -394,11 +409,20 @@ export default function App() {
   };
 
   const handleSelectWorldQuiz = () => {
-    setCurrentScreen('world-quiz');
+    setSelectedQuizType('world');
+    setCurrentScreen('quiz-difficulty');
   };
 
   const handleSelectMixedQuiz = () => {
-    setCurrentScreen('mixed-quiz');
+    setSelectedQuizType('mixed');
+    setCurrentScreen('quiz-difficulty');
+  };
+
+  const handleSelectQuizDifficulty = (difficulty) => {
+    setQuizDifficulty(difficulty);
+    if (selectedQuizType === 'turkey') setCurrentScreen('turkey-quiz');
+    else if (selectedQuizType === 'world') setCurrentScreen('world-quiz');
+    else if (selectedQuizType === 'mixed') setCurrentScreen('mixed-quiz');
   };
 
   const handleBackToQuizMenu = () => {
@@ -477,6 +501,20 @@ export default function App() {
     setCurrentScreen('daily-quiz');
   };
 
+  const handleSelectAppLogic = () => {
+    setCurrentScreen('app-logic');
+  };
+
+  // Açılış ekranı – uygulama ilk açıldığında
+  if (showWelcome) {
+    return (
+      <View style={styles.container}>
+        <WelcomeScreen onStart={() => setShowWelcome(false)} />
+        <StatusBar style="light" />
+      </View>
+    );
+  }
+
   // Ana Menü
   if (currentScreen === 'main') {
     return (
@@ -490,6 +528,7 @@ export default function App() {
           onSelectPracticeMode={handleSelectPracticeMode}
           onSelectLearningMode={handleSelectLearningMode}
           onSelectGeographyKeywords={handleSelectGeographyKeywords}
+          onSelectAppLogic={handleSelectAppLogic}
           onSelectDidYouKnow={handleSelectDidYouKnow}
           onSelectExamCountdown={handleSelectExamCountdown}
           onSelectDailyQuiz={handleSelectDailyQuiz}
@@ -497,6 +536,16 @@ export default function App() {
         />
         <BadgeUnlockModal badgeIds={newlyUnlockedBadgeIds} onClose={() => setNewlyUnlockedBadgeIds([])} />
         <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  // Uygulama Mantığı
+  if (currentScreen === 'app-logic') {
+    return (
+      <View style={styles.container}>
+        <AppLogicScreen onBack={handleBackToMain} />
+        <StatusBar style="light" />
       </View>
     );
   }
@@ -644,6 +693,16 @@ export default function App() {
     );
   }
 
+  // Öğrenme Modu – Türkiye Şehirleri (ilginç bilgilerle)
+  if (currentScreen === 'turkey-learning') {
+    return (
+      <View style={styles.container}>
+        <TurkeyLearningMode onBackToMenu={handleBackToLearningMode} />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
   // Türkiye Haritası
   if (currentScreen === 'turkey-map') {
     return (
@@ -678,9 +737,10 @@ export default function App() {
     return (
       <View style={styles.container}>
         <MountainsMap
-          onBackToMenu={handleBackToMountainTypesMenu}
+          onBackToMenu={fromPracticeMode ? handleBackToPracticeMode : handleBackToMountainTypesMenu}
           onBackToMain={handleBackToMain}
-          mountainType={selectedMountainType}
+          mountainType={selectedMountainType ?? 'all'}
+          practiceIds={fromPracticeMode ? practiceIds : null}
         />
         <StatusBar style="auto" />
       </View>
@@ -706,10 +766,11 @@ export default function App() {
     return (
       <View style={styles.container}>
         <LakesMap
-          onBackToMenu={handleBackToLakeTypesMenu}
+          onBackToMenu={fromPracticeMode ? handleBackToPracticeMode : handleBackToLakeTypesMenu}
           onBackToMain={handleBackToMain}
-          onAdjustPositions={() => setCurrentScreen('lakes-adjust')}
-          lakeType={selectedLakeType}
+          onAdjustPositions={fromPracticeMode ? undefined : () => setCurrentScreen('lakes-adjust')}
+          lakeType={selectedLakeType ?? 'all'}
+          practiceIds={fromPracticeMode ? practiceIds : null}
         />
         <StatusBar style="auto" />
       </View>
@@ -812,8 +873,9 @@ export default function App() {
     return (
       <View style={styles.container}>
         <WorldFlagsQuiz
-          onBackToMenu={isLearningMode ? handleBackToLearningMode : handleBackToMain}
+          onBackToMenu={fromPracticeMode ? handleBackToPracticeMode : (isLearningMode ? handleBackToLearningMode : handleBackToMain)}
           onBackToMain={handleBackToMain}
+          practiceIds={fromPracticeMode ? practiceIds : null}
         />
         <StatusBar style="auto" />
       </View>
@@ -861,6 +923,23 @@ export default function App() {
     );
   }
 
+  // Zorluk Seçimi (Türkiye / Dünya / Karışık Quiz için)
+  if (currentScreen === 'quiz-difficulty') {
+    const quizTitles = { turkey: 'Türkiye Quiz', world: 'Dünya Quiz', mixed: 'Karışık Quiz' };
+    return (
+      <View style={styles.container}>
+        <QuizDifficultyScreen
+          quizType={selectedQuizType}
+          quizTitle={quizTitles[selectedQuizType] || ''}
+          onSelectDifficulty={handleSelectQuizDifficulty}
+          onBack={handleBackToQuizMenu}
+          onBackToMain={handleBackToMain}
+        />
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
   // Türkiye Quiz
   if (currentScreen === 'turkey-quiz') {
     return (
@@ -868,6 +947,7 @@ export default function App() {
         <TurkeyQuiz
           onBackToMenu={handleBackToQuizMenu}
           onBackToMain={handleBackToMain}
+          difficulty={quizDifficulty}
         />
         <StatusBar style="auto" />
       </View>
@@ -881,6 +961,7 @@ export default function App() {
         <WorldQuiz
           onBackToMenu={handleBackToQuizMenu}
           onBackToMain={handleBackToMain}
+          difficulty={quizDifficulty}
         />
         <StatusBar style="auto" />
       </View>
@@ -893,6 +974,7 @@ export default function App() {
         <MixedQuiz
           onBackToMenu={handleBackToQuizMenu}
           onBackToMain={handleBackToMain}
+          difficulty={quizDifficulty}
         />
         <StatusBar style="auto" />
       </View>
@@ -946,10 +1028,9 @@ export default function App() {
             // Öğrenme modunu aktif et
             setIsLearningMode(true);
             
-            // Kategoriye göre ilgili haritayı aç
+            // Kategoriye göre ilgili ekranı aç
             if (category === 'turkey_cities') {
-              setSelectedRegion('all');
-              setCurrentScreen('turkey-map');
+              setCurrentScreen('turkey-learning');
             } else if (category === 'turkey_geography') {
               setCurrentScreen('turkey-menu');
             } else if (category === 'world_countries') {
@@ -992,8 +1073,9 @@ export default function App() {
     return (
       <View style={styles.container}>
         <WorldMap
-          onBackToMenu={isLearningMode ? handleBackToLearningMode : handleBackToWorldMenu}
+          onBackToMenu={fromPracticeMode ? handleBackToPracticeMode : (isLearningMode ? handleBackToLearningMode : handleBackToWorldMenu)}
           onBackToMain={handleBackToMain}
+          practiceCountryIds={fromPracticeMode ? practiceIds : null}
         />
         <StatusBar style="auto" />
       </View>

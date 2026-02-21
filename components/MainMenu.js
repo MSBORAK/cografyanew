@@ -17,16 +17,17 @@ const menuItems = [
   { id: 'practice', title: 'Pratik Modu', subtitle: 'Yanlışlarını tekrar et', icon: '📚', color: '#EC4899', onPress: 'onSelectPracticeMode' },
   { id: 'learning', title: 'Öğrenme Modu', subtitle: 'İlginç bilgilerle öğren', icon: '🧠', color: '#059669', onPress: 'onSelectLearningMode' },
   { id: 'keywords', title: 'Anahtar Kelimeler', subtitle: 'Coğrafya kavramları ve tanımlar', icon: '📖', color: '#F59E0B', onPress: 'onSelectGeographyKeywords' },
+  { id: 'app-logic', title: 'Uygulama Mantığı', subtitle: 'Nasıl çalışır?', icon: '📋', color: '#64748B', onPress: 'onSelectAppLogic' },
 ];
 
-const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectCapitalsQuiz, onSelectQuizMode, onSelectPracticeMode, onSelectLearningMode, onSelectGeographyKeywords, onSelectDidYouKnow, onSelectExamCountdown, onSelectDailyQuiz, onBadgesUnlocked }) => {
+const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectCapitalsQuiz, onSelectQuizMode, onSelectPracticeMode, onSelectLearningMode, onSelectGeographyKeywords, onSelectAppLogic, onSelectDidYouKnow, onSelectExamCountdown, onSelectDailyQuiz, onBadgesUnlocked }) => {
   const { width, height } = useWindowDimensions();
   const dailyQuote = useMemo(() => getDailyQuote(), []);
   const shortSide = Math.min(width, height);
   const isIOSTablet = Platform.OS === 'ios' && shortSide >= 600;
-  const handlers = { onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectCapitalsQuiz, onSelectQuizMode, onSelectPracticeMode, onSelectLearningMode, onSelectGeographyKeywords, onSelectDidYouKnow, onSelectExamCountdown, onSelectDailyQuiz };
+  const handlers = { onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectCapitalsQuiz, onSelectQuizMode, onSelectPracticeMode, onSelectLearningMode, onSelectGeographyKeywords, onSelectAppLogic, onSelectDidYouKnow, onSelectExamCountdown, onSelectDailyQuiz };
 
-  const [dailySummary, setDailySummary] = useState({ answered: 0, correct: 0, total: 10, completed: false });
+  const [dailySummary, setDailySummary] = useState({ answered: 0, correct: 0, total: 20, completed: false });
   const [streak, setStreak] = useState({ currentStreak: 0, bestStreak: 0 });
   const [xpInfo, setXpInfo] = useState({ level: 1, totalXP: 0 });
   const [badgeListVisible, setBadgeListVisible] = useState(false);
@@ -47,6 +48,8 @@ const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectC
     const info = getLevelInfo(totalXP);
     setXpInfo(info);
     const newBadges = await checkAndUnlockBadges({
+      dailyCompletedToday: completed,
+      perfectScore: completed && progress.total > 0 && progress.correct === progress.total,
       currentStreak: s.currentStreak,
       bestStreak: s.bestStreak,
       totalXP,
@@ -134,6 +137,20 @@ const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectC
             </View>
             <View style={[styles.row, isIOSTablet && styles.rowIOSTablet]}>
               {menuItems.slice(4, 8).map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[boxStyle, { backgroundColor: item.color }]}
+                  onPress={handlers[item.onPress]}
+                  activeOpacity={0.9}
+                >
+                  <Text style={iconStyle}>{item.icon}</Text>
+                  <Text style={titleStyle}>{item.title}</Text>
+                  <Text style={subtitleStyle}>{item.subtitle}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={[styles.row, isIOSTablet && styles.rowIOSTablet]}>
+              {menuItems.slice(8, 9).map((item) => (
                 <TouchableOpacity
                   key={item.id}
                   style={[boxStyle, { backgroundColor: item.color }]}

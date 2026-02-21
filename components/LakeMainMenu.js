@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
   },
   header: {
-    paddingTop: 50,
-    paddingBottom: 20,
+    paddingTop: 62,
+    paddingBottom: 8,
     paddingHorizontal: 20,
     alignItems: 'center',
   },

@@ -21,10 +21,15 @@ const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.9;
 const TurkeyLearningMode = ({ onBackToMenu }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showInfo, setShowInfo] = useState(false);
+  const [currentFact, setCurrentFact] = useState(() => getRandomFact(turkeyPaths[0].name));
 
   const currentCity = turkeyPaths[currentIndex];
   const cityCenter = getCityCenter(currentCity.id);
-  const fact = getRandomFact(currentCity.name);
+
+  // Şehir değiştiğinde yeni rastgele bilgi seç (her il için birden fazla bilgi var)
+  useEffect(() => {
+    setCurrentFact(getRandomFact(currentCity.name));
+  }, [currentIndex, currentCity.name]);
 
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -55,6 +60,7 @@ const TurkeyLearningMode = ({ onBackToMenu }) => {
       style={styles.container}
       blurRadius={3}
     >
+      <View style={styles.overlay}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
           <Home size={24} color="#10B981" />
@@ -82,7 +88,13 @@ const TurkeyLearningMode = ({ onBackToMenu }) => {
           </TouchableOpacity>
           {showInfo && (
             <View style={styles.factBox}>
-              <Text style={styles.factText}>{fact}</Text>
+              <Text style={styles.factText}>{currentFact}</Text>
+              <TouchableOpacity
+                style={styles.anotherFactButton}
+                onPress={() => setCurrentFact(getRandomFact(currentCity.name))}
+              >
+                <Text style={styles.anotherFactButtonText}>Başka bilgi</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -100,8 +112,8 @@ const TurkeyLearningMode = ({ onBackToMenu }) => {
                 <Path
                   key={city.id}
                   d={city.d}
-                  fill={city.id === currentCity.id ? '#10B981' : '#E5E7EB'}
-                  stroke={city.id === currentCity.id ? '#059669' : '#9CA3AF'}
+                  fill={city.id === currentCity.id ? '#10B981' : '#475569'}
+                  stroke={city.id === currentCity.id ? '#059669' : '#64748B'}
                   strokeWidth={city.id === currentCity.id ? '1.5' : '0.8'}
                   opacity={city.id === currentCity.id ? 1 : 0.5}
                 />
@@ -122,7 +134,7 @@ const TurkeyLearningMode = ({ onBackToMenu }) => {
                 x={cityCenter.x}
                 y={cityCenter.y - 15}
                 fontSize="12"
-                fill="#111827"
+                fill="#F8FAFC"
                 textAnchor="middle"
                 fontWeight="700"
               >
@@ -156,6 +168,7 @@ const TurkeyLearningMode = ({ onBackToMenu }) => {
           </TouchableOpacity>
         </View>
       </View>
+      </View>
     </ImageBackground>
   );
 };
@@ -164,16 +177,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.88)',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 20,
-    paddingBottom: 12,
+    paddingTop: 67,
+    paddingBottom: 2,
     paddingHorizontal: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: 'rgba(148, 163, 184, 0.2)',
   },
   backButton: {
     padding: 8,
@@ -184,11 +201,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
   },
   subtitle: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#94A3B8',
     marginTop: 2,
   },
   placeholder: {
@@ -196,53 +213,66 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
+    padding: 12,
+    paddingBottom: 8,
   },
   cityCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(30, 41, 59, 0.9)',
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    padding: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.2)',
   },
   cityName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F8FAFC',
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   infoButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#D1FAE5',
+    backgroundColor: 'rgba(16, 185, 129, 0.25)',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 12,
     gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.4)',
   },
   infoButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#065F46',
+    color: '#6EE7B7',
   },
   factBox: {
     marginTop: 12,
     padding: 12,
-    backgroundColor: '#F0FDF4',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
     borderRadius: 12,
     borderLeftWidth: 4,
     borderLeftColor: '#10B981',
   },
   factText: {
     fontSize: 14,
-    color: '#065F46',
+    color: '#D1FAE5',
     lineHeight: 20,
+  },
+  anotherFactButton: {
+    marginTop: 10,
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+    borderRadius: 8,
+  },
+  anotherFactButtonText: {
+    fontSize: 13,
+    color: '#6EE7B7',
+    fontWeight: '600',
   },
   mapContainer: {
     flex: 1,
@@ -250,19 +280,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   svg: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
   },
   navigation: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
-    gap: 12,
+    marginTop: -50,
+    marginBottom: 15,
+    gap: 10,
   },
   navButton: {
     flex: 1,
@@ -270,12 +295,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#10B981',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 12,
     gap: 8,
   },
   navButtonDisabled: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#475569',
   },
   navButtonText: {
     fontSize: 16,
@@ -283,7 +308,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   navButtonTextDisabled: {
-    color: '#9CA3AF',
+    color: '#94A3B8',
   },
 });
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,25 @@ import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import { getMixedQuizQuestions } from '../utils/mixedQuizPool';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
-export default function MixedQuiz({ onBackToMenu, onBackToMain }) {
+const shuffleArray = (array) => {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+const getOptionsForDifficulty = (options, correctAnswer, difficulty) => {
+  if (!options || !correctAnswer) return options || [];
+  const wrong = options.filter((o) => o !== correctAnswer);
+  if (difficulty === 'easy' || difficulty === 'medium') return shuffleArray(options);
+  if (difficulty === 'hard') return shuffleArray([correctAnswer, ...shuffleArray(wrong).slice(0, 2)]);
+  if (difficulty === 'ultra') return shuffleArray([correctAnswer, ...shuffleArray(wrong).slice(0, 1)]);
+  return shuffleArray(options);
+};
+
+export default function MixedQuiz({ onBackToMenu, onBackToMain, difficulty = 'medium' }) {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -21,9 +39,17 @@ export default function MixedQuiz({ onBackToMenu, onBackToMain }) {
   const currentQuestion = questions[currentIndex];
   const isCompleted = currentIndex >= questions.length;
 
+  const displayOptions = useMemo(
+    () =>
+      currentQuestion
+        ? getOptionsForDifficulty(currentQuestion.options, currentQuestion.correctAnswer, difficulty)
+        : [],
+    [currentQuestion, currentIndex, difficulty]
+  );
+
   useEffect(() => {
-    setQuestions(getMixedQuizQuestions());
-  }, []);
+    setQuestions(getMixedQuizQuestions(undefined, difficulty));
+  }, [difficulty]);
 
   useEffect(() => {
     loadSounds();
@@ -50,7 +76,7 @@ export default function MixedQuiz({ onBackToMenu, onBackToMain }) {
   };
 
   const handleReset = () => {
-    setQuestions(getMixedQuizQuestions());
+    setQuestions(getMixedQuizQuestions(undefined, difficulty));
     setCurrentIndex(0);
     setScore(0);
     setSelectedAnswer(null);
@@ -78,16 +104,18 @@ export default function MixedQuiz({ onBackToMenu, onBackToMain }) {
         blurRadius={3}
       >
         <View style={styles.header}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#8B5CF6" />
-              <Text style={styles.backText}>Ana Menü</Text>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={24} color="#8B5CF6" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+              <ChevronLeft size={24} color="#8B5CF6" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#8B5CF6" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.completedContainer}>
           <Text style={styles.completedEmoji}>🎉</Text>
@@ -115,16 +143,18 @@ export default function MixedQuiz({ onBackToMenu, onBackToMain }) {
       blurRadius={3}
     >
       <View style={styles.header}>
-        {onBackToMain && (
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-            <Home size={24} color="#8B5CF6" />
-            <Text style={styles.backText}>Ana Menü</Text>
+        <View style={styles.backButtonsColumn}>
+          {onBackToMain && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+              <Home size={24} color="#8B5CF6" />
+              <Text style={styles.backText}>Ana Menü</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+            <ChevronLeft size={24} color="#8B5CF6" />
+            <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-          <ChevronLeft size={24} color="#8B5CF6" />
-          <Text style={styles.backText}>Geri</Text>
-        </TouchableOpacity>
+        </View>
         <View style={styles.progressRow}>
           <Text style={styles.progressText}>Soru {currentIndex + 1} / {questions.length}</Text>
           <Text style={styles.scoreTextHeader}>Skor: {score}</Text>
@@ -140,7 +170,7 @@ export default function MixedQuiz({ onBackToMenu, onBackToMain }) {
         </View>
 
         <View style={styles.optionsContainer}>
-          {currentQuestion?.options.map((option, index) => {
+          {displayOptions.map((option, index) => {
             const isSelected = selectedAnswer === option;
             const isCorrect = option === currentQuestion.correctAnswer;
             let buttonStyle = styles.optionButton;
@@ -190,9 +220,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 80,
   },
+  backButtonsColumn: {
+    flexDirection: 'column',
+    marginRight: 12,
+  },
   header: {
-    paddingTop: 50,
-    paddingBottom: 16,
+    paddingTop: 62,
+    paddingBottom: 4,
     paddingHorizontal: 20,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
