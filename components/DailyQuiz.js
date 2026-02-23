@@ -185,41 +185,45 @@ const DailyQuiz = ({ onBackToMenu, onBackToMain, onBadgesUnlocked }) => {
             <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.progressText}>Günlük Quiz • {answered} / {total}</Text>
+        <View style={styles.progressWrap} pointerEvents="none">
+          <Text style={styles.progressText}>Günlük Quiz • {answered} / {total}</Text>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} style={styles.scroll}>
-        {currentQuestion?.type === 'flag' ? (
-          <>
-            <Text style={styles.questionLabel}>Bu bayrak hangi ülkeye ait?</Text>
-            <View style={styles.flagContainer}>
-              <Text style={styles.flagEmoji}>{currentQuestion.displayFlag}</Text>
-            </View>
-          </>
-        ) : (
-          <Text style={styles.questionLabel}>{currentQuestion?.questionText}</Text>
-        )}
-        <View style={styles.optionsContainer}>
-          {options.map((opt) => {
-            let btnStyle = styles.optionButton;
-            if (feedback && selectedId === opt) {
-              btnStyle = feedback === 'correct' ? styles.optionCorrect : styles.optionWrong;
-            }
-            return (
-              <TouchableOpacity
-                key={opt}
-                style={btnStyle}
-                onPress={() => handleAnswer(opt)}
-                disabled={!!feedback}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.optionText}>{opt}</Text>
-                {feedback && selectedId === opt && (
-                  feedback === 'correct' ? <Check size={20} color="#FFF" /> : <X size={20} color="#FFF" />
-                )}
-              </TouchableOpacity>
-            );
-          })}
+        <View style={styles.questionBlock}>
+          {currentQuestion?.type === 'flag' ? (
+            <>
+              <Text style={styles.questionLabel}>Bu bayrak hangi ülkeye ait?</Text>
+              <View style={styles.flagContainer}>
+                <Text style={styles.flagEmoji}>{currentQuestion.displayFlag}</Text>
+              </View>
+            </>
+          ) : (
+            <Text style={styles.questionLabel}>{currentQuestion?.questionText}</Text>
+          )}
+          <View style={styles.optionsContainer}>
+            {options.map((opt) => {
+              let btnStyle = styles.optionButton;
+              if (feedback && selectedId === opt) {
+                btnStyle = feedback === 'correct' ? styles.optionCorrect : styles.optionWrong;
+              }
+              return (
+                <TouchableOpacity
+                  key={opt}
+                  style={btnStyle}
+                  onPress={() => handleAnswer(opt)}
+                  disabled={!!feedback}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.optionText}>{opt}</Text>
+                  {feedback && selectedId === opt && (
+                    feedback === 'correct' ? <Check size={20} color="#FFF" /> : <X size={20} color="#FFF" />
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
       </ScrollView>
     </ImageBackground>
@@ -262,45 +266,65 @@ const styles = StyleSheet.create({
     color: '#F59E0B',
     fontWeight: '600',
   },
+  progressWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 62,
+    paddingBottom: 2,
+  },
   progressText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#94A3B8',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#E2E8F0',
     textAlign: 'center',
   },
   scroll: { flex: 1 },
   content: {
     padding: 24,
     paddingBottom: 40,
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  questionBlock: {
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
+    marginTop: -176,
   },
   questionLabel: {
-    fontSize: 18,
+    fontSize: 40,
     fontWeight: '700',
     color: '#F8FAFC',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 28,
   },
   flagContainer: {
     alignItems: 'center',
-    marginVertical: 24,
-    padding: 32,
+    marginVertical: 28,
+    padding: 48,
     backgroundColor: 'rgba(30, 41, 59, 0.8)',
-    borderRadius: 20,
+    borderRadius: 24,
   },
   flagEmoji: {
-    fontSize: 80,
+    fontSize: 112,
   },
   optionsContainer: {
-    gap: 12,
+    gap: 16,
   },
   optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: 'rgba(30, 41, 59, 0.9)',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 14,
+    paddingVertical: 24,
+    paddingHorizontal: 28,
+    borderRadius: 18,
     borderWidth: 2,
     borderColor: 'rgba(148, 163, 184, 0.3)',
   },
@@ -309,9 +333,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#059669',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 14,
+    paddingVertical: 24,
+    paddingHorizontal: 28,
+    borderRadius: 18,
     borderWidth: 2,
     borderColor: '#34D399',
   },
@@ -320,14 +344,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#DC2626',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 14,
+    paddingVertical: 24,
+    paddingHorizontal: 28,
+    borderRadius: 18,
     borderWidth: 2,
     borderColor: '#F87171',
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '600',
     color: '#F8FAFC',
   },

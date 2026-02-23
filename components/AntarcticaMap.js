@@ -188,7 +188,7 @@ const AntarcticaMap = ({ onBackToMenu, onBackToMain }) => {
                 const isFoundCountry = found;
                 const isSelected = selectedCountry === country.id;
 
-                let fillColor = isAntarctica ? getContinentColor('antarctica') : '#E5E7EB';
+                let fillColor = isAntarctica ? getContinentColor('antarctica') : '#475569';
                 let strokeColor = '#FFFFFF';
 
                 if (isSelected && feedback === 'correct') {
@@ -248,8 +248,8 @@ const styles = StyleSheet.create({
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#94A3B8', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginBottom: 3 },
-  questionText: { fontSize: 11, fontWeight: '600', color: '#1E293B' },
+  questionBadge: { backgroundColor: '#94A3B8', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginTop: 48, marginBottom: 3 },
+  questionText: { fontSize: 16, fontWeight: '600', color: '#1E293B' },
   progressText: { fontSize: 10, color: '#94A3B8' },
   completedText: { fontSize: 12, fontWeight: '600', color: '#34D399' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },

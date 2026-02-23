@@ -24,6 +24,16 @@ import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 
 const MAP_ASPECT_RATIO = 1007.478 / 527.323;
 
+// Fisher-Yates karıştırma – her girişte farklı soru sırası
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // Individual City Component
 const CityPath = ({ city, isSelected, isInRegion, isCorrect, isWrong, onPress, cityColor, showingCorrectFeedback }) => {
   // Renk belirleme
@@ -70,6 +80,7 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
   const mapW = layout.w / layout.h > MAP_ASPECT_RATIO ? layout.h * MAP_ASPECT_RATIO : layout.w;
   const mapH = mapW / MAP_ASPECT_RATIO;
   const [lastSelectedCity, setLastSelectedCity] = useState(null);
+  const [quizOrder, setQuizOrder] = useState([]); // Her girişte karışık soru sırası
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [correctAnswers, setCorrectAnswers] = useState([]);
   const [wrongAttempts, setWrongAttempts] = useState([]);
@@ -114,7 +125,9 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
       : turkeyPaths;
 
   const regionColor = regionColors[selectedRegion] || '#2563EB';
-  const regionName = regions[selectedRegion]?.name || 'Tüm Şehirler';
+  const regionName = (selectedRegion && selectedRegion !== 'all' && regions[selectedRegion]?.name)
+  ? regions[selectedRegion].name
+  : '7 Bölge';
 
   // İlk yüklemede tüm haritayı göster
   useEffect(() => {
@@ -165,22 +178,32 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
     })
   ).current;
 
-  // İlk soruyu oluştur
+  // Sayfa/bölge açıldığında soru sırasını karıştır
   useEffect(() => {
-    if (filteredCities.length > 0 && !currentQuestion) {
+    const regionCities = regions[selectedRegion]?.cities || [];
+    const list = practiceCityIds?.length > 0
+      ? turkeyPaths.filter(city => practiceCityIds.includes(city.id))
+      : regionCities.length > 0
+        ? turkeyPaths.filter(city => regionCities.includes(city.id))
+        : turkeyPaths;
+    setQuizOrder(shuffleArray(list));
+    setCurrentQuestion(null);
+    setCorrectAnswers([]);
+    setWrongAttempts([]);
+  }, [selectedRegion, practiceCityIds?.length]);
+
+  // İlk soruyu oluştur (quizOrder hazır olunca)
+  useEffect(() => {
+    if (quizOrder.length > 0 && !currentQuestion) {
       askNextQuestion();
     }
-  }, [filteredCities]);
+  }, [quizOrder]);
 
   const askNextQuestion = () => {
-    // Henüz doğru cevaplanmamış şehirlerden birini seç
-    const unansweredCities = filteredCities.filter(
-      city => !correctAnswers.includes(city.id)
-    );
-    
-    if (unansweredCities.length > 0) {
-      const randomCity = unansweredCities[Math.floor(Math.random() * unansweredCities.length)];
-      setCurrentQuestion(randomCity);
+    // Karışık sıradaki ilk cevaplanmamış şehri sor
+    const nextCity = quizOrder.find(city => !correctAnswers.includes(city.id));
+    if (nextCity) {
+      setCurrentQuestion(nextCity);
       setWrongAttempts([]);
     } else {
       setCurrentQuestion(null); // Tüm sorular bitti
@@ -194,8 +217,6 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
   };
 
   const handleCityPress = async (city) => {
-    console.log('Şehir tıklandı:', city.name);
-    
     // Quiz modunda
     if (currentQuestion) {
       if (city.id === currentQuestion.id) {
@@ -259,11 +280,13 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
   const handleReset = () => {
     setSelectedCities([]);
     setLastSelectedCity(null);
+    setQuizOrder(shuffleArray(filteredCities));
     setCorrectAnswers([]);
     setWrongAttempts([]);
     setShowCheckmark(false);
     setShowCross(false);
-    askNextQuestion();
+    setCurrentQuestion(null);
+    // useEffect(quizOrder) ilk soruyu atayacak
   };
 
   const isCitySelected = (cityId) => {
@@ -561,14 +584,15 @@ const styles = StyleSheet.create({
   },
   questionBadge: {
     backgroundColor: '#FEF3C7',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1.5,
     borderColor: '#F59E0B',
+    marginTop: 48,
   },
   questionText: {
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#92400E',
   },

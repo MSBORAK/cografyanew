@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
-import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, RotateCcw, RefreshCw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { worldPaths, countryNames } from '../constants/worldPaths';
 import { getCountryColor } from '../constants/worldColors';
@@ -20,6 +20,9 @@ import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
+const MAP_HEIGHT = MAP_WIDTH * 0.482;
+const VIEWBOX_W = 1000;
+const VIEWBOX_H = 482;
 
 // Diziyi karıştıran fonksiyon
 const shuffleArray = (array) => {
@@ -37,22 +40,24 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
   const [foundCountries, setFoundCountries] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [wrongCountInRow, setWrongCountInRow] = useState(0);
 
-  // Zoom ve Pan için state'ler
+  // Zoom ve Pan: Animated değerler + SVG transform için state (dokunma hassasiyeti için transform SVG içinde)
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const lastScale = useRef(1);
   const lastTranslateX = useRef(0);
   const lastTranslateY = useRef(0);
+  const [mapTransform, setMapTransform] = useState({ s: 1, tx: 0, ty: 0 });
 
-  // İlk yüklemede: pratik modundaysa sadece pratik ülkeleri, değilse rastgele 20 ülke
+  // İlk yüklemede: pratik modundaysa pratik ülkeleri, değilse tüm ülkelerden rastgele 20 (her açılışta farklı)
   useEffect(() => {
     if (practiceCountryIds && practiceCountryIds.length > 0) {
       const practiceList = worldPaths.filter((c) => practiceCountryIds.includes(c.id));
       setQuizCountries(shuffleArray(practiceList));
     } else {
-      const shuffled = shuffleArray(worldPaths.slice(0, 20));
+      const shuffled = shuffleArray([...worldPaths]).slice(0, 20);
       setQuizCountries(shuffled);
     }
   }, [practiceCountryIds]);
@@ -70,17 +75,43 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
     };
   }, []);
 
+  // Zoom/pan değerlerini state'e senkronize et – SVG içi transform ile dokunma doğru eşleşsin
+  useEffect(() => {
+    const update = () => {
+      const s = scale._value;
+      const vx = translateX._value;
+      const vy = translateY._value;
+      const txVb = vx * (VIEWBOX_W / MAP_WIDTH);
+      const tyVb = vy * (VIEWBOX_H / MAP_HEIGHT);
+      setMapTransform({ s, tx: txVb, ty: tyVb });
+    };
+    const id1 = scale.addListener(update);
+    const id2 = translateX.addListener(update);
+    const id3 = translateY.addListener(update);
+    update();
+    return () => {
+      scale.removeListener(id1);
+      translateX.removeListener(id2);
+      translateY.removeListener(id3);
+    };
+  }, []);
+
   const currentCountry = quizCountries[currentQuestionIndex];
   const isCompleted = foundCountries.length === quizCountries.length;
 
-  // PanResponder oluştur
+  // Pan eşiği: bu kadar piksel hareket edilmeden tap sayılır, böylece ülke tıklaması pan ile çakışmaz
+  const PAN_THRESHOLD = 18;
+
+  // PanResponder: sadece 2 parmak veya belirgin sürüklemede devreye girsin; tap ülke seçimine gitsin
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: (evt) => evt.nativeEvent.touches.length === 2,
+      onStartShouldSetPanResponderCapture: () => false,
       onMoveShouldSetPanResponder: (evt, gestureState) => {
         return evt.nativeEvent.touches.length === 2 || 
-               (scale._value > 1 && (Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5));
+               (scale._value > 1 && (Math.abs(gestureState.dx) > PAN_THRESHOLD || Math.abs(gestureState.dy) > PAN_THRESHOLD));
       },
+      onMoveShouldSetPanResponderCapture: () => false,
       onPanResponderGrant: (evt) => {
         if (evt.nativeEvent.touches.length === 2) {
           const touch1 = evt.nativeEvent.touches[0];
@@ -128,36 +159,69 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
     if (country.id === currentCountry.id) {
       // Doğru cevap
       removeWrongAnswer('world_countries', country.id);
-      await playCorrectSound(); // Doğru ses çal
+      setWrongCountInRow(0);
+      await playCorrectSound();
       setFeedback('correct');
       setSelectedCountry(country.id);
-      
       setTimeout(() => {
         setFoundCountries([...foundCountries, country.id]);
         setFeedback(null);
         setSelectedCountry(null);
-        
         if (currentQuestionIndex < quizCountries.length - 1) {
           setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
       }, 1000);
     } else {
-      // Yanlış cevap - pratik modu için kaydet
+      // Yanlış cevap
       saveWrongAnswer('world_countries', currentCountry.id, countryNames[currentCountry.id] || currentCountry.id);
-      await playWrongSound(); // Yanlış ses çal
+      await playWrongSound();
       setFeedback('wrong');
       setSelectedCountry(country.id);
-      
+      const nextWrong = wrongCountInRow + 1;
+      setWrongCountInRow(nextWrong);
       setTimeout(() => {
         setFeedback(null);
         setSelectedCountry(null);
+        if (nextWrong >= 3) {
+          resetProgressAndNewQuestion();
+        }
       }, 1000);
     }
   };
 
+  // 3 yanlışta: ilerlemeyi sıfırla, yeni 20 soru, yeni soru göster
+  const resetProgressAndNewQuestion = () => {
+    setWrongCountInRow(0);
+    const fromPool = practiceCountryIds?.length
+      ? worldPaths.filter((c) => practiceCountryIds.includes(c.id))
+      : [...worldPaths];
+    const newList = shuffleArray(fromPool).slice(0, 20);
+    setQuizCountries(newList);
+    setCurrentQuestionIndex(0);
+    setFoundCountries([]);
+    setFeedback(null);
+    setSelectedCountry(null);
+    resetZoom();
+  };
+
+  // Değiştir butonu: mevcut soruyu değiştir (cevaplanmamışlardan rastgele birine geç)
+  const changeQuestion = () => {
+    if (isCompleted || feedback) return;
+    const foundSet = new Set(foundCountries);
+    const unansweredIndices = quizCountries
+      .map((c, i) => (foundSet.has(c.id) ? -1 : i))
+      .filter((i) => i >= 0);
+    if (unansweredIndices.length === 0) return;
+    const randomIdx = unansweredIndices[Math.floor(Math.random() * unansweredIndices.length)];
+    setCurrentQuestionIndex(randomIdx);
+  };
+
   const handleReset = () => {
-    const shuffled = shuffleArray(worldPaths.slice(0, 20));
-    setQuizCountries(shuffled);
+    setWrongCountInRow(0);
+    const fromPool = practiceCountryIds?.length
+      ? worldPaths.filter((c) => practiceCountryIds.includes(c.id))
+      : [...worldPaths];
+    setQuizCountries(shuffleArray(fromPool).slice(0, 20));
     setCurrentQuestionIndex(0);
     setFoundCountries([]);
     setFeedback(null);
@@ -245,26 +309,20 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
 
       <View style={styles.mapContainer}>
         <Animated.View 
-          style={[
-            styles.mapWrapper,
-            {
-              transform: [
-                { scale: scale },
-                { translateX: translateX },
-                { translateY: translateY },
-              ],
-            },
-          ]}
+          style={styles.mapWrapper}
           {...panResponder.panHandlers}
         >
           <Svg
             width={MAP_WIDTH}
-            height={MAP_WIDTH * 0.507}
-            viewBox="0 0 1000 507"
+            height={MAP_HEIGHT}
+            viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
+            preserveAspectRatio="xMidYMid meet"
             style={styles.svg}
           >
-            {/* Arka plan boş – çerçeve yok */}
-
+            {/* Zoom/pan SVG içinde – dokunma koordinatları doğru eşleşir */}
+            <G
+              transform={`translate(${VIEWBOX_W / 2},${VIEWBOX_H / 2}) scale(${mapTransform.s}) translate(${-VIEWBOX_W / 2},${-VIEWBOX_H / 2}) translate(${mapTransform.tx},${mapTransform.ty})`}
+            >
             {/* Okyanus isimleri */}
             <G>
               {oceans.map((ocean) => 
@@ -287,7 +345,9 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
 
             {/* Ülkeler */}
             <G>
-              {worldPaths.map((country, index) => {
+              {worldPaths
+                .filter((country) => country.id !== 'ATA')
+                .map((country, index) => {
                 const isFound = foundCountries.includes(country.id);
                 const isSelected = selectedCountry === country.id;
                 
@@ -309,7 +369,6 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
                   <G 
                     key={country.id}
                     onPress={() => handleCountryPress(country)}
-                    onPressIn={() => handleCountryPress(country)}
                   >
                     <Path
                       d={country.d}
@@ -323,18 +382,21 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
                 );
               })}
             </G>
+            </G>
 
             {/* Ülke isimleri gösterilmiyor - karışıklığı önlemek için (soru üstte: "X nerede?") */}
           </Svg>
         </Animated.View>
 
-        {/* Zoom Reset Butonu */}
-        <TouchableOpacity 
-          style={styles.zoomResetButton}
-          onPress={resetZoom}
-        >
-          <RotateCcw size={20} color="#FFFFFF" />
-        </TouchableOpacity>
+        {/* Sağ alt: Türkiye haritası gibi — üstte mavi (zoom geri al), altta kırmızı (soru değiştir) */}
+        <View style={styles.floatingButtonsContainer}>
+          <TouchableOpacity style={styles.zoomResetButton} onPress={resetZoom}>
+            <RotateCcw size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.changeQuestionButton} onPress={changeQuestion}>
+            <RefreshCw size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {isCompleted && (
@@ -354,6 +416,11 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   header: {
     paddingTop: 48,
@@ -399,10 +466,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     alignSelf: 'center',
+    marginTop: 48,
     marginBottom: 3,
   },
   questionText: {
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: '600',
     color: '#92400E',
   },
@@ -432,6 +500,7 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
   mapWrapper: {
     flex: 1,
@@ -443,11 +512,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   footer: {
-    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+    backgroundColor: 'transparent',
     paddingVertical: 8,
     paddingHorizontal: 10,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(148, 163, 184, 0.2)',
     alignItems: 'center',
   },
   resetButton: {
@@ -462,21 +529,38 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  zoomResetButton: {
+  floatingButtonsContainer: {
     position: 'absolute',
-    bottom: 16,
-    right: 16,
+    bottom: 12,
+    right: 12,
+    flexDirection: 'column',
+    gap: 8,
+  },
+  zoomResetButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#3B82F6',
-    justifyContent: 'center',
+    backgroundColor: '#2563EB',
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  changeQuestionButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#EF4444',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
   },
 });
 

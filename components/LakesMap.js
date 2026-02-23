@@ -9,57 +9,85 @@ import {
   PanResponder,
   ImageBackground,
 } from 'react-native';
-import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
-import { Home, ChevronLeft, Check, X, RotateCcw, Settings } from 'lucide-react-native';
+import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
+import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
+import { getCityCenter } from '../constants/cityCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { getLakesByType, getLakeTypeName } from '../constants/lakeTypes';
 import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
+const VIEWBOX_W = 1007.478;
+const VIEWBOX_H = 527.323;
 
-const LakesMap = ({ onBackToMenu, onBackToMain, onAdjustPositions, lakeType = 'all', practiceIds = null }) => {
-  // Göl tipine göre gölleri al; pratik modundaysa sadece pratik listesindekiler
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = null }) => {
   const baseLakes = getLakesByType(lakeType);
-  const lakes = practiceIds && practiceIds.length > 0
-    ? baseLakes.filter((l) => practiceIds.includes(l.id))
-    : baseLakes;
   const lakeTypeName = getLakeTypeName(lakeType);
+  const [quizOrder, setQuizOrder] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundLakes, setFoundLakes] = useState([]);
   const [feedback, setFeedback] = useState(null);
-  const [selectedLake, setSelectedLake] = useState(null);
+  const [showCorrectLocation, setShowCorrectLocation] = useState(null);
+  const [showCorrectCityId, setShowCorrectCityId] = useState(null);
 
-  // Zoom ve Pan için state'ler
+  // Her girişte / tip veya pratik listesi değişince soru sırasını karıştır
+  useEffect(() => {
+    const list = practiceIds && practiceIds.length > 0
+      ? baseLakes.filter((l) => practiceIds.includes(l.id))
+      : baseLakes;
+    setQuizOrder(shuffleArray(list));
+    setCurrentQuestionIndex(0);
+    setFoundLakes([]);
+    setFeedback(null);
+    setShowCorrectLocation(null);
+    setShowCorrectCityId(null);
+  }, [lakeType, practiceIds?.length]);
+
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const lastScale = useRef(1);
   const lastTranslateX = useRef(0);
   const lastTranslateY = useRef(0);
+  const tapStart = useRef(null);
+  const mapContainerRef = useRef(null);
 
-  const currentLake = lakes[currentQuestionIndex];
-  const isCompleted = foundLakes.length === lakes.length;
+  const currentLake = quizOrder[currentQuestionIndex];
+  const isCompleted = quizOrder.length > 0 && foundLakes.length === quizOrder.length;
+  const hasNoLakes = quizOrder.length === 0;
 
-  // PanResponder oluştur
+  // Tek parmak tap il seçimi için child (Path) alabilsin; iki parmak / pan için biz alalım
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: (evt) => evt.nativeEvent.touches.length === 2,
+      onStartShouldSetPanResponder: () => false,
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return evt.nativeEvent.touches.length === 2 || 
-               (scale._value > 1 && (Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5));
+        if (evt.nativeEvent.touches.length === 2) return true;
+        if (scale._value > 1 && (Math.abs(gestureState.dx) > 15 || Math.abs(gestureState.dy) > 15)) return true;
+        return false;
       },
       onPanResponderGrant: (evt) => {
         if (evt.nativeEvent.touches.length === 2) {
           const touch1 = evt.nativeEvent.touches[0];
           const touch2 = evt.nativeEvent.touches[1];
-          const distance = Math.sqrt(
-            Math.pow(touch2.pageX - touch1.pageX, 2) +
-            Math.pow(touch2.pageY - touch1.pageY, 2)
+          lastScale.current = Math.sqrt(
+            Math.pow(touch2.pageX - touch1.pageX, 2) + Math.pow(touch2.pageY - touch1.pageY, 2)
           );
-          lastScale.current = distance;
+          tapStart.current = null;
+        } else if (evt.nativeEvent.touches.length === 1) {
+          const t = evt.nativeEvent.touches[0];
+          tapStart.current = { pageX: t.pageX, pageY: t.pageY };
         }
       },
       onPanResponderMove: (evt, gestureState) => {
@@ -67,18 +95,16 @@ const LakesMap = ({ onBackToMenu, onBackToMain, onAdjustPositions, lakeType = 'a
           const touch1 = evt.nativeEvent.touches[0];
           const touch2 = evt.nativeEvent.touches[1];
           const distance = Math.sqrt(
-            Math.pow(touch2.pageX - touch1.pageX, 2) +
-            Math.pow(touch2.pageY - touch1.pageY, 2)
+            Math.pow(touch2.pageX - touch1.pageX, 2) + Math.pow(touch2.pageY - touch1.pageY, 2)
           );
-          
           if (lastScale.current > 0) {
             const scaleChange = distance / lastScale.current;
-            const currentScale = scale._value * scaleChange;
-            const newScale = Math.max(1, Math.min(currentScale, 4));
+            const newScale = Math.max(1, Math.min(scale._value * scaleChange, 4));
             scale.setValue(newScale);
           }
           lastScale.current = distance;
         } else if (evt.nativeEvent.touches.length === 1 && scale._value > 1) {
+          if (Math.abs(gestureState.dx) > 10 || Math.abs(gestureState.dy) > 10) tapStart.current = null;
           const newX = lastTranslateX.current + gestureState.dx;
           const newY = lastTranslateY.current + gestureState.dy;
           translateX.setValue(newX);
@@ -88,6 +114,7 @@ const LakesMap = ({ onBackToMenu, onBackToMain, onAdjustPositions, lakeType = 'a
       onPanResponderRelease: () => {
         lastTranslateX.current = translateX._value;
         lastTranslateY.current = translateY._value;
+        tapStart.current = null;
       },
     })
   ).current;
@@ -105,46 +132,53 @@ const LakesMap = ({ onBackToMenu, onBackToMain, onAdjustPositions, lakeType = 'a
     };
   }, []);
 
-  const handleLakePress = (lake) => {
-    if (isCompleted || feedback) return;
-    
-    if (lake.id === currentLake.id) {
-      // Doğru cevap
-      removeWrongAnswer('turkey_lakes', lake.id);
+  // İl tıklanınca: göl bu ilde mi kontrol et (göl hangi ilde?)
+  const handleCityTap = (cityId) => {
+    if (isCompleted || feedback || !currentLake || !currentLake.cityId) return;
+    const isCorrect = currentLake.cityId === String(cityId);
+
+    if (isCorrect) {
+      removeWrongAnswer('turkey_lakes', currentLake.id);
       setFeedback('correct');
-      setSelectedLake(lake.id);
       playCorrectSound();
-      
       setTimeout(() => {
-        setFoundLakes([...foundLakes, lake.id]);
+        setFoundLakes((prev) => [...prev, currentLake.id]);
         setFeedback(null);
-        setSelectedLake(null);
-        
-        if (currentQuestionIndex < lakes.length - 1) {
+        setShowCorrectLocation(null);
+        setShowCorrectCityId(null);
+        if (currentQuestionIndex < quizOrder.length - 1) {
           setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
       }, 1000);
     } else {
-      // Yanlış cevap - pratik modu için kaydet
       saveWrongAnswer('turkey_lakes', currentLake.id, currentLake.name);
       setFeedback('wrong');
-      setSelectedLake(lake.id);
+      setShowCorrectLocation(currentLake);
+      setShowCorrectCityId(currentLake.cityId);
       playWrongSound();
-      
       setTimeout(() => {
         setFeedback(null);
-        setSelectedLake(null);
-      }, 1000);
+        setShowCorrectLocation(null);
+        setShowCorrectCityId(null);
+        if (currentQuestionIndex < quizOrder.length - 1) {
+          setCurrentQuestionIndex(currentQuestionIndex + 1);
+        }
+      }, 1800);
     }
   };
 
 
 
   const handleReset = () => {
+    const list = practiceIds && practiceIds.length > 0
+      ? baseLakes.filter((l) => practiceIds.includes(l.id))
+      : baseLakes;
+    setQuizOrder(shuffleArray(list));
     setCurrentQuestionIndex(0);
     setFoundLakes([]);
     setFeedback(null);
-    setSelectedLake(null);
+    setShowCorrectLocation(null);
+    setShowCorrectCityId(null);
     resetZoom();
   };
 
@@ -193,9 +227,11 @@ const LakesMap = ({ onBackToMenu, onBackToMain, onAdjustPositions, lakeType = 'a
           </View>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>{lakeTypeName}</Text>
-            {!isCompleted ? (
+            {hasNoLakes ? (
+              <Text style={styles.progressText}>Bu kategoride göl yok</Text>
+            ) : !isCompleted ? (
               <Text style={styles.progressText}>
-                {foundLakes.length} / {lakes.length} göl bulundu
+                {foundLakes.length} / {quizOrder.length} göl bulundu
               </Text>
             ) : (
               <Text style={styles.completedText}>
@@ -217,17 +253,18 @@ const LakesMap = ({ onBackToMenu, onBackToMain, onAdjustPositions, lakeType = 'a
             </View>
           )}
         </View>
-        {!isCompleted && currentLake && (
+        {!hasNoLakes && !isCompleted && currentLake && (
           <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
-              <Text style={styles.questionText}>{currentLake.name} nerede?</Text>
+              <Text style={styles.questionText}>{currentLake.name} hangi ilde?</Text>
             </View>
           </View>
         )}
       </View>
 
       <View style={styles.mapContainer}>
-        <Animated.View 
+        <Animated.View
+          ref={mapContainerRef}
           style={[
             styles.mapWrapper,
             {
@@ -243,66 +280,69 @@ const LakesMap = ({ onBackToMenu, onBackToMain, onAdjustPositions, lakeType = 'a
           <Svg
             width={MAP_WIDTH}
             height={MAP_WIDTH * 0.52}
-            viewBox="0 0 1007.478 527.323"
+            viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
             style={styles.svg}
           >
-            {/* Türkiye haritası - belirgin arka plan ve il sınırları */}
+            {/* Türkiye haritası – ile tıklayarak gölün bulunduğu ili seç */}
             <G>
-              {turkeyPaths.map((city) => (
-                <Path
-                  key={city.id}
-                  d={city.d}
-                  fill="#E2E8F0"
-                  stroke="#94A3B8"
-                  strokeWidth="0.8"
-                  opacity={1}
-                />
-              ))}
-            </G>
-
-            {/* Göller - 🌊 emoji + tıklanabilir alan */}
-            <G>
-              {lakes.map((lake) => {
-                const isFound = foundLakes.includes(lake.id);
-                const hitRadius = 28;
-                
+              {turkeyPaths.map((city) => {
+                const isCorrectCity = showCorrectCityId === city.id;
+                const fill = isCorrectCity ? '#22C55E' : '#E2E8F0';
                 return (
-                  <G 
-                    key={lake.id}
-                    onPress={() => handleLakePress(lake)}
-                    onPressIn={() => handleLakePress(lake)}
-                  >
-                    <Circle
-                      cx={lake.x}
-                      cy={lake.y}
-                      r={hitRadius}
-                      fill="transparent"
+                  <G key={city.id} onPress={() => handleCityTap(city.id)}>
+                    <Path
+                      d={city.d}
+                      fill={fill}
+                      stroke={isCorrectCity ? '#166534' : '#94A3B8'}
+                      strokeWidth={isCorrectCity ? '1.2' : '0.8'}
+                      opacity={1}
                     />
-                    <SvgText
-                      x={lake.x}
-                      y={lake.y}
-                      fontSize="22"
-                      textAnchor="middle"
-                      alignmentBaseline="middle"
-                    >
-                      🌊
-                    </SvgText>
-                    {isFound && (
-                      <SvgText
-                        x={lake.x}
-                        y={lake.y + 24}
-                        fontSize="10"
-                        fill="#374151"
-                        textAnchor="middle"
-                        fontWeight="600"
-                      >
-                        {lake.name}
-                      </SvgText>
-                    )}
                   </G>
                 );
               })}
             </G>
+            {/* Yanlışta doğru il adını il merkezinde göster */}
+            {showCorrectCityId && (() => {
+              const city = turkeyPaths.find((c) => c.id === showCorrectCityId);
+              if (!city) return null;
+              const pos = getCityCenter(city.id);
+              return (
+                <SvgText
+                  x={pos.x}
+                  y={pos.y}
+                  fontSize="12"
+                  fill="#166534"
+                  textAnchor="middle"
+                  fontWeight="700"
+                >
+                  {city.name}
+                </SvgText>
+              );
+            })()}
+            {/* Yanlış cevapta doğru yeri göster */}
+            {showCorrectLocation && (
+              <G>
+                <SvgText
+                  x={showCorrectLocation.x}
+                  y={showCorrectLocation.y}
+                  fontSize="24"
+                  textAnchor="middle"
+                  alignmentBaseline="middle"
+                >
+                  🌊
+                </SvgText>
+                <SvgText
+                  x={showCorrectLocation.x}
+                  y={showCorrectLocation.y + 28}
+                  fontSize="11"
+                  fill="#1E293B"
+                  textAnchor="middle"
+                  fontWeight="700"
+                >
+                  {showCorrectLocation.name}
+                </SvgText>
+              </G>
+            )}
           </Svg>
         </Animated.View>
 
@@ -314,24 +354,15 @@ const LakesMap = ({ onBackToMenu, onBackToMain, onAdjustPositions, lakeType = 'a
           <RotateCcw size={20} color="#FFFFFF" />
         </TouchableOpacity>
 
-        {/* Konum Ayarla Butonu */}
-        {onAdjustPositions && (
-          <TouchableOpacity 
-            style={styles.adjustButton}
-            onPress={onAdjustPositions}
-          >
-            <Settings size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        )}
       </View>
 
-      {isCompleted && (
+      {(isCompleted || hasNoLakes) && (
         <View style={styles.footer}>
           <TouchableOpacity 
             style={styles.resetButton}
-            onPress={handleReset}
+            onPress={hasNoLakes ? onBackToMenu : handleReset}
           >
-            <Text style={styles.resetButtonText}>Yeniden Başla</Text>
+            <Text style={styles.resetButtonText}>{hasNoLakes ? 'Geri Dön' : 'Yeniden Başla'}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -383,14 +414,15 @@ const styles = StyleSheet.create({
   },
   questionBadge: {
     backgroundColor: '#FCD34D',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 12,
     alignSelf: 'center',
+    marginTop: 48,
     marginBottom: 3,
   },
   questionText: {
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: '600',
     color: '#92400E',
   },
@@ -458,22 +490,6 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     backgroundColor: '#2563EB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  adjustButton: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#10B981',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',

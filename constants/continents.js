@@ -6,7 +6,8 @@ export const continents = {
     color: '#EF4444',
     countries: [
       'DZA', 'AGO', 'BEN', 'BWA', 'BFA', 'BDI', 'CMR', 'CPV', 'CAF', 'TCD',
-      'COM', 'COG', 'COD', 'CIV', 'DJI', 'EGY', 'GNQ', 'ERI', 'ETH', 'GAB',
+      'COM', 'COG', 'COD', 'ZAR', 'CIV', 'DJI', 'EGY', 'GNQ', 'ERI', 'ETH', 'GAB',
+      'SAH',
       'GMB', 'GHA', 'GIN', 'GNB', 'KEN', 'LSO', 'LBR', 'LBY', 'MDG', 'MWI',
       'MLI', 'MRT', 'MUS', 'MAR', 'MOZ', 'NAM', 'NER', 'NGA', 'RWA', 'STP',
       'SEN', 'SYC', 'SLE', 'SOM', 'ZAF', 'SSD', 'SDN', 'SWZ', 'TZA', 'TGO',
@@ -20,8 +21,9 @@ export const continents = {
       'AFG', 'ARM', 'AZE', 'BHR', 'BGD', 'BTN', 'BRN', 'KHM', 'CHN', 'CYP',
       'GEO', 'IND', 'IDN', 'IRN', 'IRQ', 'ISR', 'JPN', 'JOR', 'KAZ', 'KWT',
       'KGZ', 'LAO', 'LBN', 'MYS', 'MDV', 'MNG', 'MMR', 'NPL', 'PRK', 'OMN',
-      'PAK', 'PSE', 'PHL', 'QAT', 'SAU', 'SGP', 'KOR', 'LKA', 'SYR', 'TWN',
-      'TJK', 'THA', 'TLS', 'TUR', 'TKM', 'ARE', 'UZB', 'VNM', 'YEM'
+      'PAK', 'PSE', 'WBG', 'PHL', 'QAT', 'SAU', 'SGP', 'KOR', 'LKA', 'SYR', 'TWN',
+      'TJK', 'THA', 'TLS', 'TMP', 'TUR', 'TKM', 'ARE', 'UZB', 'VNM', 'YEM',
+      'MAC', 'HKG'
     ]
   },
   europe: {
@@ -29,9 +31,9 @@ export const continents = {
     color: '#10B981',
     countries: [
       'ALB', 'AND', 'AUT', 'BLR', 'BEL', 'BIH', 'BGR', 'HRV', 'CZE', 'DNK',
-      'EST', 'FIN', 'FRA', 'DEU', 'GRC', 'HUN', 'ISL', 'IRL', 'ITA', 'XKS',
+      'EST', 'FIN', 'FRA', 'DEU', 'GRC', 'GIB', 'HUN', 'ISL', 'IMY', 'IRL', 'ITA', 'XKS', 'KSV',
       'LVA', 'LIE', 'LTU', 'LUX', 'MKD', 'MLT', 'MDA', 'MCO', 'MNE', 'NLD',
-      'NOR', 'POL', 'PRT', 'ROU', 'RUS', 'SMR', 'SRB', 'SVK', 'SVN', 'ESP',
+      'NOR', 'POL', 'PRT', 'ROU', 'ROM', 'RUS', 'SMR', 'SRB', 'SVK', 'SVN', 'ESP',
       'SWE', 'CHE', 'UKR', 'GBR', 'VAT'
     ]
   },
@@ -40,15 +42,15 @@ export const continents = {
     color: '#06B6D4',
     countries: [
       'ATG', 'BHS', 'BRB', 'BLZ', 'CAN', 'CRI', 'CUB', 'DMA', 'DOM', 'SLV',
-      'GRD', 'GTM', 'HTI', 'HND', 'JAM', 'MEX', 'NIC', 'PAN', 'KNA', 'LCA',
-      'VCT', 'TTO', 'USA'
+      'GRD', 'GRL', 'GTM', 'HTI', 'HND', 'JAM', 'MEX', 'NIC', 'PAN', 'KNA', 'LCA',
+      'MAF', 'PRI', 'SXM', 'TCA', 'VIR', 'VCT', 'TTO', 'USA'
     ]
   },
   southAmerica: {
     name: 'Güney Amerika',
     color: '#8B5CF6',
     countries: [
-      'ARG', 'BOL', 'BRA', 'CHL', 'COL', 'ECU', 'GUY', 'PRY', 'PER', 'SUR',
+      'ARG', 'BOL', 'BRA', 'CHL', 'CHI', 'COL', 'ECU', 'GUY', 'PRY', 'PER', 'SUR',
       'URY', 'VEN'
     ]
   },
@@ -56,8 +58,8 @@ export const continents = {
     name: 'Okyanusya',
     color: '#EC4899',
     countries: [
-      'AUS', 'FJI', 'KIR', 'MHL', 'FSM', 'NZL', 'PLW', 'PNG', 'WSM',
-      'SLB', 'TON', 'TUV', 'VUT'
+      'AUS', 'FJI', 'GUM', 'KIR', 'MHL', 'FSM', 'MNP', 'NCL', 'NZL', 'PLW', 'PNG', 'PYF',
+      'SLB', 'SOL', 'WSM', 'TON', 'TUV', 'VUT'
     ]
   },
   antarctica: {

@@ -14,10 +14,7 @@ const LakeMainMenu = ({ onSelectNatural, onSelectArtificial, onBackToTurkeyMenu 
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.backButton}
-              onPress={() => {
-                console.log('Geri butonu tıklandı');
-                onBackToTurkeyMenu();
-              }}
+              onPress={onBackToTurkeyMenu}
             >
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Türkiye Menü</Text>
@@ -31,10 +28,7 @@ const LakeMainMenu = ({ onSelectNatural, onSelectArtificial, onBackToTurkeyMenu 
             {/* Doğal Göller */}
             <TouchableOpacity
               style={[styles.menuButton, styles.naturalButton]}
-              onPress={() => {
-                console.log('Doğal Göller butonu tıklandı');
-                onSelectNatural();
-              }}
+              onPress={onSelectNatural}
               activeOpacity={0.9}
             >
               <View style={styles.buttonContent}>
@@ -51,10 +45,7 @@ const LakeMainMenu = ({ onSelectNatural, onSelectArtificial, onBackToTurkeyMenu 
             {/* Yapay Göller */}
             <TouchableOpacity
               style={[styles.menuButton, styles.artificialButton]}
-              onPress={() => {
-                console.log('Yapay Göller butonu tıklandı');
-                onSelectArtificial();
-              }}
+              onPress={onSelectArtificial}
               activeOpacity={0.9}
             >
               <View style={styles.buttonContent}>

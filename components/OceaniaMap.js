@@ -198,12 +198,14 @@ const OceaniaMap = ({ onBackToMenu, onBackToMain }) => {
           <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.507} viewBox={continentViewBox.oceania.viewBox} preserveAspectRatio={continentViewBox.oceania.preserveAspectRatio} style={styles.svg}>
             {/* Arka plan boş – çerçeve yok */}
             <G>
-              {worldPaths.map((country, index) => {
+              {worldPaths
+              .filter((country) => country.id !== 'ATA')
+              .map((country, index) => {
                 const isOceania = oceaniaCountries.includes(country.id);
                 const isFound = foundCountries.includes(country.id);
                 const isSelected = selectedCountry === country.id;
                 
-                let fillColor = isOceania ? getCountryColor(index) : '#E5E7EB';
+                let fillColor = isOceania ? getCountryColor(index) : '#475569';
                 let strokeColor = '#FFFFFF';
                 
                 if (isSelected && feedback === 'correct') {
@@ -265,8 +267,8 @@ const styles = StyleSheet.create({
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginBottom: 3 },
-  questionText: { fontSize: 11, fontWeight: '600', color: '#92400E' },
+  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginTop: 48, marginBottom: 3 },
+  questionText: { fontSize: 16, fontWeight: '600', color: '#92400E' },
   progressText: { fontSize: 10, color: '#94A3B8' },
   completedText: { fontSize: 12, fontWeight: '600', color: '#34D399' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },

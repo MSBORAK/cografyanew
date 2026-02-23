@@ -292,14 +292,14 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   questionLabel: {
-    fontSize: 22,
+    fontSize: 40,
     fontWeight: '800',
     color: '#F8FAFC',
-    marginBottom: 4,
+    marginBottom: 6,
     textAlign: 'center',
   },
   questionSub: {
-    fontSize: 16,
+    fontSize: 30,
     fontWeight: '600',
     color: '#94A3B8',
     marginBottom: 20,

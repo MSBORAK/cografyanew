@@ -9,7 +9,6 @@ const categories = [
   { id: 'karadeniz', name: 'Karadeniz', emoji: '🌲', color: '#059669' },
   { id: 'dogu-anadolu', name: 'Doğu Anadolu', emoji: '⛰️', color: '#8B5CF6' },
   { id: 'guneydogu', name: 'G.Doğu Anadolu', emoji: '🏜️', color: '#DC2626' },
-  { id: 'all', name: 'Tüm Şehirler', emoji: '🇹🇷', color: '#EF4444' },
 ];
 
 const HomeScreen = ({ onStartGame, onBackToMain }) => {
@@ -25,10 +24,7 @@ const HomeScreen = ({ onStartGame, onBackToMain }) => {
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.backButton}
-              onPress={() => {
-                console.log('Geri butonu tıklandı');
-                onBackToMain();
-              }}
+              onPress={onBackToMain}
             >
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Geri</Text>
@@ -53,7 +49,7 @@ const HomeScreen = ({ onStartGame, onBackToMain }) => {
               ))}
             </View>
             <View style={styles.row}>
-              {categories.slice(4, 8).map((cat) => (
+              {categories.slice(4, 7).map((cat) => (
                 <TouchableOpacity
                   key={cat.id}
                   style={[styles.menuButton, { backgroundColor: cat.color }]}

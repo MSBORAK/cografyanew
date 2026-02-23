@@ -20,7 +20,17 @@ import MassifsMapManualAdjust from './MassifsMapManualAdjust';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
+  const [quizOrder, setQuizOrder] = useState(() => shuffleArray(massifs));
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundMassifs, setFoundMassifs] = useState([]);
   const [feedback, setFeedback] = useState(null);
@@ -34,8 +44,8 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
   const lastTranslateX = useRef(0);
   const lastTranslateY = useRef(0);
 
-  const currentMassif = massifs[currentQuestionIndex];
-  const isCompleted = foundMassifs.length === massifs.length;
+  const currentMassif = quizOrder[currentQuestionIndex];
+  const isCompleted = foundMassifs.length === quizOrder.length;
 
   const panResponder = useRef(
     PanResponder.create({
@@ -110,7 +120,7 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
         setFeedback(null);
         setSelectedMassif(null);
         
-        if (currentQuestionIndex < massifs.length - 1) {
+        if (currentQuestionIndex < quizOrder.length - 1) {
           setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
       }, 1000);
@@ -127,6 +137,7 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
   };
 
   const handleReset = () => {
+    setQuizOrder(shuffleArray(massifs));
     setCurrentQuestionIndex(0);
     setFoundMassifs([]);
     setFeedback(null);
@@ -169,7 +180,7 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
             <Text style={styles.title}>Masif Araziler Quiz</Text>
             {!isCompleted ? (
               <Text style={styles.progressText}>
-                {foundMassifs.length} / {massifs.length} masif bulundu
+                {foundMassifs.length} / {quizOrder.length} masif bulundu
               </Text>
             ) : (
               <Text style={styles.completedText}>🎉 Tüm masifleri buldunuz!</Text>
@@ -206,7 +217,7 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
               ))}
             </G>
             <G>
-              {massifs.map((massif, index) => {
+              {quizOrder.map((massif, index) => {
                 const isFound = foundMassifs.includes(massif.id);
                 const isSelected = selectedMassif === massif.id;
                 
@@ -275,8 +286,8 @@ const styles = StyleSheet.create({
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginBottom: 3 },
-  questionText: { fontSize: 11, fontWeight: '600', color: '#92400E' },
+  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginTop: 48, marginBottom: 3 },
+  questionText: { fontSize: 16, fontWeight: '600', color: '#92400E' },
   progressText: { fontSize: 10, color: '#94A3B8' },
   completedText: { fontSize: 12, fontWeight: '600', color: '#10B981' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },

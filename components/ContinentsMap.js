@@ -18,6 +18,9 @@ import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../u
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
+const MAP_HEIGHT = MAP_WIDTH * 0.482;
+const VIEWBOX_W = 1000;
+const VIEWBOX_H = 482;
 
 const ContinentsMap = ({ onBackToMenu, onBackToMain }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -25,13 +28,14 @@ const ContinentsMap = ({ onBackToMenu, onBackToMain }) => {
   const [feedback, setFeedback] = useState(null);
   const [selectedContinent, setSelectedContinent] = useState(null);
 
-  // Zoom ve Pan için state'ler
+  // Zoom ve Pan: Animated + SVG içi transform (dokunma hassasiyeti için)
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const lastScale = useRef(1);
   const lastTranslateX = useRef(0);
   const lastTranslateY = useRef(0);
+  const [mapTransform, setMapTransform] = useState({ s: 1, tx: 0, ty: 0 });
 
   // Quiz için kıta listesi (Antarktika hariç)
   const quizContinents = Object.keys(continents).filter(key => key !== 'antarctica');
@@ -97,6 +101,27 @@ const ContinentsMap = ({ onBackToMenu, onBackToMain }) => {
       ScreenOrientation.unlockAsync().then(() =>
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE)
       );
+    };
+  }, []);
+
+  // Zoom/pan değerlerini state'e senkronize et – SVG içi transform ile dokunma doğru eşleşsin
+  useEffect(() => {
+    const update = () => {
+      const s = scale._value;
+      const vx = translateX._value;
+      const vy = translateY._value;
+      const txVb = vx * (VIEWBOX_W / MAP_WIDTH);
+      const tyVb = vy * (VIEWBOX_H / MAP_HEIGHT);
+      setMapTransform({ s, tx: txVb, ty: tyVb });
+    };
+    const id1 = scale.addListener(update);
+    const id2 = translateX.addListener(update);
+    const id3 = translateY.addListener(update);
+    update();
+    return () => {
+      scale.removeListener(id1);
+      translateX.removeListener(id2);
+      translateY.removeListener(id3);
     };
   }, []);
 
@@ -221,29 +246,25 @@ const ContinentsMap = ({ onBackToMenu, onBackToMain }) => {
 
       <View style={styles.mapContainer}>
         <Animated.View 
-          style={[
-            styles.mapWrapper,
-            {
-              transform: [
-                { scale: scale },
-                { translateX: translateX },
-                { translateY: translateY },
-              ],
-            },
-          ]}
+          style={styles.mapWrapper}
           {...panResponder.panHandlers}
         >
           <Svg
             width={MAP_WIDTH}
-            height={MAP_WIDTH * 0.507}
-            viewBox="0 0 1000 507"
+            height={MAP_HEIGHT}
+            viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
+            preserveAspectRatio="xMidYMid meet"
             style={styles.svg}
           >
-            {/* Arka plan boş – çerçeve yok */}
-
+            {/* Zoom/pan SVG içinde – dokunma koordinatları doğru eşleşir */}
+            <G
+              transform={`translate(${VIEWBOX_W / 2},${VIEWBOX_H / 2}) scale(${mapTransform.s}) translate(${-VIEWBOX_W / 2},${-VIEWBOX_H / 2}) translate(${mapTransform.tx},${mapTransform.ty})`}
+            >
             {/* Ülkeler - Kıtalara göre renklendir */}
             <G>
-              {worldPaths.map((country) => {
+              {worldPaths
+              .filter((country) => country.id !== 'ATA')
+              .map((country) => {
                 const continentKey = getContinentByCountry(country.id);
                 const isFound = foundContinents.includes(continentKey);
                 const isSelected = selectedContinent === continentKey;
@@ -280,6 +301,7 @@ const ContinentsMap = ({ onBackToMenu, onBackToMain }) => {
                 );
               })}
             </G>
+            </G>
           </Svg>
         </Animated.View>
 
@@ -308,6 +330,11 @@ const ContinentsMap = ({ onBackToMenu, onBackToMain }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   header: {
     paddingTop: 48,
@@ -353,10 +380,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     alignSelf: 'center',
+    marginTop: 48,
     marginBottom: 3,
   },
   questionText: {
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: '600',
     color: '#92400E',
   },
@@ -386,6 +414,7 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
   mapWrapper: {
     flex: 1,
@@ -397,11 +426,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   footer: {
-    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+    backgroundColor: 'transparent',
     paddingVertical: 8,
     paddingHorizontal: 10,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(148, 163, 184, 0.2)',
     alignItems: 'center',
   },
   resetButton: {

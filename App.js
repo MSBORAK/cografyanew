@@ -52,6 +52,7 @@ import { getWrongAnswers } from './utils/practiceMode';
 import GeographyKeywords from './components/GeographyKeywords';
 import DidYouKnowTrivia from './components/DidYouKnowTrivia';
 import AppLogicScreen from './components/AppLogicScreen';
+import PaywallModal from './components/PaywallModal';
 import MountainsMapManualAdjust from './components/MountainsMapManualAdjust';
 import LakesMapManualAdjust from './components/LakesMapManualAdjust';
 
@@ -68,6 +69,8 @@ export default function App() {
   const [newlyUnlockedBadgeIds, setNewlyUnlockedBadgeIds] = useState([]);
   const [selectedQuizType, setSelectedQuizType] = useState(null);
   const [quizDifficulty, setQuizDifficulty] = useState('medium');
+  const [paywallFeatureId, setPaywallFeatureId] = useState(null);
+  const [refreshPremiumKey, setRefreshPremiumKey] = useState(0);
 
   const handleBadgesUnlocked = useCallback((badgeIds) => {
     if (badgeIds && badgeIds.length > 0) setNewlyUnlockedBadgeIds(badgeIds);
@@ -505,6 +508,23 @@ export default function App() {
     setCurrentScreen('app-logic');
   };
 
+  const handleRequestUnlock = useCallback((featureId) => {
+    setPaywallFeatureId(featureId);
+  }, []);
+
+  const handlePaywallUnlock = useCallback((featureId) => {
+    setPaywallFeatureId(null);
+    setRefreshPremiumKey((k) => k + 1);
+    if (featureId === 'premium') return;
+    if (featureId === 'quiz') handleSelectQuizMode();
+    else if (featureId === 'practice') handleSelectPracticeMode();
+    else if (featureId === 'learning') handleSelectLearningMode();
+    else if (featureId === 'keywords') handleSelectGeographyKeywords();
+    else if (featureId === 'flags') handleSelectWorldFlags();
+    else if (featureId === 'capitals') handleSelectCapitalsQuiz();
+    else if (featureId === 'app-logic') handleSelectAppLogic();
+  }, []);
+
   // Açılış ekranı – uygulama ilk açıldığında
   if (showWelcome) {
     return (
@@ -533,8 +553,16 @@ export default function App() {
           onSelectExamCountdown={handleSelectExamCountdown}
           onSelectDailyQuiz={handleSelectDailyQuiz}
           onBadgesUnlocked={handleBadgesUnlocked}
+          onRequestUnlock={handleRequestUnlock}
+          refreshPremiumKey={refreshPremiumKey}
         />
         <BadgeUnlockModal badgeIds={newlyUnlockedBadgeIds} onClose={() => setNewlyUnlockedBadgeIds([])} />
+        <PaywallModal
+          visible={!!paywallFeatureId}
+          featureId={paywallFeatureId}
+          onUnlock={handlePaywallUnlock}
+          onClose={() => setPaywallFeatureId(null)}
+        />
         <StatusBar style="auto" />
       </View>
     );
@@ -584,6 +612,14 @@ export default function App() {
           onSelectBorderGates={handleSelectBorderGates}
           onSelectFaultLines={handleSelectFaultLines}
           onBackToMain={isLearningMode ? handleBackToLearningMode : handleBackToMain}
+          onRequestUnlock={handleRequestUnlock}
+          refreshPremiumKey={refreshPremiumKey}
+        />
+        <PaywallModal
+          visible={!!paywallFeatureId}
+          featureId={paywallFeatureId}
+          onUnlock={handlePaywallUnlock}
+          onClose={() => setPaywallFeatureId(null)}
         />
         <StatusBar style="auto" />
       </View>
@@ -768,7 +804,6 @@ export default function App() {
         <LakesMap
           onBackToMenu={fromPracticeMode ? handleBackToPracticeMode : handleBackToLakeTypesMenu}
           onBackToMain={handleBackToMain}
-          onAdjustPositions={fromPracticeMode ? undefined : () => setCurrentScreen('lakes-adjust')}
           lakeType={selectedLakeType ?? 'all'}
           practiceIds={fromPracticeMode ? practiceIds : null}
         />
@@ -1023,8 +1058,6 @@ export default function App() {
           onBackToMenu={handleBackToMain}
           onBackToMain={handleBackToMain}
           onSelectCategory={(category) => {
-            console.log('Öğrenme kategori seçildi:', category);
-            
             // Öğrenme modunu aktif et
             setIsLearningMode(true);
             
@@ -1062,6 +1095,14 @@ export default function App() {
           onSelectOceania={handleSelectOceania}
           onSelectAntarctica={handleSelectAntarctica}
           onSelectFlags={handleSelectFlags}
+          onRequestUnlock={handleRequestUnlock}
+          refreshPremiumKey={refreshPremiumKey}
+        />
+        <PaywallModal
+          visible={!!paywallFeatureId}
+          featureId={paywallFeatureId}
+          onUnlock={handlePaywallUnlock}
+          onClose={() => setPaywallFeatureId(null)}
         />
         <StatusBar style="auto" />
       </View>

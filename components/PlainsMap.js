@@ -19,14 +19,32 @@ import { getPlainsByType, getPlainTypeName } from '../constants/plainTypes';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
-  // Ova tipine göre ovaları al
-  const plains = getPlainsByType(plainType);
   const plainTypeName = getPlainTypeName(plainType);
+  const [quizOrder, setQuizOrder] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundPlains, setFoundPlains] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [selectedPlain, setSelectedPlain] = useState(null);
+
+  // Her girişte / tip değişince soru sırasını karıştır
+  useEffect(() => {
+    const list = getPlainsByType(plainType);
+    setQuizOrder(shuffleArray(list));
+    setCurrentQuestionIndex(0);
+    setFoundPlains([]);
+    setFeedback(null);
+    setSelectedPlain(null);
+  }, [plainType]);
 
   // Zoom ve Pan için state'ler
   const scale = useRef(new Animated.Value(1)).current;
@@ -36,8 +54,8 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
   const lastTranslateX = useRef(0);
   const lastTranslateY = useRef(0);
 
-  const currentPlain = plains[currentQuestionIndex];
-  const isCompleted = foundPlains.length === plains.length;
+  const currentPlain = quizOrder[currentQuestionIndex];
+  const isCompleted = quizOrder.length > 0 && foundPlains.length === quizOrder.length;
 
   // PanResponder oluştur
   const panResponder = useRef(
@@ -115,7 +133,7 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
         setFeedback(null);
         setSelectedPlain(null);
         
-        if (currentQuestionIndex < plains.length - 1) {
+        if (currentQuestionIndex < quizOrder.length - 1) {
           setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
       }, 1000);
@@ -133,6 +151,7 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
   };
 
   const handleReset = () => {
+    setQuizOrder(shuffleArray(getPlainsByType(plainType)));
     setCurrentQuestionIndex(0);
     setFoundPlains([]);
     setFeedback(null);
@@ -187,7 +206,7 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
             <Text style={styles.title}>{plainTypeName}</Text>
             {!isCompleted ? (
               <Text style={styles.progressText}>
-                {foundPlains.length} / {plains.length} ova bulundu
+                {foundPlains.length} / {quizOrder.length} ova bulundu
               </Text>
             ) : (
               <Text style={styles.completedText}>
@@ -254,7 +273,7 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
 
             {/* Ovalar */}
             <G>
-              {plains.map((plain) => {
+              {quizOrder.map((plain) => {
                 const isFound = foundPlains.includes(plain.id);
                 const isSelected = selectedPlain === plain.id;
                 
@@ -374,10 +393,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     alignSelf: 'center',
+    marginTop: 48,
     marginBottom: 3,
   },
   questionText: {
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: '600',
     color: '#92400E',
   },

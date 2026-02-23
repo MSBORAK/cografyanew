@@ -18,9 +18,21 @@ import { countryFlags } from '../constants/countryFlags';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Fisher-Yates karıştırma – her girişte farklı sıra
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
 const FlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
+  // Her sayfa girişinde soru sırası karışsın
+  const [quizFlags, setQuizFlags] = useState(() => shuffleArray(countryFlags));
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundCountries, setFoundCountries] = useState([]);
   const [feedback, setFeedback] = useState(null);
@@ -34,8 +46,8 @@ const FlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
   const lastTranslateX = useRef(0);
   const lastTranslateY = useRef(0);
 
-  const currentFlag = countryFlags[currentQuestionIndex];
-  const isCompleted = foundCountries.length === countryFlags.length;
+  const currentFlag = quizFlags[currentQuestionIndex];
+  const isCompleted = foundCountries.length === quizFlags.length;
 
   // PanResponder oluştur
   const panResponder = useRef(
@@ -142,6 +154,7 @@ const FlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
         'FIN': 'Finlandiya',
         'PRT': 'Portekiz',
         'ROU': 'Romanya',
+        'ROM': 'Romanya', // worldPaths'ta ROM kullanılıyor
         'CZE': 'Çekya',
         'HUN': 'Macaristan',
         'THA': 'Tayland',
@@ -174,7 +187,7 @@ const FlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
         setFeedback(null);
         setSelectedCountry(null);
         
-        if (currentQuestionIndex < countryFlags.length - 1) {
+        if (currentQuestionIndex < quizFlags.length - 1) {
           setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
       }, 1000);
@@ -192,6 +205,7 @@ const FlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
   };
 
   const handleReset = () => {
+    setQuizFlags(shuffleArray(countryFlags));
     setCurrentQuestionIndex(0);
     setFoundCountries([]);
     setFeedback(null);
@@ -246,7 +260,7 @@ const FlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
             <Text style={styles.title}>Bayrak Bulma Quiz</Text>
             {!isCompleted ? (
               <Text style={styles.progressText}>
-                {foundCountries.length} / {countryFlags.length} ülke bulundu
+                {foundCountries.length} / {quizFlags.length} ülke bulundu
               </Text>
             ) : (
               <Text style={styles.completedText}>
@@ -417,6 +431,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 16,
     alignSelf: 'center',
+    marginTop: 48,
     marginBottom: 3,
     alignItems: 'center',
     justifyContent: 'center',
@@ -459,13 +474,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   svg: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: 'transparent',
   },
   footer: {
     backgroundColor: 'rgba(15, 23, 42, 0.92)',

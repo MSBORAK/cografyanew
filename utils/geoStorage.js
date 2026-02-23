@@ -10,6 +10,7 @@ export const keys = {
   bestStreak: () => `${PREFIX}bestStreak`,
   totalXP: () => `${PREFIX}totalXP`,
   unlockedBadges: () => `${PREFIX}unlockedBadges`,
+  unlockedPremium: () => `${PREFIX}unlockedPremium`,
 };
 
 export async function getItem(key) {

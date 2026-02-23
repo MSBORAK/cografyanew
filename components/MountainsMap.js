@@ -9,28 +9,37 @@ import {
   PanResponder,
   ImageBackground,
 } from 'react-native';
-import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
+import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
 import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
+import { getCityCenter } from '../constants/cityCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { getMountainsByType, getMountainTypeName } from '../constants/mountainTypes';
 import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
+const VIEWBOX_W = 1007.478;
+const VIEWBOX_H = 527.323;
+
+const shuffleArray = (array) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practiceIds = null }) => {
-  // Dağ tipine göre dağları al; pratik modundaysa sadece pratik listesindekiler
-  const baseMountains = getMountainsByType(mountainType);
-  const mountains = practiceIds && practiceIds.length > 0
-    ? baseMountains.filter((m) => practiceIds.includes(m.id))
-    : baseMountains;
   const mountainTypeName = getMountainTypeName(mountainType);
+  const [mountains, setMountains] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundMountains, setFoundMountains] = useState([]);
   const [feedback, setFeedback] = useState(null);
-  const [selectedMountain, setSelectedMountain] = useState(null);
+  const [showCorrectLocation, setShowCorrectLocation] = useState(null);
+  const [showCorrectCityId, setShowCorrectCityId] = useState(null);
 
   // Zoom ve Pan için state'ler
   const scale = useRef(new Animated.Value(1)).current;
@@ -40,18 +49,34 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
   const lastTranslateX = useRef(0);
   const lastTranslateY = useRef(0);
 
+  // Her açılışta dağ listesini karıştır
+  useEffect(() => {
+    const baseMountains = getMountainsByType(mountainType);
+    const list = practiceIds && practiceIds.length > 0
+      ? baseMountains.filter((m) => practiceIds.includes(m.id))
+      : baseMountains;
+    setMountains(shuffleArray(list));
+    setCurrentQuestionIndex(0);
+    setFoundMountains([]);
+    setFeedback(null);
+    setShowCorrectLocation(null);
+    setShowCorrectCityId(null);
+  }, [mountainType, practiceIds]);
+
   const currentMountain = mountains[currentQuestionIndex];
-  const isCompleted = foundMountains.length === mountains.length;
+  const isCompleted = mountains.length > 0 && foundMountains.length === mountains.length;
+  const hasNoMountains = mountains.length === 0;
 
   const mountainEmoji = mountainType === 'volcanic' ? '🌋' : mountainType === 'tectonic' ? '⛰️' : '🏔️';
 
-  // PanResponder oluştur
+  // Tek parmak tap il seçimi için child (Path) alabilsin; iki parmak / pan için biz alalım
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: (evt) => evt.nativeEvent.touches.length === 2,
+      onStartShouldSetPanResponder: () => false,
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return evt.nativeEvent.touches.length === 2 || 
-               (scale._value > 1 && (Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5));
+        if (evt.nativeEvent.touches.length === 2) return true;
+        if (scale._value > 1 && (Math.abs(gestureState.dx) > 15 || Math.abs(gestureState.dy) > 15)) return true;
+        return false;
       },
       onPanResponderGrant: (evt) => {
         if (evt.nativeEvent.touches.length === 2) {
@@ -107,44 +132,52 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
     };
   }, []);
 
-  const handleMountainPress = (mountain) => {
-    if (isCompleted || feedback) return;
-    
-    if (mountain.id === currentMountain.id) {
-      // Doğru cevap
-      removeWrongAnswer('turkey_mountains', mountain.id);
+  // İl tıklanınca: dağ bu ilde mi kontrol et (dağ hangi ilde?)
+  const handleCityTap = (cityId) => {
+    if (isCompleted || feedback || !currentMountain || !currentMountain.cityId) return;
+    const isCorrect = currentMountain.cityId === String(cityId);
+
+    if (isCorrect) {
+      removeWrongAnswer('turkey_mountains', currentMountain.id);
       setFeedback('correct');
-      setSelectedMountain(mountain.id);
       playCorrectSound();
-      
       setTimeout(() => {
-        setFoundMountains([...foundMountains, mountain.id]);
+        setFoundMountains((prev) => [...prev, currentMountain.id]);
         setFeedback(null);
-        setSelectedMountain(null);
-        
+        setShowCorrectLocation(null);
+        setShowCorrectCityId(null);
         if (currentQuestionIndex < mountains.length - 1) {
           setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
       }, 1000);
     } else {
-      // Yanlış cevap - pratik modu için kaydet
       saveWrongAnswer('turkey_mountains', currentMountain.id, currentMountain.name);
       setFeedback('wrong');
-      setSelectedMountain(mountain.id);
+      setShowCorrectLocation(currentMountain);
+      setShowCorrectCityId(currentMountain.cityId);
       playWrongSound();
-      
       setTimeout(() => {
         setFeedback(null);
-        setSelectedMountain(null);
-      }, 1000);
+        setShowCorrectLocation(null);
+        setShowCorrectCityId(null);
+        if (currentQuestionIndex < mountains.length - 1) {
+          setCurrentQuestionIndex(currentQuestionIndex + 1);
+        }
+      }, 1800);
     }
   };
 
   const handleReset = () => {
+    const baseMountains = getMountainsByType(mountainType);
+    const list = practiceIds && practiceIds.length > 0
+      ? baseMountains.filter((m) => practiceIds.includes(m.id))
+      : baseMountains;
+    setMountains(shuffleArray(list));
     setCurrentQuestionIndex(0);
     setFoundMountains([]);
     setFeedback(null);
-    setSelectedMountain(null);
+    setShowCorrectLocation(null);
+    setShowCorrectCityId(null);
     resetZoom();
   };
 
@@ -193,7 +226,9 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
           </View>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>{mountainTypeName}</Text>
-            {!isCompleted ? (
+            {hasNoMountains ? (
+              <Text style={styles.progressText}>Bu kategoride dağ yok</Text>
+            ) : !isCompleted ? (
               <Text style={styles.progressText}>
                 {foundMountains.length} / {mountains.length} dağ bulundu
               </Text>
@@ -217,19 +252,16 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
             </View>
           )}
         </View>
-        {!isCompleted && currentMountain && (
+        {!hasNoMountains && !isCompleted && currentMountain && (
           <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
-              <Text style={styles.questionText}>{currentMountain.name} nerede?</Text>
+              <Text style={styles.questionText}>{currentMountain.name} hangi ilde?</Text>
             </View>
           </View>
         )}
       </View>
 
-      <View
-        style={styles.mapContainer}
-        {...panResponder.panHandlers}
-      >
+      <View style={styles.mapContainer}>
         <Animated.View 
           style={[
             styles.mapWrapper,
@@ -241,73 +273,99 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
               ],
             },
           ]}
+          {...panResponder.panHandlers}
         >
           <View style={{ width: MAP_WIDTH, height: MAP_WIDTH * 0.52 }}>
             <Svg
               width={MAP_WIDTH}
               height={MAP_WIDTH * 0.52}
-              viewBox="0 0 1007.478 527.323"
+              viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
               style={styles.svg}
             >
-            {/* Türkiye haritası - belirgin arka plan ve sınırlar */}
+            {/* Türkiye haritası – ile tıklayarak dağın bulunduğu ili seç */}
             <G>
-              {turkeyPaths.map((city) => (
-                <Path
-                  key={city.id}
-                  d={city.d}
-                  fill="#E2E8F0"
-                  stroke="#94A3B8"
-                  strokeWidth="0.8"
-                  opacity={1}
-                />
-              ))}
-            </G>
-
-            {/* Dağlar - tipe göre emoji (dokunmak için altta görünmez daire) */}
-            <G>
-              {mountains.map((mountain) => {
-                const isFound = foundMountains.includes(mountain.id);
-                const hitRadius = 28;
-                
+              {turkeyPaths.map((city) => {
+                const isCorrectCity = showCorrectCityId === city.id;
+                const fill = isCorrectCity ? '#22C55E' : '#E2E8F0';
                 return (
-                  <G 
-                    key={mountain.id}
-                    onPress={() => handleMountainPress(mountain)}
-                    onPressIn={() => handleMountainPress(mountain)}
-                  >
-                    {/* Görünmez dokunma alanı - emojiye basılabilsin */}
-                    <Circle
-                      cx={mountain.x}
-                      cy={mountain.y}
-                      r={hitRadius}
-                      fill="transparent"
+                  <G key={city.id} onPress={() => handleCityTap(city.id)}>
+                    <Path
+                      d={city.d}
+                      fill={fill}
+                      stroke={isCorrectCity ? '#166534' : '#94A3B8'}
+                      strokeWidth={isCorrectCity ? '1.2' : '0.8'}
+                      opacity={1}
                     />
-                    <SvgText
-                      x={mountain.x}
-                      y={mountain.y + 6}
-                      fontSize="22"
-                      textAnchor="middle"
-                    >
-                      {mountainEmoji}
-                    </SvgText>
-                    
-                    {/* Dağ adı (bulunanlar için) */}
-                    {isFound && (
-                      <SvgText
-                        x={mountain.x}
-                        y={mountain.y + 32}
-                        fontSize="11"
-                        fill="#1E293B"
-                        textAnchor="middle"
-                        fontWeight="700"
-                      >
-                        {mountain.name}
-                      </SvgText>
-                    )}
                   </G>
                 );
               })}
             </G>
+            {/* Yanlışta doğru il adını il merkezinde göster */}
+            {showCorrectCityId && (() => {
+              const city = turkeyPaths.find((c) => c.id === showCorrectCityId);
+              if (!city) return null;
+              const pos = getCityCenter(city.id);
+              return (
+                <SvgText
+                  x={pos.x}
+                  y={pos.y}
+                  fontSize="12"
+                  fill="#166534"
+                  textAnchor="middle"
+                  fontWeight="700"
+                >
+                  {city.name}
+                </SvgText>
+              );
+            })()}
+            {/* Yanlış cevapta doğru dağ konumunu göster */}
+            {showCorrectLocation && (
+              <G>
+                <SvgText
+                  x={showCorrectLocation.x}
+                  y={showCorrectLocation.y}
+                  fontSize="24"
+                  textAnchor="middle"
+                  alignmentBaseline="middle"
+                >
+                  {mountainEmoji}
+                </SvgText>
+                <SvgText
+                  x={showCorrectLocation.x}
+                  y={showCorrectLocation.y + 28}
+                  fontSize="11"
+                  fill="#1E293B"
+                  textAnchor="middle"
+                  fontWeight="700"
+                >
+                  {showCorrectLocation.name}
+                </SvgText>
+              </G>
+            )}
+            {/* Tamamlanınca bulunan dağları göster */}
+            {isCompleted && mountains.map((mountain) => (
+              <G key={mountain.id}>
+                <SvgText
+                  x={mountain.x}
+                  y={mountain.y}
+                  fontSize="22"
+                  textAnchor="middle"
+                  alignmentBaseline="middle"
+                >
+                  {mountainEmoji}
+                </SvgText>
+                <SvgText
+                  x={mountain.x}
+                  y={mountain.y + 28}
+                  fontSize="11"
+                  fill="#1E293B"
+                  textAnchor="middle"
+                  fontWeight="700"
+                >
+                  {mountain.name}
+                </SvgText>
+              </G>
+            ))}
           </Svg>
           </View>
         </Animated.View>
@@ -321,13 +379,13 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
         </TouchableOpacity>
       </View>
 
-      {isCompleted && (
+      {(isCompleted || hasNoMountains) && (
         <View style={styles.footer}>
           <TouchableOpacity 
             style={styles.resetButton}
-            onPress={handleReset}
+            onPress={hasNoMountains ? onBackToMenu : handleReset}
           >
-            <Text style={styles.resetButtonText}>Yeniden Başla</Text>
+            <Text style={styles.resetButtonText}>{hasNoMountains ? 'Geri Dön' : 'Yeniden Başla'}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -382,6 +440,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 14,
     alignSelf: 'center',
+    marginTop: 48,
     marginBottom: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -390,7 +449,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   questionText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: '#92400E',
   },
@@ -465,7 +524,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 8,
+    zIndex: 10,
   },
 });
 

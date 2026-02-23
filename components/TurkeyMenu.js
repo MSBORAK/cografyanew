@@ -1,5 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, useWindowDimensions, Platform } from 'react-native';
-import { ChevronLeft, Home } from 'lucide-react-native';
+import { useState, useEffect } from 'react';
+import { ChevronLeft, Home, Lock } from 'lucide-react-native';
+import { getUnlockedPremiumIds, isTurkeyItemLocked } from '../utils/premiumLock';
 
 const menuItems = [
   { id: 'cities', title: '81 İl', icon: '🏙️', style: 'citiesButton', onPress: 'onSelectCities' },
@@ -31,13 +33,20 @@ const TurkeyMenu = ({
   onSelectNeighbors,
   onSelectBorderGates,
   onSelectFaultLines,
-  onBackToMain 
+  onBackToMain,
+  onRequestUnlock,
+  refreshPremiumKey = 0,
 }) => {
   const { width, height } = useWindowDimensions();
   const shortSide = Math.min(width, height);
   const isMobile = shortSide < 600;
   const isIOSTablet = Platform.OS === 'ios' && !isMobile;
   const handlers = { onSelectCities, onSelectRegions, onSelectRegionsOnly, onSelectMountains, onSelectPlains, onSelectLakes, onSelectUnesco, onSelectMassifs, onSelectCoasts, onSelectPlateaus, onSelectNeighbors, onSelectBorderGates, onSelectFaultLines };
+
+  const [unlockedPremiumIds, setUnlockedPremiumIds] = useState([]);
+  useEffect(() => {
+    getUnlockedPremiumIds().then((ids) => setUnlockedPremiumIds(Array.isArray(ids) ? ids : [])).catch(() => setUnlockedPremiumIds([]));
+  }, [refreshPremiumKey]);
 
   const boxStyle = isIOSTablet ? styles.menuButtonIOSTablet : (isMobile ? styles.menuButtonMobile : styles.menuButton);
   const iconStyle = isIOSTablet ? styles.iconIOSTablet : (isMobile ? styles.iconMobile : styles.icon);
@@ -68,56 +77,88 @@ const TurkeyMenu = ({
 
           <View style={[styles.menuContainer, isMobile && styles.menuContainerMobile, isIOSTablet && styles.menuContainerIOSTablet]}>
             <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
-              {menuItems.slice(0, 4).map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[boxStyle, styles[item.style]]}
-                  onPress={handlers[item.onPress]}
-                  activeOpacity={0.9}
-                >
-                  <Text style={iconStyle}>{item.icon}</Text>
-                  <Text style={titleStyle}>{item.title}</Text>
-                </TouchableOpacity>
-              ))}
+              {menuItems.slice(0, 4).map((item) => {
+                const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[boxStyle, styles[item.style], locked && styles.menuBoxLocked]}
+                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
+                    activeOpacity={0.9}
+                  >
+                    {locked && (
+                      <View style={styles.lockBadge}>
+                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
+                      </View>
+                    )}
+                    <Text style={iconStyle}>{item.icon}</Text>
+                    <Text style={titleStyle}>{item.title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
             <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
-              {menuItems.slice(4, 8).map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[boxStyle, styles[item.style]]}
-                  onPress={handlers[item.onPress]}
-                  activeOpacity={0.9}
-                >
-                  <Text style={iconStyle}>{item.icon}</Text>
-                  <Text style={titleStyle}>{item.title}</Text>
-                </TouchableOpacity>
-              ))}
+              {menuItems.slice(4, 8).map((item) => {
+                const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[boxStyle, styles[item.style], locked && styles.menuBoxLocked]}
+                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
+                    activeOpacity={0.9}
+                  >
+                    {locked && (
+                      <View style={styles.lockBadge}>
+                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
+                      </View>
+                    )}
+                    <Text style={iconStyle}>{item.icon}</Text>
+                    <Text style={titleStyle}>{item.title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
             <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
-              {menuItems.slice(8, 12).map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[boxStyle, styles[item.style]]}
-                  onPress={handlers[item.onPress]}
-                  activeOpacity={0.9}
-                >
-                  <Text style={iconStyle}>{item.icon}</Text>
-                  <Text style={titleStyle}>{item.title}</Text>
-                </TouchableOpacity>
-              ))}
+              {menuItems.slice(8, 12).map((item) => {
+                const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[boxStyle, styles[item.style], locked && styles.menuBoxLocked]}
+                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
+                    activeOpacity={0.9}
+                  >
+                    {locked && (
+                      <View style={styles.lockBadge}>
+                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
+                      </View>
+                    )}
+                    <Text style={iconStyle}>{item.icon}</Text>
+                    <Text style={titleStyle}>{item.title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
             <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
-              {menuItems.slice(12, 14).map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[boxStyle, styles[item.style]]}
-                  onPress={handlers[item.onPress]}
-                  activeOpacity={0.9}
-                >
-                  <Text style={iconStyle}>{item.icon}</Text>
-                  <Text style={titleStyle}>{item.title}</Text>
-                </TouchableOpacity>
-              ))}
+              {menuItems.slice(12, 14).map((item) => {
+                const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[boxStyle, styles[item.style], locked && styles.menuBoxLocked]}
+                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
+                    activeOpacity={0.9}
+                  >
+                    {locked && (
+                      <View style={styles.lockBadge}>
+                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
+                      </View>
+                    )}
+                    <Text style={iconStyle}>{item.icon}</Text>
+                    <Text style={titleStyle}>{item.title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
         </View>
@@ -258,6 +299,22 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  menuBoxLocked: {
+    opacity: 0.92,
+  },
+  lockBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
   },
   citiesButton: {
     backgroundColor: '#EF4444',

@@ -380,10 +380,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     alignSelf: 'center',
+    marginTop: 48,
     marginBottom: 3,
   },
   questionText: {
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: '600',
     color: '#92400E',
   },

@@ -14,10 +14,7 @@ const PlainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.backButton}
-              onPress={() => {
-                console.log('Geri butonu tıklandı');
-                onBackToTurkeyMenu();
-              }}
+              onPress={onBackToTurkeyMenu}
             >
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Türkiye Menü</Text>

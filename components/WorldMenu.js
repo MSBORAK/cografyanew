@@ -1,5 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Platform } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
+import { useState, useEffect } from 'react';
+import { ChevronLeft, Lock } from 'lucide-react-native';
+import { getUnlockedPremiumIds, isWorldItemLocked } from '../utils/premiumLock';
 
 const menuItems = [
   { id: 'world', title: 'Tüm Dünya', icon: '🌐', style: 'worldButton', onPress: 'onSelectWorldMap' },
@@ -23,9 +25,16 @@ const WorldMenu = ({
   onSelectOceania,
   onSelectAntarctica,
   onSelectFlags,
-  onBackToMain 
+  onBackToMain,
+  onRequestUnlock,
+  refreshPremiumKey = 0,
 }) => {
   const handlers = { onSelectWorldMap, onSelectContinents, onSelectEurope, onSelectAsia, onSelectAfrica, onSelectAmerica, onSelectOceania, onSelectAntarctica, onSelectFlags };
+
+  const [unlockedPremiumIds, setUnlockedPremiumIds] = useState([]);
+  useEffect(() => {
+    getUnlockedPremiumIds().then((ids) => setUnlockedPremiumIds(Array.isArray(ids) ? ids : [])).catch(() => setUnlockedPremiumIds([]));
+  }, [refreshPremiumKey]);
 
   return (
     <View style={styles.container}>
@@ -46,30 +55,46 @@ const WorldMenu = ({
 
           <View style={styles.menuContainer}>
             <View style={styles.row}>
-              {menuItems.slice(0, 5).map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[styles.menuButton, styles[item.style]]}
-                  onPress={handlers[item.onPress]}
-                  activeOpacity={0.9}
-                >
-                  <Text style={styles.icon}>{item.icon}</Text>
-                  <Text style={styles.buttonTitle}>{item.title}</Text>
-                </TouchableOpacity>
-              ))}
+              {menuItems.slice(0, 5).map((item) => {
+                const locked = isWorldItemLocked(item.id, unlockedPremiumIds);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[styles.menuButton, styles[item.style], locked && styles.menuBoxLocked]}
+                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
+                    activeOpacity={0.9}
+                  >
+                    {locked && (
+                      <View style={styles.lockBadge}>
+                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
+                      </View>
+                    )}
+                    <Text style={styles.icon}>{item.icon}</Text>
+                    <Text style={styles.buttonTitle}>{item.title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
             <View style={styles.row}>
-              {menuItems.slice(5, 9).map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[styles.menuButton, styles[item.style]]}
-                  onPress={handlers[item.onPress]}
-                  activeOpacity={0.9}
-                >
-                  <Text style={styles.icon}>{item.icon}</Text>
-                  <Text style={styles.buttonTitle}>{item.title}</Text>
-                </TouchableOpacity>
-              ))}
+              {menuItems.slice(5, 9).map((item) => {
+                const locked = isWorldItemLocked(item.id, unlockedPremiumIds);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[styles.menuButton, styles[item.style], locked && styles.menuBoxLocked]}
+                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
+                    activeOpacity={0.9}
+                  >
+                    {locked && (
+                      <View style={styles.lockBadge}>
+                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
+                      </View>
+                    )}
+                    <Text style={styles.icon}>{item.icon}</Text>
+                    <Text style={styles.buttonTitle}>{item.title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
         </View>
@@ -158,6 +183,22 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  menuBoxLocked: {
+    opacity: 0.92,
+  },
+  lockBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
   },
   worldButton: {
     backgroundColor: '#3B82F6',

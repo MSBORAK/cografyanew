@@ -22,6 +22,15 @@ import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../u
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // Individual City Component
 const CityPath = ({ city, isSelected, isInRegion, isCorrect, isWrong, onPress, cityColor, showingCorrectFeedback }) => {
   // Renk belirleme
@@ -56,6 +65,7 @@ const CityPath = ({ city, isSelected, isInRegion, isCorrect, isWrong, onPress, c
 
 // Main UNESCO Map Component
 const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
+  const [quizOrder, setQuizOrder] = useState(() => shuffleArray(unescoSites));
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [correctAnswers, setCorrectAnswers] = useState([]);
   const [wrongAttempts, setWrongAttempts] = useState([]);
@@ -135,25 +145,21 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
     })
   ).current;
 
-  // İlk soruyu oluştur
+  // İlk soruyu oluştur (quizOrder hazır olunca)
   useEffect(() => {
-    if (filteredCities.length > 0 && !currentQuestion) {
+    if (quizOrder.length > 0 && !currentQuestion) {
       askNextQuestion();
     }
-  }, [filteredCities]);
+  }, [quizOrder]);
 
   const askNextQuestion = () => {
-    // Henüz doğru cevaplanmamış UNESCO alanlarından birini seç
-    const unansweredSites = filteredCities.filter(
-      site => !correctAnswers.includes(site.id)
-    );
-    
-    if (unansweredSites.length > 0) {
-      const randomSite = unansweredSites[Math.floor(Math.random() * unansweredSites.length)];
-      setCurrentQuestion(randomSite);
+    // Karışık sıradaki ilk cevaplanmamış alanı sor
+    const nextSite = quizOrder.find(site => !correctAnswers.includes(site.id));
+    if (nextSite) {
+      setCurrentQuestion(nextSite);
       setWrongAttempts([]);
     } else {
-      setCurrentQuestion(null); // Tüm sorular bitti
+      setCurrentQuestion(null);
     }
   };
 
@@ -197,11 +203,12 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
   };
 
   const handleReset = () => {
+    setQuizOrder(shuffleArray(unescoSites));
+    setCurrentQuestion(null);
     setCorrectAnswers([]);
     setWrongAttempts([]);
     setShowCheckmark(false);
     setShowCross(false);
-    askNextQuestion();
     
     Animated.spring(scale, {
       toValue: 1,
@@ -252,7 +259,7 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
           <View style={styles.headerLeft}>
             <Text style={styles.title}>UNESCO Dünya Mirası</Text>
             <Text style={styles.subtitle}>
-              {correctAnswers.length} / {unescoSites.length} alan bulundu
+              {correctAnswers.length} / {quizOrder.length} alan bulundu
             </Text>
           </View>
           <View style={styles.headerSpacer} />
@@ -383,7 +390,7 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
           </View>
         )}
 
-        {!currentQuestion && correctAnswers.length === unescoSites.length && (
+        {!currentQuestion && correctAnswers.length === quizOrder.length && (
           <View style={styles.completionCard}>
             <Text style={styles.completionEmoji}>🎉</Text>
             <Text style={styles.completionTitle}>Tebrikler!</Text>
@@ -457,9 +464,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1.5,
     borderColor: '#F59E0B',
+    marginTop: 48,
   },
   questionText: {
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#92400E',
   },

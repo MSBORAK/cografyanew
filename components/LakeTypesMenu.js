@@ -14,10 +14,7 @@ const LakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.backButton}
-              onPress={() => {
-                console.log('Geri butonu tıklandı');
-                onBackToLakeMainMenu();
-              }}
+              onPress={onBackToLakeMainMenu}
             >
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Göller Menü</Text>

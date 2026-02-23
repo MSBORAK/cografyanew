@@ -12,16 +12,20 @@ import {
 import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
 import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { worldPaths, countryNames } from '../constants/worldPaths';
+import { turkeyPaths } from '../constants/turkeyPaths';
 import { borderGates } from '../constants/borderGates';
-import { getCountryCenter } from '../constants/countryCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const TURKEY_VIEWBOX = { w: 1007.478, h: 527.323 };
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
+const MAP_HEIGHT = MAP_WIDTH * (TURKEY_VIEWBOX.h / TURKEY_VIEWBOX.w);
 
-// Türkiye'nin komşu ülkeleri
-const neighborCountries = ['GRC', 'BGR', 'GEO', 'ARM', 'IRN', 'IRQ', 'SYR', 'CYP'];
+// Sınır kapısı koordinatlarını Türkiye haritası (0–1007 x 0–527) üzerine eşle
+const gateToMap = (gate) => ({
+  x: (gate.x / 1000) * TURKEY_VIEWBOX.w,
+  y: (gate.y / 450) * TURKEY_VIEWBOX.h,
+});
 
 const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -39,13 +43,16 @@ const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
   const currentGate = borderGates[currentQuestionIndex];
   const isCompleted = foundGates.length === borderGates.length;
 
+  const PAN_THRESHOLD = 18;
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: (evt) => evt.nativeEvent.touches.length === 2,
+      onStartShouldSetPanResponderCapture: () => false,
       onMoveShouldSetPanResponder: (evt, gestureState) => {
         return evt.nativeEvent.touches.length === 2 || 
-               (scale._value > 1 && (Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5));
+               (scale._value > 1 && (Math.abs(gestureState.dx) > PAN_THRESHOLD || Math.abs(gestureState.dy) > PAN_THRESHOLD));
       },
+      onMoveShouldSetPanResponderCapture: () => false,
       onPanResponderGrant: (evt) => {
         if (evt.nativeEvent.touches.length === 2) {
           const touch1 = evt.nativeEvent.touches[0];
@@ -98,32 +105,24 @@ const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
     };
   }, []);
 
+  // Kapıya tıklanınca: sorulan kapıysa doğru
   const handleGatePress = async (gate) => {
     if (isCompleted || feedback) return;
-    
     if (gate.id === currentGate.id) {
       await playCorrectSound();
       setFeedback('correct');
       setSelectedGate(gate.id);
-      
       setTimeout(() => {
         setFoundGates([...foundGates, gate.id]);
         setFeedback(null);
         setSelectedGate(null);
-        
-        if (currentQuestionIndex < borderGates.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        if (currentQuestionIndex < borderGates.length - 1) setCurrentQuestionIndex(currentQuestionIndex + 1);
       }, 1000);
     } else {
       await playWrongSound();
       setFeedback('wrong');
       setSelectedGate(gate.id);
-      
-      setTimeout(() => {
-        setFeedback(null);
-        setSelectedGate(null);
-      }, 1000);
+      setTimeout(() => { setFeedback(null); setSelectedGate(null); }, 1000);
     }
   };
 
@@ -187,6 +186,7 @@ const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
           <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
               <Text style={styles.questionText}>{currentGate.name} nerede?</Text>
+              <Text style={styles.instructionText}>Sorulan sınır kapısına tıklayın</Text>
             </View>
           </View>
         )}
@@ -194,141 +194,46 @@ const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
 
       <View style={styles.mapContainer}>
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
-          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.7} viewBox="545 105 90 63" style={styles.svg}>
-            {/* Arka plan boş – çerçeve yok */}
-            <G>
-              {worldPaths.map((country) => {
-                const isNeighbor = neighborCountries.includes(country.id);
-                const isTurkey = country.id === 'TUR';
-                
-                if (!isTurkey && !isNeighbor) return null;
-                
-                let fillColor = '#E5E7EB';
-                
-                if (isTurkey) {
-                  fillColor = '#9CA3AF';
-                } else if (isNeighbor) {
-                  fillColor = '#D1D5DB';
-                }
-                
-                return (
+          <View style={[styles.mapFrame, { width: MAP_WIDTH, height: MAP_HEIGHT }]}>
+            <Svg width={MAP_WIDTH} height={MAP_HEIGHT} viewBox={`0 0 ${TURKEY_VIEWBOX.w} ${TURKEY_VIEWBOX.h}`} preserveAspectRatio="xMidYMid meet" style={styles.svg}>
+              {/* Deniz / arka plan (açık mavi) */}
+              <G>
+                <Path d={`M0,0 L${TURKEY_VIEWBOX.w},0 L${TURKEY_VIEWBOX.w},${TURKEY_VIEWBOX.h} L0,${TURKEY_VIEWBOX.h} Z`} fill="#BFDBFE" fillOpacity={0.5} />
+              </G>
+              {/* Türkiye – beyaz, 81 il */}
+              <G>
+                {turkeyPaths.map((il) => (
                   <Path
-                    key={country.id}
-                    d={country.d}
-                    fill={fillColor}
+                    key={il.id}
+                    d={il.d}
+                    fill="#FFFFFF"
                     fillOpacity={1}
-                    stroke="#FFFFFF"
-                    strokeWidth="0.5"
-                    opacity={1}
+                    stroke="#94A3B8"
+                    strokeWidth="0.4"
                   />
-                );
-              })}
-            </G>
-            
-            {/* Türkiye etiketi */}
-            <G>
-              {(() => {
-                const turkeyCenter = getCountryCenter('TUR');
-                return (
-                  <SvgText
-                    x={turkeyCenter.x}
-                    y={turkeyCenter.y}
-                    fontSize="2"
-                    fontWeight="600"
-                    fill="#374151"
-                    textAnchor="middle"
-                  >
-                    TÜRKİYE
-                  </SvgText>
-                );
-              })()}
-            </G>
-            
-            {/* Komşu ülkelerin isimleri */}
-            <G>
-              {neighborCountries.map((countryId) => {
-                const center = getCountryCenter(countryId);
-                const countryName = countryNames[countryId] || countryId;
-                
-                // Özel konum ayarları
-                let x = center.x;
-                let y = center.y;
-                
-                if (countryId === 'IRN') {
-                  x = center.x - 25;
-                  y = center.y - 15;
-                } else if (countryId === 'BGR') {
-                  y = center.y + 3;
-                } else if (countryId === 'IRQ') {
-                  x = center.x - 5;
-                } else if (countryId === 'GEO') {
-                  x = center.x - 3;
-                  y = center.y + 2;
-                }
-                
-                return (
-                  <SvgText
-                    key={`neighbor-label-${countryId}`}
-                    x={x}
-                    y={y}
-                    fontSize="1.8"
-                    fontWeight="600"
-                    fill="#6B7280"
-                    textAnchor="middle"
-                  >
-                    {countryName}
-                  </SvgText>
-                );
-              })}
-            </G>
-            
-            {/* Sınır Kapıları */}
-            <G>
-              {borderGates.map((gate) => {
-                const isFound = foundGates.includes(gate.id);
-                const isSelected = selectedGate === gate.id;
-                
-                let fillColor = '#DC2626';
-                let strokeColor = '#991B1B';
-                
-                if (isSelected && feedback === 'correct') {
-                  fillColor = '#10B981';
-                  strokeColor = '#059669';
-                } else if (isSelected && feedback === 'wrong') {
-                  fillColor = '#000000';
-                  strokeColor = '#374151';
-                } else if (isFound) {
-                  fillColor = '#4B5563';
-                  strokeColor = '#374151';
-                }
-                
-                return (
-                  <G key={gate.id} onPress={() => handleGatePress(gate)} onPressIn={() => handleGatePress(gate)}>
-                    <Circle
-                      cx={gate.x}
-                      cy={gate.y}
-                      r="2"
-                      fill={fillColor}
-                      stroke={strokeColor}
-                      strokeWidth="0.5"
-                    />
-                    {isFound && (
-                      <SvgText
-                        x={gate.x}
-                        y={gate.y - 3}
-                        fontSize="1.5"
-                        fontWeight="600"
-                        fill="#374151"
-                        textAnchor="middle"
-                      >
-                        {gate.name}
-                      </SvgText>
-                    )}
-                  </G>
-                );
-              })}
-            </G>
-          </Svg>
+                ))}
+              </G>
+              {/* Sınır kapıları – kırmızı nokta + isim */}
+              <G>
+                {borderGates.map((gate) => {
+                  const isFound = foundGates.includes(gate.id);
+                  const isSelected = selectedGate === gate.id;
+                  const { x: mapX, y: mapY } = gateToMap(gate);
+                  let fillColor = '#DC2626';
+                  let strokeColor = '#B91C1C';
+                  if (isSelected && feedback === 'correct') { fillColor = '#10B981'; strokeColor = '#059669'; }
+                  else if (isSelected && feedback === 'wrong') { fillColor = '#475569'; strokeColor = '#334155'; }
+                  else if (isFound) { fillColor = '#94A3B8'; strokeColor = '#64748B'; }
+                  return (
+                    <G key={gate.id} onPress={() => handleGatePress(gate)}>
+                      <Circle cx={mapX} cy={mapY} r="4" fill={fillColor} stroke={strokeColor} strokeWidth="0.6" />
+                      <SvgText x={mapX} y={mapY - 5} fontSize="2.2" fontWeight="500" fill={isFound ? '#64748B' : '#000000'} textAnchor="middle">{gate.name}</SvgText>
+                    </G>
+                  );
+                })}
+              </G>
+            </Svg>
+          </View>
         </Animated.View>
         <TouchableOpacity style={styles.zoomResetButton} onPress={resetZoom}>
           <RotateCcw size={20} color="#FFFFFF" />
@@ -367,8 +272,9 @@ const styles = StyleSheet.create({
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#FEE2E2', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginBottom: 3 },
-  questionText: { fontSize: 11, fontWeight: '600', color: '#991B1B' },
+  questionBadge: { backgroundColor: '#FEE2E2', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, alignSelf: 'center', marginTop: 48, marginBottom: 3 },
+  questionText: { fontSize: 16, fontWeight: '600', color: '#991B1B' },
+  instructionText: { fontSize: 9, color: '#B91C1C', marginTop: 4, textAlign: 'center' },
   progressText: { fontSize: 10, color: '#94A3B8' },
   completedText: { fontSize: 12, fontWeight: '600', color: '#10B981' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },
@@ -376,6 +282,7 @@ const styles = StyleSheet.create({
   wrongIcon: { backgroundColor: '#000000' },
   mapContainer: { flex: 1, overflow: 'hidden' },
   mapWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 4 },
+  mapFrame: { borderWidth: 2, borderColor: '#DC2626', borderRadius: 4 },
   svg: { backgroundColor: 'transparent' },
   footer: { backgroundColor: 'rgba(15, 23, 42, 0.92)', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderTopColor: 'rgba(148, 163, 184, 0.2)', alignItems: 'center' },
   resetButton: { backgroundColor: '#DC2626', paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, alignItems: 'center' },

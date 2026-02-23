@@ -17,6 +17,16 @@ import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../u
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 
+// Fisher-Yates karıştırma – her girişte farklı bölge sırası
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // Bölge merkez koordinatları (yaklaşık)
 const regionCenters = {
   'marmara': { x: 200, y: 150 },
@@ -28,16 +38,18 @@ const regionCenters = {
   'guneydogu': { x: 700, y: 350 },
 };
 
+const baseRegionList = Object.keys(regions).filter(r => r !== 'all');
+
 const RegionsMap = ({ onBackToMenu, onBackToMain }) => {
+  // Her girişte bölge sırası karışsın
+  const [quizOrder, setQuizOrder] = useState(() => shuffleArray(baseRegionList));
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundRegions, setFoundRegions] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [flashingRegion, setFlashingRegion] = useState(null);
 
-  // Bölge listesi (all hariç)
-  const regionList = Object.keys(regions).filter(r => r !== 'all');
-  const currentRegion = regionList[currentQuestionIndex];
-  const isCompleted = foundRegions.length === regionList.length;
+  const currentRegion = quizOrder[currentQuestionIndex];
+  const isCompleted = foundRegions.length === quizOrder.length;
 
   // Harita ekranı açıldığında yatay moda geç ve sesleri yükle
   useEffect(() => {
@@ -78,7 +90,7 @@ const RegionsMap = ({ onBackToMenu, onBackToMain }) => {
         setFeedback(null);
         setFlashingRegion(null);
         
-        if (currentQuestionIndex < regionList.length - 1) {
+        if (currentQuestionIndex < quizOrder.length - 1) {
           setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
       }, 1000);
@@ -96,6 +108,7 @@ const RegionsMap = ({ onBackToMenu, onBackToMain }) => {
   };
 
   const handleReset = () => {
+    setQuizOrder(shuffleArray(baseRegionList));
     setCurrentQuestionIndex(0);
     setFoundRegions([]);
     setFeedback(null);
@@ -126,7 +139,7 @@ const RegionsMap = ({ onBackToMenu, onBackToMain }) => {
             <Text style={styles.title}>Bölgeler Quiz</Text>
             {!isCompleted ? (
               <Text style={styles.progressText}>
-                {foundRegions.length} / {regionList.length} bölge bulundu
+                {foundRegions.length} / {quizOrder.length} bölge bulundu
               </Text>
             ) : (
               <Text style={styles.completedText}>
@@ -209,7 +222,7 @@ const RegionsMap = ({ onBackToMenu, onBackToMain }) => {
             
             {/* Bölge isimleri - bulunan bölgeler için */}
             <G>
-              {regionList.map((regionId) => {
+              {quizOrder.map((regionId) => {
                 if (foundRegions.includes(regionId)) {
                   const center = regionCenters[regionId];
                   const regionName = regions[regionId].name.replace(' Bölgesi', '');
@@ -298,10 +311,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     alignSelf: 'center',
+    marginTop: 48,
     marginBottom: 4,
   },
   questionText: {
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: '600',
     color: '#92400E',
   },

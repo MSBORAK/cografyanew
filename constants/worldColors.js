@@ -1,53 +1,45 @@
-// Dünya haritası için 221 ülkeye farklı renkler
-// Her ülke için benzersiz ve canlı renkler
+// Dünya haritası – her ülke için benzersiz renk (aynı renk farklı kıtalarda tekrarlanmaz)
+// 222 ülke: indekse göre HSL ile tek tek üretilir, böylece Afrika ve Güney Amerika aynı renge düşmez
 
-export const worldColors = [
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
-  '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52B788',
-  '#FF8FA3', '#6C5CE7', '#00B894', '#FDCB6E', '#E17055',
-  '#74B9FF', '#A29BFE', '#FD79A8', '#FFEAA7', '#DFE6E9',
-  '#FF7675', '#FD79A8', '#FDCB6E', '#55EFC4', '#81ECEC',
-  '#74B9FF', '#A29BFE', '#DFE6E9', '#636E72', '#2D3436',
-  '#FF6348', '#FF4757', '#FFA502', '#1E90FF', '#2ED573',
-  '#FFA801', '#FF6348', '#FF4757', '#5F27CD', '#00D2D3',
-  '#FF9FF3', '#54A0FF', '#48DBFB', '#1DD1A1', '#10AC84',
-  '#EE5A6F', '#C44569', '#F8B500', '#6C5CE7', '#A29BFE',
-  '#FD79A8', '#FDCB6E', '#E17055', '#00B894', '#00CEC9',
-  '#0984E3', '#6C5CE7', '#B2BEC3', '#DFE6E9', '#636E72',
-  '#FF7979', '#BADC58', '#F9CA24', '#6AB04C', '#EB4D4B',
-  '#F0932B', '#686DE0', '#4834DF', '#22A6B3', '#30336B',
-  '#95AFC0', '#535C68', '#FF6B81', '#FD79A8', '#FDCB6E',
-  '#55EFC4', '#81ECEC', '#74B9FF', '#A29BFE', '#DFE6E9',
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
-  '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52B788',
-  '#FF8FA3', '#6C5CE7', '#00B894', '#FDCB6E', '#E17055',
-  '#74B9FF', '#A29BFE', '#FD79A8', '#FFEAA7', '#DFE6E9',
-  '#FF7675', '#FD79A8', '#FDCB6E', '#55EFC4', '#81ECEC',
-  '#74B9FF', '#A29BFE', '#DFE6E9', '#636E72', '#2D3436',
-  '#FF6348', '#FF4757', '#FFA502', '#1E90FF', '#2ED573',
-  '#FFA801', '#FF6348', '#FF4757', '#5F27CD', '#00D2D3',
-  '#FF9FF3', '#54A0FF', '#48DBFB', '#1DD1A1', '#10AC84',
-  '#EE5A6F', '#C44569', '#F8B500', '#6C5CE7', '#A29BFE',
-  '#FD79A8', '#FDCB6E', '#E17055', '#00B894', '#00CEC9',
-  '#0984E3', '#6C5CE7', '#B2BEC3', '#DFE6E9', '#636E72',
-  '#FF7979', '#BADC58', '#F9CA24', '#6AB04C', '#EB4D4B',
-  '#F0932B', '#686DE0', '#4834DF', '#22A6B3', '#30336B',
-  '#95AFC0', '#535C68', '#FF6B81', '#FD79A8', '#FDCB6E',
-  '#55EFC4', '#81ECEC', '#74B9FF', '#A29BFE', '#DFE6E9',
-  '#E74C3C', '#3498DB', '#2ECC71', '#F39C12', '#9B59B6',
-  '#1ABC9C', '#E67E22', '#34495E', '#16A085', '#27AE60',
-  '#2980B9', '#8E44AD', '#2C3E50', '#F1C40F', '#D35400',
-  '#C0392B', '#BDC3C7', '#7F8C8D', '#ECF0F1', '#95A5A6',
-  '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF',
-  '#33FFF5', '#F5FF33', '#FF8C33', '#8C33FF', '#33FF8C',
-  '#FF3333', '#33FF33', '#3333FF', '#FFFF33', '#FF33FF',
-  '#33FFFF', '#FF6633', '#66FF33', '#3366FF', '#FF3366',
-  '#66FF66', '#6666FF', '#FFFF66', '#FF66FF', '#66FFFF',
-  '#FF9933', '#99FF33', '#3399FF', '#FF3399', '#99FF99',
-  '#9999FF', '#FFFF99', '#FF99FF', '#99FFFF', '#FFCC33',
-];
+function hslToHex(h, s, l) {
+  h = h / 360;
+  let r, g, b;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+  const toHex = (x) => {
+    const hex = Math.round(x * 255).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  };
+  return '#' + toHex(r) + toHex(g) + toHex(b);
+}
 
-// Ülke ID'sine göre renk döndür
+// Altın oran açısı (~137.5°) – ardışık indeksler birbirine çok benzemez
+const GOLDEN_ANGLE = 360 * 0.38196601125;
+
+// 222 ülke için önceden hesaplanmış benzersiz renkler (indeks sabit kalır)
+const NUM_COUNTRIES = 222;
+export const worldColors = Array.from({ length: NUM_COUNTRIES }, (_, i) => {
+  const hue = (i * GOLDEN_ANGLE) % 360;
+  const saturation = 0.62 + (i % 5) * 0.04;  // 0.62–0.78 arası
+  const lightness = 0.52 + (i % 7) * 0.03;  // 0.52–0.73 arası
+  return hslToHex(hue, saturation, lightness);
+});
+
 export function getCountryColor(index) {
   return worldColors[index % worldColors.length];
 }
