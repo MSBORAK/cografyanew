@@ -1,7 +1,20 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+import { useScreenScale } from '../utils/screenScale';
 
 const ArtificialLakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
+  const { scale, moderateScale } = useScreenScale();
+  const menuButtonStyle = {
+    ...styles.menuButton,
+    maxWidth: scale(360),
+    borderRadius: scale(22),
+    padding: scale(32),
+  };
+  const menuContainerStyle = { ...styles.menuContainer, padding: scale(24) };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(52), marginBottom: scale(12) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(24), marginBottom: scale(8) };
+  const buttonSubtitleStyle = { ...styles.buttonSubtitle, fontSize: moderateScale(15) };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -10,12 +23,8 @@ const ArtificialLakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={onBackToLakeMainMenu}
-            >
+            <TouchableOpacity style={styles.backButton} onPress={onBackToLakeMainMenu}>
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Göller Menü</Text>
             </TouchableOpacity>
@@ -23,16 +32,15 @@ const ArtificialLakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
             <Text style={styles.subtitle}>Baraj gölleri</Text>
           </View>
 
-          {/* Sadece Baraj Gölleri */}
-          <View style={styles.menuContainer}>
+          <View style={menuContainerStyle}>
             <TouchableOpacity
-              style={[styles.menuButton, styles.artificialOnlyButton]}
+              style={[menuButtonStyle, styles.artificialOnlyButton]}
               onPress={() => onSelectType('artificial')}
               activeOpacity={0.9}
             >
-              <Text style={styles.icon}>🏗️</Text>
-              <Text style={styles.buttonTitle}>Baraj Gölleri</Text>
-              <Text style={styles.buttonSubtitle}>Su hazneleri ve barajlar</Text>
+              <Text style={iconStyle}>🏗️</Text>
+              <Text style={buttonTitleStyle}>Baraj Gölleri</Text>
+              <Text style={buttonSubtitleStyle}>Su hazneleri ve barajlar</Text>
             </TouchableOpacity>
           </View>
         </View>

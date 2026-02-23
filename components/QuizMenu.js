@@ -1,7 +1,22 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { ChevronLeft, Home } from 'lucide-react-native';
+import { useScreenScale } from '../utils/screenScale';
 
 const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onSelectMixedQuiz, onBackToMain }) => {
+  const { scale, moderateScale } = useScreenScale();
+  const menuButtonStyle = {
+    ...styles.menuButton,
+    maxWidth: scale(400),
+    borderRadius: scale(22),
+    padding: scale(28),
+  };
+  const menuContainerStyle = { ...styles.menuContainer, padding: scale(24), paddingTop: scale(28), gap: scale(20) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(30), marginBottom: scale(8) };
+  const buttonSubtitleStyle = { ...styles.buttonSubtitle, fontSize: moderateScale(16), lineHeight: scale(22) };
+  const iconContainerStyle = { ...styles.iconContainer, width: scale(76), height: scale(76), borderRadius: scale(38) };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(44) };
+  const textContainerStyle = { ...styles.textContainer, paddingRight: scale(18) };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -10,7 +25,6 @@ const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onSelectMixedQuiz, on
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          {/* Header */}
           <View style={styles.header}>
             <View style={styles.backButtonsColumn}>
               <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
@@ -26,55 +40,39 @@ const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onSelectMixedQuiz, on
             <Text style={styles.subtitle}>Test formatında sorular</Text>
           </View>
 
-          {/* Menu Buttons */}
-          <View style={styles.menuContainer}>
-            {/* Türkiye Quiz */}
-            <TouchableOpacity
-              style={[styles.menuButton, styles.turkeyButton]}
-              onPress={() => onSelectTurkeyQuiz()}
-              activeOpacity={0.9}
-            >
+          <View style={menuContainerStyle}>
+            <TouchableOpacity style={[menuButtonStyle, styles.turkeyButton]} onPress={() => onSelectTurkeyQuiz()} activeOpacity={0.9}>
               <View style={styles.buttonContent}>
-                <View style={styles.textContainer}>
-                  <Text style={styles.buttonTitle}>Türkiye Quiz</Text>
-                  <Text style={styles.buttonSubtitle}>Türkiye coğrafyası hakkında sorular</Text>
+                <View style={textContainerStyle}>
+                  <Text style={buttonTitleStyle}>Türkiye Quiz</Text>
+                  <Text style={buttonSubtitleStyle}>Türkiye coğrafyası hakkında sorular</Text>
                 </View>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.icon}>🇹🇷</Text>
+                <View style={iconContainerStyle}>
+                  <Text style={iconStyle}>🇹🇷</Text>
                 </View>
               </View>
             </TouchableOpacity>
 
-            {/* Dünya Quiz */}
-            <TouchableOpacity
-              style={[styles.menuButton, styles.worldButton]}
-              onPress={() => onSelectWorldQuiz()}
-              activeOpacity={0.9}
-            >
+            <TouchableOpacity style={[menuButtonStyle, styles.worldButton]} onPress={() => onSelectWorldQuiz()} activeOpacity={0.9}>
               <View style={styles.buttonContent}>
-                <View style={styles.textContainer}>
-                  <Text style={styles.buttonTitle}>Dünya Quiz</Text>
-                  <Text style={styles.buttonSubtitle}>Dünya coğrafyası hakkında sorular</Text>
+                <View style={textContainerStyle}>
+                  <Text style={buttonTitleStyle}>Dünya Quiz</Text>
+                  <Text style={buttonSubtitleStyle}>Dünya coğrafyası hakkında sorular</Text>
                 </View>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.icon}>🌍</Text>
+                <View style={iconContainerStyle}>
+                  <Text style={iconStyle}>🌍</Text>
                 </View>
               </View>
             </TouchableOpacity>
 
-            {/* Karışık Quiz */}
-            <TouchableOpacity
-              style={[styles.menuButton, styles.mixedButton]}
-              onPress={() => onSelectMixedQuiz?.()}
-              activeOpacity={0.9}
-            >
+            <TouchableOpacity style={[menuButtonStyle, styles.mixedButton]} onPress={() => onSelectMixedQuiz?.()} activeOpacity={0.9}>
               <View style={styles.buttonContent}>
-                <View style={styles.textContainer}>
-                  <Text style={styles.buttonTitle}>Karışık Quiz</Text>
-                  <Text style={styles.buttonSubtitle}>Bayrak, başkent, Türkiye ve dünya soruları</Text>
+                <View style={textContainerStyle}>
+                  <Text style={buttonTitleStyle}>Karışık Quiz</Text>
+                  <Text style={buttonSubtitleStyle}>Bayrak, başkent, Türkiye ve dünya soruları</Text>
                 </View>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.icon}>🎯</Text>
+                <View style={iconContainerStyle}>
+                  <Text style={iconStyle}>🎯</Text>
                 </View>
               </View>
             </TouchableOpacity>

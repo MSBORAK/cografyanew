@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+import { useScreenScale } from '../utils/screenScale';
 
 const categories = [
   { id: 'marmara', name: 'Marmara', emoji: '🌊', color: '#3B82F6' },
@@ -12,6 +13,23 @@ const categories = [
 ];
 
 const HomeScreen = ({ onStartGame, onBackToMain }) => {
+  const { scale, moderateScale } = useScreenScale();
+  const menuButtonStyle = {
+    ...styles.menuButton,
+    maxWidth: scale(180),
+    marginHorizontal: scale(8),
+    borderRadius: scale(20),
+    padding: scale(18),
+  };
+  const rowStyle = {
+    ...styles.row,
+    marginBottom: scale(16),
+    gap: scale(16),
+  };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(48), marginBottom: scale(8) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(16) };
+  const menuContainerStyle = { ...styles.menuContainer, padding: scale(24) };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -20,12 +38,8 @@ const HomeScreen = ({ onStartGame, onBackToMain }) => {
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={onBackToMain}
-            >
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
@@ -33,31 +47,30 @@ const HomeScreen = ({ onStartGame, onBackToMain }) => {
             <Text style={styles.subtitle}>Hangi bölgeyi öğrenmek istersin?</Text>
           </View>
 
-          {/* Menu Buttons - Yatay 4'lü gruplar */}
-          <View style={styles.menuContainer}>
-            <View style={styles.row}>
+          <View style={menuContainerStyle}>
+            <View style={rowStyle}>
               {categories.slice(0, 4).map((cat) => (
                 <TouchableOpacity
                   key={cat.id}
-                  style={[styles.menuButton, { backgroundColor: cat.color }]}
+                  style={[menuButtonStyle, { backgroundColor: cat.color }]}
                   onPress={() => onStartGame(cat.id)}
                   activeOpacity={0.9}
                 >
-                  <Text style={styles.icon}>{cat.emoji}</Text>
-                  <Text style={styles.buttonTitle}>{cat.name}</Text>
+                  <Text style={iconStyle}>{cat.emoji}</Text>
+                  <Text style={buttonTitleStyle}>{cat.name}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-            <View style={styles.row}>
+            <View style={rowStyle}>
               {categories.slice(4, 7).map((cat) => (
                 <TouchableOpacity
                   key={cat.id}
-                  style={[styles.menuButton, { backgroundColor: cat.color }]}
+                  style={[menuButtonStyle, { backgroundColor: cat.color }]}
                   onPress={() => onStartGame(cat.id)}
                   activeOpacity={0.9}
                 >
-                  <Text style={styles.icon}>{cat.emoji}</Text>
-                  <Text style={styles.buttonTitle}>{cat.name}</Text>
+                  <Text style={iconStyle}>{cat.emoji}</Text>
+                  <Text style={buttonTitleStyle}>{cat.name}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -123,16 +136,10 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    marginBottom: 12,
-    gap: 12,
   },
   menuButton: {
     flex: 1,
     aspectRatio: 1.2,
-    maxWidth: 140,
-    marginHorizontal: 6,
-    borderRadius: 16,
-    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -144,11 +151,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   icon: {
-    fontSize: 40,
     marginBottom: 6,
   },
   buttonTitle: {
-    fontSize: 14,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',

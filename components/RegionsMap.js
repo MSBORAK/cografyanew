@@ -86,13 +86,12 @@ const RegionsMap = ({ onBackToMenu, onBackToMain }) => {
       playCorrectSound();
       
       setTimeout(() => {
-        setFoundRegions([...foundRegions, currentRegion]);
+        setFoundRegions((prev) => [...prev, currentRegion]);
         setFeedback(null);
         setFlashingRegion(null);
-        
-        if (currentQuestionIndex < quizOrder.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizOrder.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       // Yanlış cevap

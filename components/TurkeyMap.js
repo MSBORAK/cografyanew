@@ -199,9 +199,10 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
     }
   }, [quizOrder]);
 
-  const askNextQuestion = () => {
-    // Karışık sıradaki ilk cevaplanmamış şehri sor
-    const nextCity = quizOrder.find(city => !correctAnswers.includes(city.id));
+  // knownCorrect: doğru cevap sonrası setTimeout'tan çağrıldığında güncel liste (stale closure önleme)
+  const askNextQuestion = (knownCorrect = null) => {
+    const resolved = knownCorrect !== null ? knownCorrect : correctAnswers;
+    const nextCity = quizOrder.find(city => !resolved.includes(city.id));
     if (nextCity) {
       setCurrentQuestion(nextCity);
       setWrongAttempts([]);
@@ -223,7 +224,8 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
         // Doğru cevap!
         await playCorrectSound(); // Doğru ses çal
         removeWrongAnswer('turkey_cities', city.id); // Pratik listesinden çıkar
-        setCorrectAnswers([...correctAnswers, city.id]);
+        const newCorrect = [...correctAnswers, city.id];
+        setCorrectAnswers(newCorrect);
         setLastSelectedCity(`${city.name} - Doğru!`);
         setShowCheckmark(true);
         
@@ -236,10 +238,10 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
         // Yanlış denemelerden temizle
         setWrongAttempts(wrongAttempts.filter(id => id !== city.id));
         
-        // Öğrenme modunda 3 saniye, normal modda 1 saniye bekle
+        // Öğrenme modunda 3 saniye, normal modda 1 saniye bekle (sonraki soru güncel listeyle)
         const delay = learningMode ? 3000 : 1000;
         setTimeout(() => {
-          askNextQuestion();
+          askNextQuestion(newCorrect);
           setLastSelectedCity(null);
           setShowCheckmark(false);
           setFactMessage(null);

@@ -78,7 +78,7 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
     setTimeout(() => {
       setFeedback(null);
       setSelectedAnswer(null);
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
     }, 1500);
   };
 

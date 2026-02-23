@@ -146,9 +146,9 @@ const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = 
         setFeedback(null);
         setShowCorrectLocation(null);
         setShowCorrectCityId(null);
-        if (currentQuestionIndex < quizOrder.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizOrder.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       saveWrongAnswer('turkey_lakes', currentLake.id, currentLake.name);
@@ -160,9 +160,9 @@ const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = 
         setFeedback(null);
         setShowCorrectLocation(null);
         setShowCorrectCityId(null);
-        if (currentQuestionIndex < quizOrder.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizOrder.length - 1 ? prev + 1 : prev
+        );
       }, 1800);
     }
   };

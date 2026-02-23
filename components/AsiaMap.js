@@ -108,13 +108,12 @@ const AsiaMap = ({ onBackToMenu, onBackToMain }) => {
       setSelectedCountry(country.id);
       
       setTimeout(() => {
-        setFoundCountries([...foundCountries, country.id]);
+        setFoundCountries((prev) => [...prev, country.id]);
         setFeedback(null);
         setSelectedCountry(null);
-        
-        if (currentQuestionIndex < quizCountries.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizCountries.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       await playWrongSound();
@@ -200,12 +199,12 @@ const AsiaMap = ({ onBackToMenu, onBackToMain }) => {
             <G>
               {worldPaths
               .filter((country) => country.id !== 'ATA')
-              .map((country, index) => {
+              .map((country) => {
                 const isAsia = asiaCountries.includes(country.id);
                 const isFound = foundCountries.includes(country.id);
                 const isSelected = selectedCountry === country.id;
-                
-                let fillColor = isAsia ? getCountryColor(index) : '#475569';
+                const asiaIndex = isAsia ? asiaCountries.indexOf(country.id) : 0;
+                let fillColor = isAsia ? getCountryColor(asiaIndex) : '#475569';
                 let strokeColor = '#FFFFFF';
                 
                 if (isSelected && feedback === 'correct') {

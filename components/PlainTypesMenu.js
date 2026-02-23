@@ -1,7 +1,22 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+import { useScreenScale } from '../utils/screenScale';
 
 const PlainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
+  const { scale, moderateScale } = useScreenScale();
+  const menuButtonStyle = {
+    ...styles.menuButton,
+    maxWidth: scale(180),
+    marginHorizontal: scale(8),
+    borderRadius: scale(18),
+    padding: scale(16),
+    aspectRatio: 1.2,
+  };
+  const rowStyle = { ...styles.row, gap: scale(16), marginBottom: scale(14) };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(42), marginBottom: scale(8) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(16) };
+  const menuContainerStyle = { ...styles.menuContainer, padding: scale(24) };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -10,12 +25,8 @@ const PlainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={onBackToTurkeyMenu}
-            >
+            <TouchableOpacity style={styles.backButton} onPress={onBackToTurkeyMenu}>
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Türkiye Menü</Text>
             </TouchableOpacity>
@@ -23,34 +34,33 @@ const PlainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
             <Text style={styles.subtitle}>Ova tipini seç</Text>
           </View>
 
-          {/* Menu Buttons - Yatay 4'lü */}
-          <View style={styles.menuContainer}>
-            <View style={styles.row}>
-              <TouchableOpacity style={[styles.menuButton, styles.deltaButton]} onPress={() => onSelectType('delta')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🏞️</Text>
-                <Text style={styles.buttonTitle}>Delta</Text>
+          <View style={menuContainerStyle}>
+            <View style={rowStyle}>
+              <TouchableOpacity style={[menuButtonStyle, styles.deltaButton]} onPress={() => onSelectType('delta')} activeOpacity={0.9}>
+                <Text style={iconStyle}>🏞️</Text>
+                <Text style={buttonTitleStyle}>Delta</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.karsticButton]} onPress={() => onSelectType('karstic')} activeOpacity={0.9}>
-                <Text style={styles.icon}>💧</Text>
-                <Text style={styles.buttonTitle}>Karstik</Text>
+              <TouchableOpacity style={[menuButtonStyle, styles.karsticButton]} onPress={() => onSelectType('karstic')} activeOpacity={0.9}>
+                <Text style={iconStyle}>💧</Text>
+                <Text style={buttonTitleStyle}>Karstik</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🌊</Text>
-                <Text style={styles.buttonTitle}>Tektonik</Text>
+              <TouchableOpacity style={[menuButtonStyle, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
+                <Text style={iconStyle}>🌊</Text>
+                <Text style={buttonTitleStyle}>Tektonik</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.piedmontButton]} onPress={() => onSelectType('piedmont')} activeOpacity={0.9}>
-                <Text style={styles.icon}>⛰️</Text>
-                <Text style={styles.buttonTitle}>Dağ Eteği</Text>
+              <TouchableOpacity style={[menuButtonStyle, styles.piedmontButton]} onPress={() => onSelectType('piedmont')} activeOpacity={0.9}>
+                <Text style={iconStyle}>⛰️</Text>
+                <Text style={buttonTitleStyle}>Dağ Eteği</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.row}>
-              <TouchableOpacity style={[styles.menuButton, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🌋</Text>
-                <Text style={styles.buttonTitle}>Volkanik</Text>
+            <View style={rowStyle}>
+              <TouchableOpacity style={[menuButtonStyle, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
+                <Text style={iconStyle}>🌋</Text>
+                <Text style={buttonTitleStyle}>Volkanik</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.lacustrineButton]} onPress={() => onSelectType('lacustrine')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🏔️</Text>
-                <Text style={styles.buttonTitle}>Göl Tabanı</Text>
+              <TouchableOpacity style={[menuButtonStyle, styles.lacustrineButton]} onPress={() => onSelectType('lacustrine')} activeOpacity={0.9}>
+                <Text style={iconStyle}>🏔️</Text>
+                <Text style={buttonTitleStyle}>Göl Tabanı</Text>
               </TouchableOpacity>
             </View>
           </View>

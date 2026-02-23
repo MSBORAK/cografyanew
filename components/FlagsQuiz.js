@@ -183,13 +183,12 @@ const FlagsQuiz = ({ onBackToMenu, onBackToMain }) => {
       playCorrectSound();
       
       setTimeout(() => {
-        setFoundCountries([...foundCountries, country.id]);
+        setFoundCountries((prev) => [...prev, country.id]);
         setFeedback(null);
         setSelectedCountry(null);
-        
-        if (currentQuestionIndex < quizFlags.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizFlags.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       // Yanlış cevap

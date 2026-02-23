@@ -137,13 +137,12 @@ const ContinentsMap = ({ onBackToMenu, onBackToMain }) => {
       playCorrectSound();
       
       setTimeout(() => {
-        setFoundContinents([...foundContinents, continentKey]);
+        setFoundContinents((prev) => [...prev, continentKey]);
         setFeedback(null);
         setSelectedContinent(null);
-        
-        if (currentQuestionIndex < quizContinents.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizContinents.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       // Yanlış cevap

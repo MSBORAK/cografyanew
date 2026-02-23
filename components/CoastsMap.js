@@ -106,13 +106,12 @@ const CoastsMap = ({ onBackToMenu, onBackToMain }) => {
       playCorrectSound();
       
       setTimeout(() => {
-        setFoundCoasts([...foundCoasts, coast.id]);
+        setFoundCoasts((prev) => [...prev, coast.id]);
         setFeedback(null);
         setSelectedCoast(null);
-        
-        if (currentQuestionIndex < coasts.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < coasts.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       setFeedback('wrong');

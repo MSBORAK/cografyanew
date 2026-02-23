@@ -9,8 +9,29 @@ import {
 } from 'react-native';
 import { Home, ChevronLeft, BookOpen, TrendingUp, RotateCcw } from 'lucide-react-native';
 import { getStatistics, clearWrongAnswers } from '../utils/practiceMode';
+import { useScreenScale } from '../utils/screenScale';
 
 const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
+  const { scale, moderateScale } = useScreenScale();
+  const contentContainerStyle = { ...styles.contentContainer, padding: scale(24) };
+  const infoCardStyle = { ...styles.infoCard, borderRadius: scale(18), padding: scale(22), marginBottom: scale(24) };
+  const infoTitleStyle = { ...styles.infoTitle, fontSize: moderateScale(20), marginTop: scale(14), marginBottom: scale(10) };
+  const infoTextStyle = { ...styles.infoText, fontSize: moderateScale(15), lineHeight: scale(22) };
+  const infoHintStyle = { ...styles.infoHint, fontSize: moderateScale(13), lineHeight: scale(20), marginTop: scale(14) };
+  const categoriesContainerStyle = { ...styles.categoriesContainer, gap: scale(16) };
+  const categoryCardStyle = { ...styles.categoryCard, minWidth: scale(180), borderRadius: scale(18), padding: scale(18) };
+  const categoryIconStyle = { ...styles.categoryIcon, fontSize: moderateScale(34) };
+  const categoryNameStyle = { ...styles.categoryName, fontSize: moderateScale(17) };
+  const categoryCountStyle = { ...styles.categoryCount, fontSize: moderateScale(13), marginTop: scale(4) };
+  const categoryEmptyStyle = { ...styles.categoryEmpty, fontSize: moderateScale(13), marginTop: scale(4) };
+  const practiceButtonStyle = { ...styles.practiceButton, paddingVertical: scale(14), borderRadius: scale(14), gap: scale(10) };
+  const practiceButtonTextStyle = { ...styles.practiceButtonText, fontSize: moderateScale(15) };
+  const clearButtonStyle = { ...styles.clearButton, width: scale(48), height: scale(48), borderRadius: scale(14) };
+  const tipCardStyle = { ...styles.tipCard, borderRadius: scale(18), padding: scale(22), marginTop: scale(24) };
+  const tipIconStyle = { ...styles.tipIcon, fontSize: moderateScale(34), marginBottom: scale(10) };
+  const tipTitleStyle = { ...styles.tipTitle, fontSize: moderateScale(17), marginBottom: scale(10) };
+  const tipTextStyle = { ...styles.tipText, fontSize: moderateScale(14), lineHeight: scale(20) };
+
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -61,37 +82,37 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
         <Text style={styles.subtitle}>Yanlış yaptığın soruları tekrar et</Text>
       </View>
 
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.infoCard}>
+      <ScrollView style={styles.content} contentContainerStyle={contentContainerStyle}>
+        <View style={infoCardStyle}>
           <BookOpen size={32} color="#A78BFA" />
-          <Text style={styles.infoTitle}>Nasıl Çalışır?</Text>
-          <Text style={styles.infoText}>
-            Oyunlarda yanlış cevapladığın sorular otomatik olarak kaydedilir. 
+          <Text style={infoTitleStyle}>Nasıl Çalışır?</Text>
+          <Text style={infoTextStyle}>
+            Oyunlarda yanlış cevapladığın sorular otomatik olarak kaydedilir.
             Pratik modunda sadece bu soruları tekrar ederek zayıf konularını güçlendirebilirsin!
           </Text>
-          <Text style={styles.infoHint}>
+          <Text style={infoHintStyle}>
             Önce 81 İl, Dünya Haritası veya Bayraklar gibi oyunlarda soru çöz; yanlış yaptığın sorular burada listelenir.
           </Text>
         </View>
 
-        <View style={styles.categoriesContainer}>
+        <View style={categoriesContainerStyle}>
           {categories.map((category) => {
             const categoryStats = stats[category.id];
             const hasWrongAnswers = categoryStats && categoryStats.total > 0;
 
             return (
-              <View key={category.id} style={styles.categoryCard}>
+              <View key={category.id} style={categoryCardStyle}>
                 <View style={styles.categoryHeader}>
                   <View style={styles.categoryInfo}>
-                    <Text style={styles.categoryIcon}>{category.icon}</Text>
+                    <Text style={categoryIconStyle}>{category.icon}</Text>
                     <View>
-                      <Text style={styles.categoryName}>{category.name}</Text>
+                      <Text style={categoryNameStyle}>{category.name}</Text>
                       {hasWrongAnswers ? (
-                        <Text style={styles.categoryCount}>
+                        <Text style={categoryCountStyle}>
                           {categoryStats.total} soru pratik yapılacak
                         </Text>
                       ) : (
-                        <Text style={styles.categoryEmpty}>
+                        <Text style={categoryEmptyStyle}>
                           Henüz yanlış cevap yok
                         </Text>
                       )}
@@ -102,15 +123,15 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
                 {hasWrongAnswers && (
                   <View style={styles.categoryActions}>
                     <TouchableOpacity
-                      style={[styles.practiceButton, { backgroundColor: category.color }]}
+                      style={[practiceButtonStyle, { backgroundColor: category.color }]}
                       onPress={() => onSelectCategory(category.id)}
                     >
                       <TrendingUp size={20} color="#FFFFFF" />
-                      <Text style={styles.practiceButtonText}>Pratik Yap</Text>
+                      <Text style={practiceButtonTextStyle}>Pratik Yap</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      style={styles.clearButton}
+                      style={clearButtonStyle}
                       onPress={() => handleClearCategory(category.id)}
                     >
                       <RotateCcw size={18} color="#6B7280" />
@@ -135,11 +156,11 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
           })}
         </View>
 
-        <View style={styles.tipCard}>
-          <Text style={styles.tipIcon}>💡</Text>
-          <Text style={styles.tipTitle}>İpucu</Text>
-          <Text style={styles.tipText}>
-            Düzenli pratik yaparak öğrenme hızını artırabilirsin. 
+        <View style={tipCardStyle}>
+          <Text style={tipIconStyle}>💡</Text>
+          <Text style={tipTitleStyle}>İpucu</Text>
+          <Text style={tipTextStyle}>
+            Düzenli pratik yaparak öğrenme hızını artırabilirsin.
             Her gün 10 dakika pratik yapmak, uzun süreli hafızana katkı sağlar!
           </Text>
         </View>

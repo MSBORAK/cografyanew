@@ -9,8 +9,29 @@ import {
   Platform,
 } from 'react-native';
 import { Home, ChevronLeft, BookOpen, Lightbulb, Brain, Globe, ChevronRight } from 'lucide-react-native';
+import { useScreenScale } from '../utils/screenScale';
 
 const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
+  const { scale, moderateScale } = useScreenScale();
+  const contentContainerStyle = { ...styles.contentContainer, padding: scale(20), paddingBottom: scale(28) };
+  const howItWorksCardStyle = { ...styles.howItWorksCard, borderRadius: scale(22), padding: scale(22), marginBottom: scale(18) };
+  const brainIconWrapStyle = { ...styles.brainIconWrap, width: scale(68), height: scale(68), borderRadius: scale(34), marginBottom: scale(6) };
+  const infoTitleStyle = { ...styles.infoTitle, fontSize: moderateScale(22), marginTop: scale(6), marginBottom: scale(10) };
+  const infoTextStyle = { ...styles.infoText, fontSize: moderateScale(15), lineHeight: scale(22) };
+  const categoriesContainerStyle = { ...styles.categoriesContainer, gap: scale(16), marginBottom: scale(20) };
+  const categoriesTitleStyle = { ...styles.categoriesTitle, fontSize: moderateScale(20), marginBottom: scale(14) };
+  const categoryCardStyle = { ...styles.categoryCard, minWidth: scale(180), borderRadius: scale(20), padding: scale(18), borderLeftWidth: scale(4) };
+  const categoryIconContainerStyle = { ...styles.categoryIconContainer, width: scale(60), height: scale(60), borderRadius: scale(30) };
+  const categoryIconStyle = { ...styles.categoryIcon, fontSize: moderateScale(30) };
+  const categoryNameStyle = { ...styles.categoryName, fontSize: moderateScale(17), marginBottom: scale(4) };
+  const categoryDescriptionStyle = { ...styles.categoryDescription, fontSize: moderateScale(13) };
+  const startButtonStyle = { ...styles.startButton, paddingHorizontal: scale(16), paddingVertical: scale(12), borderRadius: scale(14), gap: scale(8) };
+  const startButtonTextStyle = { ...styles.startButtonText, fontSize: moderateScale(14) };
+  const tipCardStyle = { ...styles.tipCard, borderRadius: scale(22), padding: scale(22) };
+  const tipIconWrapStyle = { ...styles.tipIconWrap, width: scale(56), height: scale(56), borderRadius: scale(28), marginBottom: scale(12) };
+  const tipTitleStyle = { ...styles.tipTitle, fontSize: moderateScale(17), marginBottom: scale(10) };
+  const tipTextStyle = { ...styles.tipText, fontSize: moderateScale(14), lineHeight: scale(20) };
+
   const categories = [
     { 
       id: 'turkey_cities', 
@@ -72,13 +93,13 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
         <Text style={styles.subtitle}>İlginç bilgilerle öğren!</Text>
       </View>
 
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-        <View style={styles.howItWorksCard}>
-          <View style={styles.brainIconWrap}>
+      <ScrollView style={styles.content} contentContainerStyle={contentContainerStyle} showsVerticalScrollIndicator={false}>
+        <View style={howItWorksCardStyle}>
+          <View style={brainIconWrapStyle}>
             <Brain size={36} color="#10B981" />
           </View>
-          <Text style={styles.infoTitle}>Nasıl Çalışır?</Text>
-          <Text style={styles.infoText}>
+          <Text style={infoTitleStyle}>Nasıl Çalışır?</Text>
+          <Text style={infoTextStyle}>
             Kategori seçerek haritalar, ilginç bilgiler veya kavram kartlarıyla öğrenirsin. 
             Türkiye Şehirleri ve Anahtar Kelimeler’de bilgi odaklı; diğerlerinde keşfet + test bir arada.
           </Text>
@@ -112,38 +133,38 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
           </View>
         </View>
 
-        <View style={styles.categoriesContainer}>
-          <Text style={styles.categoriesTitle}>Öğrenme Kategorileri</Text>
+        <View style={categoriesContainerStyle}>
+          <Text style={categoriesTitleStyle}>Öğrenme Kategorileri</Text>
           {categories.map((category) => (
             <TouchableOpacity
               key={category.id}
-              style={[styles.categoryCard, { borderLeftColor: category.color }]}
+              style={[categoryCardStyle, { borderLeftColor: category.color }]}
               onPress={() => onSelectCategory(category.id)}
               activeOpacity={0.8}
             >
               <View style={styles.categoryLeft}>
-                <View style={[styles.categoryIconContainer, { backgroundColor: category.color + '20' }]}>
-                  <Text style={styles.categoryIcon}>{category.icon}</Text>
+                <View style={[categoryIconContainerStyle, { backgroundColor: category.color + '20' }]}>
+                  <Text style={categoryIconStyle}>{category.icon}</Text>
                 </View>
                 <View style={styles.categoryInfo}>
-                  <Text style={styles.categoryName}>{category.name}</Text>
-                  <Text style={styles.categoryDescription}>{category.description}</Text>
+                  <Text style={categoryNameStyle}>{category.name}</Text>
+                  <Text style={categoryDescriptionStyle}>{category.description}</Text>
                 </View>
               </View>
-              <View style={[styles.startButton, { backgroundColor: category.color }]}>
-                <Text style={styles.startButtonText}>Başla</Text>
+              <View style={[startButtonStyle, { backgroundColor: category.color }]}>
+                <Text style={startButtonTextStyle}>Başla</Text>
                 <ChevronRight size={18} color="#FFFFFF" />
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
-        <View style={styles.tipCard}>
-          <View style={styles.tipIconWrap}>
+        <View style={tipCardStyle}>
+          <View style={tipIconWrapStyle}>
             <Text style={styles.tipIcon}>💡</Text>
           </View>
-          <Text style={styles.tipTitle}>Öğrenme İpucu</Text>
-          <Text style={styles.tipText}>
+          <Text style={tipTitleStyle}>Öğrenme İpucu</Text>
+          <Text style={tipTextStyle}>
             Türkiye Şehirleri’nde her il için «İlginç Bilgi» butonuna basarak bilgiyi aç. 
             Anahtar Kelimeler’de kartları çevirerek kavramları pekiştir.
           </Text>

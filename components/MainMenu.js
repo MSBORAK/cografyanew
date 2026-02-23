@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, useWindowDimensions, Platform, ScrollView } from 'react-native';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Lock } from 'lucide-react-native';
+import { useScreenScale } from '../utils/screenScale';
 import { getDailyQuote } from '../constants/dailyQuotes';
 import { getDateString } from '../utils/dailyQuizSeed';
 import * as geoStorage from '../utils/geoStorage';
@@ -24,6 +25,7 @@ const menuItems = [
 
 const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectCapitalsQuiz, onSelectQuizMode, onSelectPracticeMode, onSelectLearningMode, onSelectGeographyKeywords, onSelectAppLogic, onSelectDidYouKnow, onSelectExamCountdown, onSelectDailyQuiz, onBadgesUnlocked, onRequestUnlock, refreshPremiumKey = 0 }) => {
   const { width, height } = useWindowDimensions();
+  const { scale, moderateScale } = useScreenScale();
   const dailyQuote = useMemo(() => getDailyQuote(), []);
   const shortSide = Math.min(width, height);
   const isIOSTablet = Platform.OS === 'ios' && shortSide >= 600;
@@ -71,10 +73,18 @@ const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectC
     loadDailySummary();
   }, [loadDailySummary]);
 
-  const boxStyle = isIOSTablet ? styles.boxIOSTablet : styles.box;
-  const iconStyle = isIOSTablet ? styles.boxIconIOSTablet : styles.boxIcon;
-  const titleStyle = isIOSTablet ? styles.boxTitleIOSTablet : styles.boxTitle;
-  const subtitleStyle = isIOSTablet ? styles.boxSubtitleIOSTablet : styles.boxSubtitle;
+  const boxStyle = isIOSTablet
+    ? [styles.boxIOSTablet, { maxWidth: scale(200), minWidth: scale(160), marginHorizontal: scale(10), borderRadius: scale(20), padding: scale(16) }]
+    : styles.box;
+  const iconStyle = isIOSTablet
+    ? [styles.boxIconIOSTablet, { fontSize: moderateScale(44), marginBottom: scale(10) }]
+    : styles.boxIcon;
+  const titleStyle = isIOSTablet
+    ? [styles.boxTitleIOSTablet, { fontSize: moderateScale(16), marginBottom: scale(4) }]
+    : styles.boxTitle;
+  const subtitleStyle = isIOSTablet
+    ? [styles.boxSubtitleIOSTablet, { fontSize: moderateScale(12) }]
+    : styles.boxSubtitle;
 
   return (
     <View style={styles.container}>
@@ -129,8 +139,8 @@ const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectC
             </View>
             <BadgeListModal visible={badgeListVisible} onClose={() => setBadgeListVisible(false)} />
 
-            <View style={[styles.grid, isIOSTablet && styles.gridIOSTablet]}>
-            <View style={[styles.row, isIOSTablet && styles.rowIOSTablet]}>
+            <View style={[styles.grid, isIOSTablet && styles.gridIOSTablet, isIOSTablet && { paddingHorizontal: scale(16), paddingTop: scale(54) }]}>
+            <View style={[styles.row, isIOSTablet && styles.rowIOSTablet, isIOSTablet && { marginBottom: scale(18), gap: scale(18) }]}>
               {menuItems.slice(0, 4).map((item) => {
                 const locked = isPremiumFeature(item.id) && !unlockedPremiumIds.includes(item.id);
                 return (
@@ -152,7 +162,7 @@ const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectC
                 );
               })}
             </View>
-            <View style={[styles.row, isIOSTablet && styles.rowIOSTablet]}>
+            <View style={[styles.row, isIOSTablet && styles.rowIOSTablet, isIOSTablet && { marginBottom: scale(18), gap: scale(18) }]}>
               {menuItems.slice(4, 8).map((item) => {
                 const locked = isPremiumFeature(item.id) && !unlockedPremiumIds.includes(item.id);
                 return (
@@ -174,7 +184,7 @@ const MainMenu = ({ onSelectTurkey, onSelectWorld, onSelectWorldFlags, onSelectC
                 );
               })}
             </View>
-            <View style={[styles.row, isIOSTablet && styles.rowIOSTablet]}>
+            <View style={[styles.row, isIOSTablet && styles.rowIOSTablet, isIOSTablet && { marginBottom: scale(18), gap: scale(18) }]}>
               {menuItems.slice(8, 9).map((item) => {
                 const locked = isPremiumFeature(item.id) && !unlockedPremiumIds.includes(item.id);
                 return (

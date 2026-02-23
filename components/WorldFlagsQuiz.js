@@ -95,7 +95,7 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
     setTimeout(() => {
       setFeedback(null);
       setSelectedAnswer(null);
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
     }, 1500);
   };
 

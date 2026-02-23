@@ -113,10 +113,12 @@ const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
       setFeedback('correct');
       setSelectedGate(gate.id);
       setTimeout(() => {
-        setFoundGates([...foundGates, gate.id]);
+        setFoundGates((prev) => [...prev, gate.id]);
         setFeedback(null);
         setSelectedGate(null);
-        if (currentQuestionIndex < borderGates.length - 1) setCurrentQuestionIndex(currentQuestionIndex + 1);
+        setCurrentQuestionIndex((prev) =>
+          prev < borderGates.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       await playWrongSound();

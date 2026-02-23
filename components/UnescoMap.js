@@ -152,9 +152,9 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
     }
   }, [quizOrder]);
 
-  const askNextQuestion = () => {
-    // Karışık sıradaki ilk cevaplanmamış alanı sor
-    const nextSite = quizOrder.find(site => !correctAnswers.includes(site.id));
+  const askNextQuestion = (knownCorrect = null) => {
+    const resolved = knownCorrect !== null ? knownCorrect : correctAnswers;
+    const nextSite = quizOrder.find(site => !resolved.includes(site.id));
     if (nextSite) {
       setCurrentQuestion(nextSite);
       setWrongAttempts([]);
@@ -178,13 +178,14 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
     if (city.id == currentQuestion.cityId) {
       // Doğru cevap!
       await playCorrectSound();
-      setCorrectAnswers([...correctAnswers, currentQuestion.id]);
+      const newCorrect = [...correctAnswers, currentQuestion.id];
+      setCorrectAnswers(newCorrect);
       setShowCheckmark(true);
       
       setWrongAttempts(wrongAttempts.filter(id => id !== city.id));
       
       setTimeout(() => {
-        askNextQuestion();
+        askNextQuestion(newCorrect);
         setShowCheckmark(false);
       }, 1000);
     } else {

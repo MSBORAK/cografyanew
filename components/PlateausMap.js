@@ -104,13 +104,12 @@ const PlateausMap = ({ onBackToMenu, onBackToMain }) => {
       playCorrectSound();
       
       setTimeout(() => {
-        setFoundPlateaus([...foundPlateaus, plateau.id]);
+        setFoundPlateaus((prev) => [...prev, plateau.id]);
         setFeedback(null);
         setSelectedPlateau(null);
-        
-        if (currentQuestionIndex < plateaus.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < plateaus.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       setFeedback('wrong');

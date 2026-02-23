@@ -129,13 +129,12 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
       playCorrectSound();
       
       setTimeout(() => {
-        setFoundPlains([...foundPlains, plain.id]);
+        setFoundPlains((prev) => [...prev, plain.id]);
         setFeedback(null);
         setSelectedPlain(null);
-        
-        if (currentQuestionIndex < quizOrder.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizOrder.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       // Yanlış cevap

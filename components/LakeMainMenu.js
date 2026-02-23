@@ -1,7 +1,22 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+import { useScreenScale } from '../utils/screenScale';
 
 const LakeMainMenu = ({ onSelectNatural, onSelectArtificial, onBackToTurkeyMenu }) => {
+  const { scale, moderateScale } = useScreenScale();
+  const menuButtonStyle = {
+    ...styles.menuButton,
+    maxWidth: scale(400),
+    borderRadius: scale(22),
+    padding: scale(28),
+  };
+  const menuContainerStyle = { ...styles.menuContainer, gap: scale(24), paddingHorizontal: scale(24) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(30), marginBottom: scale(8) };
+  const buttonSubtitleStyle = { ...styles.buttonSubtitle, fontSize: moderateScale(16), lineHeight: scale(22) };
+  const iconContainerStyle = { ...styles.iconContainer, width: scale(76), height: scale(76), borderRadius: scale(38) };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(44) };
+  const textContainerStyle = { ...styles.textContainer, paddingRight: scale(18) };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -10,12 +25,8 @@ const LakeMainMenu = ({ onSelectNatural, onSelectArtificial, onBackToTurkeyMenu 
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={onBackToTurkeyMenu}
-            >
+            <TouchableOpacity style={styles.backButton} onPress={onBackToTurkeyMenu}>
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Türkiye Menü</Text>
             </TouchableOpacity>
@@ -23,38 +34,27 @@ const LakeMainMenu = ({ onSelectNatural, onSelectArtificial, onBackToTurkeyMenu 
             <Text style={styles.subtitle}>Göl kategorisini seç</Text>
           </View>
 
-          {/* Menu Buttons */}
-          <View style={styles.menuContainer}>
-            {/* Doğal Göller */}
-            <TouchableOpacity
-              style={[styles.menuButton, styles.naturalButton]}
-              onPress={onSelectNatural}
-              activeOpacity={0.9}
-            >
+          <View style={menuContainerStyle}>
+            <TouchableOpacity style={[menuButtonStyle, styles.naturalButton]} onPress={onSelectNatural} activeOpacity={0.9}>
               <View style={styles.buttonContent}>
-                <View style={styles.textContainer}>
-                  <Text style={styles.buttonTitle}>Doğal Göller</Text>
-                  <Text style={styles.buttonSubtitle}>Tektonik, Volkanik, Karstik göller</Text>
+                <View style={textContainerStyle}>
+                  <Text style={buttonTitleStyle}>Doğal Göller</Text>
+                  <Text style={buttonSubtitleStyle}>Tektonik, Volkanik, Karstik göller</Text>
                 </View>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.icon}>🏞️</Text>
+                <View style={iconContainerStyle}>
+                  <Text style={iconStyle}>🏞️</Text>
                 </View>
               </View>
             </TouchableOpacity>
 
-            {/* Yapay Göller */}
-            <TouchableOpacity
-              style={[styles.menuButton, styles.artificialButton]}
-              onPress={onSelectArtificial}
-              activeOpacity={0.9}
-            >
+            <TouchableOpacity style={[menuButtonStyle, styles.artificialButton]} onPress={onSelectArtificial} activeOpacity={0.9}>
               <View style={styles.buttonContent}>
-                <View style={styles.textContainer}>
-                  <Text style={styles.buttonTitle}>Yapay Göller</Text>
-                  <Text style={styles.buttonSubtitle}>Barajlar ve su hazneleri</Text>
+                <View style={textContainerStyle}>
+                  <Text style={buttonTitleStyle}>Yapay Göller</Text>
+                  <Text style={buttonSubtitleStyle}>Barajlar ve su hazneleri</Text>
                 </View>
-                <View style={styles.iconContainer}>
-                  <Text style={styles.icon}>🏗️</Text>
+                <View style={iconContainerStyle}>
+                  <Text style={iconStyle}>🏗️</Text>
                 </View>
               </View>
             </TouchableOpacity>

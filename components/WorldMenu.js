@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Platform } f
 import { useState, useEffect } from 'react';
 import { ChevronLeft, Lock } from 'lucide-react-native';
 import { getUnlockedPremiumIds, isWorldItemLocked } from '../utils/premiumLock';
+import { useScreenScale } from '../utils/screenScale';
 
 const menuItems = [
   { id: 'world', title: 'Tüm Dünya', icon: '🌐', style: 'worldButton', onPress: 'onSelectWorldMap' },
@@ -29,9 +30,22 @@ const WorldMenu = ({
   onRequestUnlock,
   refreshPremiumKey = 0,
 }) => {
+  const { scale, moderateScale } = useScreenScale();
   const handlers = { onSelectWorldMap, onSelectContinents, onSelectEurope, onSelectAsia, onSelectAfrica, onSelectAmerica, onSelectOceania, onSelectAntarctica, onSelectFlags };
 
   const [unlockedPremiumIds, setUnlockedPremiumIds] = useState([]);
+  const menuButtonStyle = {
+    ...styles.menuButton,
+    maxWidth: scale(190),
+    minWidth: scale(150),
+    marginHorizontal: scale(6),
+    borderRadius: scale(18),
+    padding: scale(16),
+  };
+  const rowStyle = { ...styles.row, marginBottom: scale(14), gap: scale(14) };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(38), marginBottom: scale(8) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(15) };
+  const menuContainerStyle = { ...styles.menuContainer, padding: scale(20) };
   useEffect(() => {
     getUnlockedPremiumIds().then((ids) => setUnlockedPremiumIds(Array.isArray(ids) ? ids : [])).catch(() => setUnlockedPremiumIds([]));
   }, [refreshPremiumKey]);
@@ -53,14 +67,14 @@ const WorldMenu = ({
             <Text style={styles.subtitle}>Keşfetmek istediğin bölgeyi seç</Text>
           </View>
 
-          <View style={styles.menuContainer}>
-            <View style={styles.row}>
+          <View style={menuContainerStyle}>
+            <View style={rowStyle}>
               {menuItems.slice(0, 5).map((item) => {
                 const locked = isWorldItemLocked(item.id, unlockedPremiumIds);
                 return (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.menuButton, styles[item.style], locked && styles.menuBoxLocked]}
+                    style={[menuButtonStyle, styles[item.style], locked && styles.menuBoxLocked]}
                     onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
                     activeOpacity={0.9}
                   >
@@ -69,19 +83,19 @@ const WorldMenu = ({
                         <Lock size={16} color="#1E293B" strokeWidth={2.5} />
                       </View>
                     )}
-                    <Text style={styles.icon}>{item.icon}</Text>
-                    <Text style={styles.buttonTitle}>{item.title}</Text>
+                    <Text style={iconStyle}>{item.icon}</Text>
+                    <Text style={buttonTitleStyle}>{item.title}</Text>
                   </TouchableOpacity>
                 );
               })}
             </View>
-            <View style={styles.row}>
+            <View style={rowStyle}>
               {menuItems.slice(5, 9).map((item) => {
                 const locked = isWorldItemLocked(item.id, unlockedPremiumIds);
                 return (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.menuButton, styles[item.style], locked && styles.menuBoxLocked]}
+                    style={[menuButtonStyle, styles[item.style], locked && styles.menuBoxLocked]}
                     onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
                     activeOpacity={0.9}
                   >
@@ -90,8 +104,8 @@ const WorldMenu = ({
                         <Lock size={16} color="#1E293B" strokeWidth={2.5} />
                       </View>
                     )}
-                    <Text style={styles.icon}>{item.icon}</Text>
-                    <Text style={styles.buttonTitle}>{item.title}</Text>
+                    <Text style={iconStyle}>{item.icon}</Text>
+                    <Text style={buttonTitleStyle}>{item.title}</Text>
                   </TouchableOpacity>
                 );
               })}

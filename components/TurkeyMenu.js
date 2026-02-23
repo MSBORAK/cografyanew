@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, useWindowDim
 import { useState, useEffect } from 'react';
 import { ChevronLeft, Home, Lock } from 'lucide-react-native';
 import { getUnlockedPremiumIds, isTurkeyItemLocked } from '../utils/premiumLock';
+import { useScreenScale } from '../utils/screenScale';
 
 const menuItems = [
   { id: 'cities', title: '81 İl', icon: '🏙️', style: 'citiesButton', onPress: 'onSelectCities' },
@@ -38,6 +39,7 @@ const TurkeyMenu = ({
   refreshPremiumKey = 0,
 }) => {
   const { width, height } = useWindowDimensions();
+  const { scale, moderateScale } = useScreenScale();
   const shortSide = Math.min(width, height);
   const isMobile = shortSide < 600;
   const isIOSTablet = Platform.OS === 'ios' && !isMobile;
@@ -48,9 +50,17 @@ const TurkeyMenu = ({
     getUnlockedPremiumIds().then((ids) => setUnlockedPremiumIds(Array.isArray(ids) ? ids : [])).catch(() => setUnlockedPremiumIds([]));
   }, [refreshPremiumKey]);
 
-  const boxStyle = isIOSTablet ? styles.menuButtonIOSTablet : (isMobile ? styles.menuButtonMobile : styles.menuButton);
-  const iconStyle = isIOSTablet ? styles.iconIOSTablet : (isMobile ? styles.iconMobile : styles.icon);
-  const titleStyle = isIOSTablet ? styles.buttonTitleIOSTablet : (isMobile ? styles.buttonTitleMobile : styles.buttonTitle);
+  const boxStyle = isIOSTablet
+    ? [styles.menuButtonIOSTablet, { maxWidth: scale(200), minWidth: scale(160), borderRadius: scale(18), padding: scale(16), marginHorizontal: scale(2) }]
+    : (isMobile ? styles.menuButtonMobile : styles.menuButton);
+  const iconStyle = isIOSTablet
+    ? [styles.iconIOSTablet, { fontSize: moderateScale(42), marginBottom: scale(8) }]
+    : (isMobile ? styles.iconMobile : styles.icon);
+  const titleStyle = isIOSTablet
+    ? [styles.buttonTitleIOSTablet, { fontSize: moderateScale(15) }]
+    : (isMobile ? styles.buttonTitleMobile : styles.buttonTitle);
+  const menuContainerTabletStyle = isIOSTablet ? { padding: scale(20) } : null;
+  const rowTabletStyle = isIOSTablet ? { marginBottom: scale(14), gap: scale(14) } : null;
 
   return (
     <View style={styles.container}>
@@ -75,8 +85,8 @@ const TurkeyMenu = ({
             <Text style={styles.subtitle}>Öğrenmek istediğin konuyu seç</Text>
           </View>
 
-          <View style={[styles.menuContainer, isMobile && styles.menuContainerMobile, isIOSTablet && styles.menuContainerIOSTablet]}>
-            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
+          <View style={[styles.menuContainer, isMobile && styles.menuContainerMobile, isIOSTablet && styles.menuContainerIOSTablet, menuContainerTabletStyle]}>
+            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
               {menuItems.slice(0, 4).map((item) => {
                 const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
                 return (
@@ -97,7 +107,7 @@ const TurkeyMenu = ({
                 );
               })}
             </View>
-            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
+            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
               {menuItems.slice(4, 8).map((item) => {
                 const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
                 return (
@@ -118,7 +128,7 @@ const TurkeyMenu = ({
                 );
               })}
             </View>
-            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
+            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
               {menuItems.slice(8, 12).map((item) => {
                 const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
                 return (
@@ -139,7 +149,7 @@ const TurkeyMenu = ({
                 );
               })}
             </View>
-            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet]}>
+            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
               {menuItems.slice(12, 14).map((item) => {
                 const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
                 return (

@@ -75,7 +75,7 @@ const WorldQuiz = ({ onBackToMenu, onBackToMain, difficulty = 'medium' }) => {
     setTimeout(() => {
       setFeedback(null);
       setSelectedAnswer(null);
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
     }, 1500);
   };
 

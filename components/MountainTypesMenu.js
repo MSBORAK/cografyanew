@@ -1,7 +1,22 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+import { useScreenScale } from '../utils/screenScale';
 
 const MountainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
+  const { scale, moderateScale } = useScreenScale();
+  const menuButtonStyle = {
+    ...styles.menuButton,
+    maxWidth: scale(220),
+    marginHorizontal: scale(10),
+    borderRadius: scale(18),
+    padding: scale(18),
+    aspectRatio: 1.2,
+  };
+  const rowStyle = { ...styles.row, gap: scale(16) };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(48), marginBottom: scale(10) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(17) };
+  const menuContainerStyle = { ...styles.menuContainer, padding: scale(24) };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -10,12 +25,8 @@ const MountainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={onBackToTurkeyMenu}
-            >
+            <TouchableOpacity style={styles.backButton} onPress={onBackToTurkeyMenu}>
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Türkiye Menü</Text>
             </TouchableOpacity>
@@ -23,20 +34,19 @@ const MountainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
             <Text style={styles.subtitle}>Dağ tipini seç</Text>
           </View>
 
-          {/* Menu Buttons - Yatay 4'lü */}
-          <View style={styles.menuContainer}>
-            <View style={styles.row}>
-              <TouchableOpacity style={[styles.menuButton, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🌋</Text>
-                <Text style={styles.buttonTitle}>Volkanik</Text>
+          <View style={menuContainerStyle}>
+            <View style={rowStyle}>
+              <TouchableOpacity style={[menuButtonStyle, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
+                <Text style={iconStyle}>🌋</Text>
+                <Text style={buttonTitleStyle}>Volkanik</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
-                <Text style={styles.icon}>⛰️</Text>
-                <Text style={styles.buttonTitle}>Kıvrımlı</Text>
+              <TouchableOpacity style={[menuButtonStyle, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
+                <Text style={iconStyle}>⛰️</Text>
+                <Text style={buttonTitleStyle}>Kıvrımlı</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuButton, styles.faultButton]} onPress={() => onSelectType('fault')} activeOpacity={0.9}>
-                <Text style={styles.icon}>🏔️</Text>
-                <Text style={styles.buttonTitle}>Kırıklı</Text>
+              <TouchableOpacity style={[menuButtonStyle, styles.faultButton]} onPress={() => onSelectType('fault')} activeOpacity={0.9}>
+                <Text style={iconStyle}>🏔️</Text>
+                <Text style={buttonTitleStyle}>Kırıklı</Text>
               </TouchableOpacity>
             </View>
           </View>

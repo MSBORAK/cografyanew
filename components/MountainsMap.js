@@ -146,9 +146,9 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
         setFeedback(null);
         setShowCorrectLocation(null);
         setShowCorrectCityId(null);
-        if (currentQuestionIndex < mountains.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < mountains.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       saveWrongAnswer('turkey_mountains', currentMountain.id, currentMountain.name);
@@ -160,9 +160,9 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
         setFeedback(null);
         setShowCorrectLocation(null);
         setShowCorrectCityId(null);
-        if (currentQuestionIndex < mountains.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < mountains.length - 1 ? prev + 1 : prev
+        );
       }, 1800);
     }
   };

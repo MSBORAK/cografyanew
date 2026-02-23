@@ -108,13 +108,12 @@ const OceaniaMap = ({ onBackToMenu, onBackToMain }) => {
       setSelectedCountry(country.id);
       
       setTimeout(() => {
-        setFoundCountries([...foundCountries, country.id]);
+        setFoundCountries((prev) => [...prev, country.id]);
         setFeedback(null);
         setSelectedCountry(null);
-        
-        if (currentQuestionIndex < quizCountries.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizCountries.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       await playWrongSound();
@@ -200,12 +199,12 @@ const OceaniaMap = ({ onBackToMenu, onBackToMain }) => {
             <G>
               {worldPaths
               .filter((country) => country.id !== 'ATA')
-              .map((country, index) => {
+              .map((country) => {
                 const isOceania = oceaniaCountries.includes(country.id);
                 const isFound = foundCountries.includes(country.id);
                 const isSelected = selectedCountry === country.id;
-                
-                let fillColor = isOceania ? getCountryColor(index) : '#475569';
+                const oceaniaIndex = isOceania ? oceaniaCountries.indexOf(country.id) : 0;
+                let fillColor = isOceania ? getCountryColor(oceaniaIndex) : '#475569';
                 let strokeColor = '#FFFFFF';
                 
                 if (isSelected && feedback === 'correct') {

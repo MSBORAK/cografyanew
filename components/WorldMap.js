@@ -164,12 +164,12 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
       setFeedback('correct');
       setSelectedCountry(country.id);
       setTimeout(() => {
-        setFoundCountries([...foundCountries, country.id]);
+        setFoundCountries((prev) => [...prev, country.id]);
         setFeedback(null);
         setSelectedCountry(null);
-        if (currentQuestionIndex < quizCountries.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizCountries.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       // Yanlış cevap

@@ -108,13 +108,12 @@ const EuropeMap = ({ onBackToMenu, onBackToMain }) => {
       setSelectedCountry(country.id);
       
       setTimeout(() => {
-        setFoundCountries([...foundCountries, country.id]);
+        setFoundCountries((prev) => [...prev, country.id]);
         setFeedback(null);
         setSelectedCountry(null);
-        
-        if (currentQuestionIndex < quizCountries.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizCountries.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       await playWrongSound();
@@ -200,12 +199,13 @@ const EuropeMap = ({ onBackToMenu, onBackToMain }) => {
             <G>
               {worldPaths
               .filter((country) => country.id !== 'ATA')
-              .map((country, index) => {
+              .map((country) => {
                 const isEurope = europeCountries.includes(country.id);
                 const isFound = foundCountries.includes(country.id);
                 const isSelected = selectedCountry === country.id;
-                
-                let fillColor = isEurope ? getCountryColor(index) : '#475569';
+                // Avrupa içindeki sıraya göre renk: her Avrupa ülkesi benzersiz renk (tekrarlanmaz)
+                const europeIndex = isEurope ? europeCountries.indexOf(country.id) : 0;
+                let fillColor = isEurope ? getCountryColor(europeIndex) : '#475569';
                 let strokeColor = '#FFFFFF';
                 
                 if (isSelected && feedback === 'correct') {

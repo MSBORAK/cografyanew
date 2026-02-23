@@ -116,13 +116,12 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
       playCorrectSound();
       
       setTimeout(() => {
-        setFoundMassifs([...foundMassifs, massif.id]);
+        setFoundMassifs((prev) => [...prev, massif.id]);
         setFeedback(null);
         setSelectedMassif(null);
-        
-        if (currentQuestionIndex < quizOrder.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        }
+        setCurrentQuestionIndex((prev) =>
+          prev < quizOrder.length - 1 ? prev + 1 : prev
+        );
       }, 1000);
     } else {
       setFeedback('wrong');
