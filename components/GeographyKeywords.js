@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Animated,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GEOGRAPHY_KEYWORDS } from '../constants/geographyKeywords';
@@ -13,12 +14,23 @@ import { GEOGRAPHY_KEYWORDS } from '../constants/geographyKeywords';
 console.warn('[DEBUG GeographyKeywords] module loaded');
 const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
   console.warn('[DEBUG GeographyKeywords] component body start');
+  const { width, height } = useWindowDimensions();
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 600;
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showDefinition, setShowDefinition] = useState(false);
   const flipAnim = useRef(new Animated.Value(0)).current;
 
   const item = GEOGRAPHY_KEYWORDS[currentIndex];
   const total = GEOGRAPHY_KEYWORDS.length;
+
+  const headerStyle = isMobile ? { ...styles.header, paddingTop: 12, paddingBottom: 0, paddingHorizontal: 12 } : styles.header;
+  const backButtonStyle = isMobile ? { ...styles.backButton, marginBottom: 4 } : styles.backButton;
+  const backTextStyle = isMobile ? { ...styles.backText, fontSize: 13 } : styles.backText;
+  const backIconSize = isMobile ? 18 : 24;
+  const titleStyle = isMobile ? { ...styles.title, fontSize: 20, marginTop: -6 } : styles.title;
+  const subtitleStyle = isMobile ? { ...styles.subtitle, fontSize: 12 } : styles.subtitle;
 
   const handleNext = () => {
     if (showDefinition) {
@@ -48,101 +60,140 @@ const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
     });
   };
 
+  const headerBlock = (
+    <View style={headerStyle}>
+      <View style={styles.backButtonsColumn}>
+        {onBackToMain && (
+          <TouchableOpacity style={backButtonStyle} onPress={onBackToMain}>
+            <Ionicons name="home" size={backIconSize} color="#F59E0B" />
+            <Text style={backTextStyle}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity style={backButtonStyle} onPress={onBackToMenu}>
+          <Ionicons name="chevron-back" size={backIconSize} color="#F59E0B" />
+          <Text style={backTextStyle}>Geri</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={titleStyle}>Coğrafya Anahtar Kelimeler</Text>
+      <Text style={subtitleStyle}>
+        {currentIndex + 1} / {total}
+      </Text>
+    </View>
+  );
+
+  const cardBlock = (
+    <View style={styles.cardContainer}>
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={handleFlip}
+        style={styles.flashCardTouchable}
+      >
+        <View style={styles.flashCardWrapper}>
+          <Animated.View
+            style={[
+              styles.flashCardFace,
+              styles.flashCardFront,
+              {
+                transform: [
+                  { perspective: 1200 },
+                  {
+                    rotateY: flipAnim.interpolate({
+                      inputRange: [0, 180],
+                      outputRange: ['0deg', '180deg'],
+                    }),
+                  },
+                ],
+                backfaceVisibility: 'hidden',
+              },
+            ]}
+          >
+            <Text style={styles.cardLabel}>Kavram</Text>
+            <Text style={styles.cardText}>{item.term}</Text>
+            <Text style={styles.hintText}>Dokun = çevir</Text>
+          </Animated.View>
+          <Animated.View
+            style={[
+              styles.flashCardFace,
+              styles.flashCardBack,
+              {
+                transform: [
+                  { perspective: 1200 },
+                  {
+                    rotateY: flipAnim.interpolate({
+                      inputRange: [0, 180],
+                      outputRange: ['180deg', '360deg'],
+                    }),
+                  },
+                ],
+                backfaceVisibility: 'hidden',
+              },
+            ]}
+          >
+            <Text style={styles.cardLabel}>Tanım</Text>
+            <Text style={styles.cardText}>{item.definition}</Text>
+            <Text style={styles.hintText}>Dokun = çevir</Text>
+          </Animated.View>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const navBlock = (
+    <View style={styles.navRow}>
+      <TouchableOpacity
+        style={styles.navButton}
+        onPress={handlePrev}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="chevron-back" size={28} color="#F59E0B" />
+        <Text style={styles.navText}>Önceki</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.navButton}
+        onPress={handleNext}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.navText}>Sonraki</Text>
+        <Ionicons name="chevron-forward" size={28} color="#F59E0B" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const listBlock = (
+    <View style={styles.listContent}>
+      <Text style={styles.listTitle}>Tüm Kavramlar</Text>
+      {GEOGRAPHY_KEYWORDS.map((kw, index) => (
+        <View key={index} style={styles.listCard}>
+          <Text style={styles.listTerm}>{kw.term}</Text>
+          <Text style={styles.listDef}>{kw.definition}</Text>
+        </View>
+      ))}
+    </View>
+  );
+
+  if (isMobile) {
+    return (
+      <View style={[styles.container, { backgroundColor: '#0f172a' }]}>
+        <ScrollView
+          style={styles.mobileScrollView}
+          contentContainerStyle={styles.mobileScrollContent}
+          showsVerticalScrollIndicator={true}
+          keyboardShouldPersistTaps="handled"
+        >
+          {headerBlock}
+          {cardBlock}
+          {navBlock}
+          {listBlock}
+        </ScrollView>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: '#0f172a' }]}>
-      <View style={styles.header}>
-        <View style={styles.backButtonsColumn}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Ionicons name="home" size={24} color="#F59E0B" />
-              <Text style={styles.backText}>Ana Menü</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Ionicons name="chevron-back" size={24} color="#F59E0B" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.title}>Coğrafya Anahtar Kelimeler</Text>
-        <Text style={styles.subtitle}>
-          {currentIndex + 1} / {total}
-        </Text>
-      </View>
-
-      <View style={styles.cardContainer}>
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={handleFlip}
-          style={styles.flashCardTouchable}
-        >
-          <View style={styles.flashCardWrapper}>
-            <Animated.View
-              style={[
-                styles.flashCardFace,
-                styles.flashCardFront,
-                {
-                  transform: [
-                    { perspective: 1200 },
-                    {
-                      rotateY: flipAnim.interpolate({
-                        inputRange: [0, 180],
-                        outputRange: ['0deg', '180deg'],
-                      }),
-                    },
-                  ],
-                  backfaceVisibility: 'hidden',
-                },
-              ]}
-            >
-              <Text style={styles.cardLabel}>Kavram</Text>
-              <Text style={styles.cardText}>{item.term}</Text>
-              <Text style={styles.hintText}>Dokun = çevir</Text>
-            </Animated.View>
-            <Animated.View
-              style={[
-                styles.flashCardFace,
-                styles.flashCardBack,
-                {
-                  transform: [
-                    { perspective: 1200 },
-                    {
-                      rotateY: flipAnim.interpolate({
-                        inputRange: [0, 180],
-                        outputRange: ['180deg', '360deg'],
-                      }),
-                    },
-                  ],
-                  backfaceVisibility: 'hidden',
-                },
-              ]}
-            >
-              <Text style={styles.cardLabel}>Tanım</Text>
-              <Text style={styles.cardText}>{item.definition}</Text>
-              <Text style={styles.hintText}>Dokun = çevir</Text>
-            </Animated.View>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.navRow}>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={handlePrev}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="chevron-back" size={28} color="#F59E0B" />
-          <Text style={styles.navText}>Önceki</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={handleNext}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.navText}>Sonraki</Text>
-          <Ionicons name="chevron-forward" size={28} color="#F59E0B" />
-        </TouchableOpacity>
-      </View>
-
+      {headerBlock}
+      {cardBlock}
+      {navBlock}
       <ScrollView
         style={styles.listContainer}
         contentContainerStyle={styles.listContent}
@@ -162,6 +213,8 @@ const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  mobileScrollView: { flex: 1 },
+  mobileScrollContent: { paddingBottom: 40 },
   backButtonsColumn: {
     flexDirection: 'column',
     marginRight: 12,

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useScreenScale } from '../utils/screenScale';
@@ -13,6 +14,9 @@ import { useScreenScale } from '../utils/screenScale';
 console.warn('[DEBUG LearningModeMenu] module loaded');
 const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
   console.warn('[DEBUG LearningModeMenu] component body start');
+  const { width, height } = useWindowDimensions();
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 600;
   const { scale, moderateScale } = useScreenScale();
   const contentContainerStyle = { ...styles.contentContainer, padding: scale(20), paddingBottom: scale(28) };
   const howItWorksCardStyle = { ...styles.howItWorksCard, borderRadius: scale(22), padding: scale(22), marginBottom: scale(18) };
@@ -71,26 +75,34 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
     },
   ];
 
-  const content = (
-    <>
-      <View style={styles.header}>
-        <View style={styles.backButtonsColumn}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Ionicons name="home" size={24} color="#10B981" />
-              <Text style={styles.backText}>Ana Menü</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Ionicons name="chevron-back" size={24} color="#10B981" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.title}>Öğrenme Modu</Text>
-        <Text style={styles.subtitle}>İlginç bilgilerle öğren!</Text>
-      </View>
+  const headerStyle = isMobile ? { ...styles.header, paddingTop: scale(12), paddingBottom: 0, paddingHorizontal: scale(12) } : styles.header;
+  const backButtonStyle = isMobile ? { ...styles.backButton, marginBottom: scale(4), paddingVertical: scale(2) } : styles.backButton;
+  const backTextStyle = isMobile ? { ...styles.backText, fontSize: 13 } : styles.backText;
+  const backIconSize = isMobile ? 18 : 24;
+  const titleStyle = isMobile ? { ...styles.title, fontSize: 22, marginBottom: 12, marginTop: -6 } : styles.title;
+  const subtitleStyle = isMobile ? { ...styles.subtitle, fontSize: 11 } : styles.subtitle;
 
-      <ScrollView style={styles.content} contentContainerStyle={contentContainerStyle} showsVerticalScrollIndicator={false}>
+  const headerBlock = (
+    <View style={headerStyle}>
+      <View style={styles.backButtonsColumn}>
+        {onBackToMain && (
+          <TouchableOpacity style={backButtonStyle} onPress={onBackToMain}>
+            <Ionicons name="home" size={backIconSize} color="#10B981" />
+            <Text style={backTextStyle}>Ana Menü</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity style={backButtonStyle} onPress={onBackToMenu}>
+          <Ionicons name="chevron-back" size={backIconSize} color="#10B981" />
+          <Text style={backTextStyle}>Geri</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={titleStyle}>Öğrenme Modu</Text>
+      <Text style={subtitleStyle}>İlginç bilgilerle öğren!</Text>
+    </View>
+  );
+
+  const scrollBody = (
+    <>
         <View style={howItWorksCardStyle}>
           <View style={brainIconWrapStyle}>
             <Ionicons name="school" size={36} color="#10B981" />
@@ -166,6 +178,24 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
             Anahtar Kelimeler’de kartları çevirerek kavramları pekiştir.
           </Text>
         </View>
+    </>
+  );
+
+  const content = isMobile ? (
+    <ScrollView
+      style={styles.content}
+      contentContainerStyle={[styles.scrollContentMobile, contentContainerStyle]}
+      showsVerticalScrollIndicator={true}
+      keyboardShouldPersistTaps="handled"
+    >
+      {headerBlock}
+      {scrollBody}
+    </ScrollView>
+  ) : (
+    <>
+      {headerBlock}
+      <ScrollView style={styles.content} contentContainerStyle={contentContainerStyle} showsVerticalScrollIndicator={false}>
+        {scrollBody}
       </ScrollView>
     </>
   );
@@ -216,6 +246,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContentMobile: {
+    paddingBottom: 24,
   },
   contentContainer: {
     padding: 16,

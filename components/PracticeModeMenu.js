@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getStatistics, clearWrongAnswers } from '../utils/practiceMode';
@@ -13,6 +14,9 @@ import { useScreenScale } from '../utils/screenScale';
 console.warn('[DEBUG PracticeModeMenu] module loaded');
 const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
   console.warn('[DEBUG PracticeModeMenu] component body start');
+  const { width, height } = useWindowDimensions();
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 600;
   const { scale, moderateScale } = useScreenScale();
   const contentContainerStyle = { ...styles.contentContainer, padding: scale(24) };
   const infoCardStyle = { ...styles.infoCard, borderRadius: scale(18), padding: scale(22), marginBottom: scale(24) };
@@ -60,39 +64,47 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
     { id: 'world_flags', name: 'Dünya Bayrakları', icon: '🚩', color: '#EC4899' },
   ];
 
-  const content = (
-    <>
-      <View style={styles.header}>
-        <View style={styles.backButtonsColumn}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Ionicons name="home" size={24} color="#A78BFA" />
-              <Text style={styles.backText}>Ana Menü</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Ionicons name="chevron-back" size={24} color="#A78BFA" />
-            <Text style={styles.backText}>Geri</Text>
+  const headerStyle = isMobile ? { ...styles.header, paddingTop: scale(12), paddingBottom: 0, paddingHorizontal: scale(12) } : styles.header;
+  const backButtonStyle = isMobile ? { ...styles.backButton, marginBottom: scale(4), paddingVertical: scale(2) } : styles.backButton;
+  const backTextStyle = isMobile ? { ...styles.backText, fontSize: 13 } : styles.backText;
+  const backIconSize = isMobile ? 18 : 24;
+  const titleStyle = isMobile ? { ...styles.title, fontSize: 22, marginBottom: 0, marginTop: -20 } : styles.title;
+  const subtitleStyle = isMobile ? { ...styles.subtitle, fontSize: 11 } : styles.subtitle;
+
+  const headerBlock = (
+    <View style={headerStyle}>
+      <View style={styles.backButtonsColumn}>
+        {onBackToMain && (
+          <TouchableOpacity style={backButtonStyle} onPress={onBackToMain}>
+            <Ionicons name="home" size={backIconSize} color="#A78BFA" />
+            <Text style={backTextStyle}>Ana Menü</Text>
           </TouchableOpacity>
-        </View>
-        <Text style={styles.title}>Pratik Modu</Text>
-        <Text style={styles.subtitle}>Yanlış yaptığın soruları tekrar et</Text>
+        )}
+        <TouchableOpacity style={backButtonStyle} onPress={onBackToMenu}>
+          <Ionicons name="chevron-back" size={backIconSize} color="#A78BFA" />
+          <Text style={backTextStyle}>Geri</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={titleStyle}>Pratik Modu</Text>
+      <Text style={subtitleStyle}>Yanlış yaptığın soruları tekrar et</Text>
+    </View>
+  );
+
+  const scrollBody = (
+    <>
+      <View style={infoCardStyle}>
+        <Ionicons name="book" size={32} color="#A78BFA" />
+        <Text style={infoTitleStyle}>Nasıl Çalışır?</Text>
+        <Text style={infoTextStyle}>
+          Oyunlarda yanlış cevapladığın sorular otomatik olarak kaydedilir.
+          Pratik modunda sadece bu soruları tekrar ederek zayıf konularını güçlendirebilirsin!
+        </Text>
+        <Text style={infoHintStyle}>
+          Önce 81 İl, Dünya Haritası veya Bayraklar gibi oyunlarda soru çöz; yanlış yaptığın sorular burada listelenir.
+        </Text>
       </View>
 
-      <ScrollView style={styles.content} contentContainerStyle={contentContainerStyle}>
-        <View style={infoCardStyle}>
-          <Ionicons name="book" size={32} color="#A78BFA" />
-          <Text style={infoTitleStyle}>Nasıl Çalışır?</Text>
-          <Text style={infoTextStyle}>
-            Oyunlarda yanlış cevapladığın sorular otomatik olarak kaydedilir.
-            Pratik modunda sadece bu soruları tekrar ederek zayıf konularını güçlendirebilirsin!
-          </Text>
-          <Text style={infoHintStyle}>
-            Önce 81 İl, Dünya Haritası veya Bayraklar gibi oyunlarda soru çöz; yanlış yaptığın sorular burada listelenir.
-          </Text>
-        </View>
-
-        <View style={categoriesContainerStyle}>
+      <View style={categoriesContainerStyle}>
           {categories.map((category) => {
             const categoryStats = stats[category.id];
             const hasWrongAnswers = categoryStats && categoryStats.total > 0;
@@ -153,14 +165,32 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
           })}
         </View>
 
-        <View style={tipCardStyle}>
-          <Text style={tipIconStyle}>💡</Text>
-          <Text style={tipTitleStyle}>İpucu</Text>
-          <Text style={tipTextStyle}>
-            Düzenli pratik yaparak öğrenme hızını artırabilirsin.
-            Her gün 10 dakika pratik yapmak, uzun süreli hafızana katkı sağlar!
-          </Text>
-        </View>
+      <View style={tipCardStyle}>
+        <Text style={tipIconStyle}>💡</Text>
+        <Text style={tipTitleStyle}>İpucu</Text>
+        <Text style={tipTextStyle}>
+          Düzenli pratik yaparak öğrenme hızını artırabilirsin.
+          Her gün 10 dakika pratik yapmak, uzun süreli hafızana katkı sağlar!
+        </Text>
+      </View>
+    </>
+  );
+
+  const content = isMobile ? (
+    <ScrollView
+      style={styles.content}
+      contentContainerStyle={[styles.scrollContentMobile, contentContainerStyle]}
+      showsVerticalScrollIndicator={true}
+      keyboardShouldPersistTaps="handled"
+    >
+      {headerBlock}
+      {scrollBody}
+    </ScrollView>
+  ) : (
+    <>
+      {headerBlock}
+      <ScrollView style={styles.content} contentContainerStyle={contentContainerStyle}>
+        {scrollBody}
       </ScrollView>
     </>
   );
@@ -211,6 +241,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContentMobile: {
+    paddingBottom: 24,
   },
   contentContainer: {
     padding: 20,
