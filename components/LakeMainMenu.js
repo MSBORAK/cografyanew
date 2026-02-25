@@ -1,23 +1,62 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, useWindowDimensions } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useScreenScale } from '../utils/screenScale';
 
 const LakeMainMenu = ({ onSelectNatural, onSelectArtificial, onBackToTurkeyMenu }) => {
+  const { width, height } = useWindowDimensions();
   const { scale, moderateScale } = useScreenScale();
-  const menuButtonStyle = {
-    ...styles.menuButton,
-    flex: 1,
-    maxWidth: scale(160),
-    marginHorizontal: scale(6),
-    borderRadius: scale(12),
-    padding: scale(12),
-  };
-  const menuContainerStyle = { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10), paddingTop: scale(28) };
-  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(14), marginBottom: scale(4) };
-  const buttonSubtitleStyle = { ...styles.buttonSubtitle, fontSize: moderateScale(10), lineHeight: scale(14) };
-  const iconContainerStyle = { ...styles.iconContainer, width: scale(44), height: scale(44), borderRadius: scale(22) };
-  const iconStyle = { ...styles.icon, fontSize: moderateScale(24) };
-  const textContainerStyle = { ...styles.textContainer, paddingRight: scale(8) };
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 600;
+
+  const menuButtonStyle = isMobile
+    ? { ...styles.menuButton, flex: 1, maxWidth: scale(160), marginHorizontal: scale(6), borderRadius: scale(12), padding: scale(12) }
+    : { ...styles.menuButton, flex: 1, maxWidth: scale(280), minWidth: scale(200), borderRadius: scale(20), padding: scale(20) };
+  const menuContainerStyle = isMobile
+    ? { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10), paddingTop: scale(28) }
+    : { ...styles.menuContainer, ...styles.menuContainerTablet, gap: scale(16), paddingHorizontal: scale(32) };
+  const rowStyleTablet = !isMobile ? { flex: 0, alignSelf: 'center', maxWidth: 640, gap: scale(24) } : null;
+  const buttonTitleStyle = isMobile
+    ? { ...styles.buttonTitle, fontSize: moderateScale(14), marginBottom: scale(4) }
+    : { ...styles.buttonTitle, fontSize: moderateScale(22), marginBottom: scale(6) };
+  const buttonSubtitleStyle = isMobile
+    ? { ...styles.buttonSubtitle, fontSize: moderateScale(10), lineHeight: scale(14) }
+    : { ...styles.buttonSubtitle, fontSize: moderateScale(14), lineHeight: scale(20) };
+  const iconContainerStyle = isMobile
+    ? { ...styles.iconContainer, width: scale(44), height: scale(44), borderRadius: scale(22) }
+    : { ...styles.iconContainer, width: scale(56), height: scale(56), borderRadius: scale(28) };
+  const iconStyle = isMobile
+    ? { ...styles.icon, fontSize: moderateScale(24) }
+    : { ...styles.icon, fontSize: moderateScale(34) };
+  const textContainerStyle = isMobile
+    ? { ...styles.textContainer, paddingRight: scale(8) }
+    : { ...styles.textContainer, paddingRight: scale(18) };
+
+  const content = (
+    <View style={[styles.row, rowStyleTablet]}>
+      <TouchableOpacity style={[menuButtonStyle, styles.naturalButton]} onPress={onSelectNatural} activeOpacity={0.9}>
+        <View style={styles.buttonContent}>
+          <View style={textContainerStyle}>
+            <Text style={buttonTitleStyle}>Doğal Göller</Text>
+            <Text style={buttonSubtitleStyle}>Tektonik, Volkanik, Karstik göller</Text>
+          </View>
+          <View style={iconContainerStyle}>
+            <Text style={iconStyle}>🏞️</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity style={[menuButtonStyle, styles.artificialButton]} onPress={onSelectArtificial} activeOpacity={0.9}>
+        <View style={styles.buttonContent}>
+          <View style={textContainerStyle}>
+            <Text style={buttonTitleStyle}>Yapay Göller</Text>
+            <Text style={buttonSubtitleStyle}>Barajlar ve su hazneleri</Text>
+          </View>
+          <View style={iconContainerStyle}>
+            <Text style={iconStyle}>🏗️</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -27,46 +66,22 @@ const LakeMainMenu = ({ onSelectNatural, onSelectArtificial, onBackToTurkeyMenu 
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          <View style={styles.header}>
+          <View style={[styles.header, isMobile && styles.headerMobile, !isMobile && styles.headerTablet]}>
             <TouchableOpacity style={styles.backButton} onPress={onBackToTurkeyMenu}>
-              <ChevronLeft size={22} color="#FFFFFF" />
+              <ChevronLeft size={isMobile ? 22 : 24} color="#FFFFFF" />
               <Text style={styles.backText}>Türkiye Menü</Text>
             </TouchableOpacity>
             <Text style={styles.title}>🌊 Göller</Text>
             <Text style={styles.subtitle}>Göl kategorisini seç</Text>
           </View>
 
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={menuContainerStyle}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={styles.row}>
-              <TouchableOpacity style={[menuButtonStyle, styles.naturalButton]} onPress={onSelectNatural} activeOpacity={0.9}>
-                <View style={styles.buttonContent}>
-                  <View style={textContainerStyle}>
-                    <Text style={buttonTitleStyle}>Doğal Göller</Text>
-                    <Text style={buttonSubtitleStyle}>Tektonik, Volkanik, Karstik göller</Text>
-                  </View>
-                  <View style={iconContainerStyle}>
-                    <Text style={iconStyle}>🏞️</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={[menuButtonStyle, styles.artificialButton]} onPress={onSelectArtificial} activeOpacity={0.9}>
-                <View style={styles.buttonContent}>
-                  <View style={textContainerStyle}>
-                    <Text style={buttonTitleStyle}>Yapay Göller</Text>
-                    <Text style={buttonSubtitleStyle}>Barajlar ve su hazneleri</Text>
-                  </View>
-                  <View style={iconContainerStyle}>
-                    <Text style={iconStyle}>🏗️</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+          {isMobile ? (
+            <ScrollView style={styles.scroll} contentContainerStyle={menuContainerStyle} showsVerticalScrollIndicator={false}>
+              {content}
+            </ScrollView>
+          ) : (
+            <View style={menuContainerStyle}>{content}</View>
+          )}
         </View>
       </ImageBackground>
     </View>
@@ -91,6 +106,15 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
+  },
+  headerMobile: {
+    paddingTop: 44,
+    paddingBottom: 12,
+  },
+  headerTablet: {
+    paddingTop: 62,
+    paddingBottom: 8,
+    paddingHorizontal: 20,
   },
   backButton: {
     flexDirection: 'row',
@@ -128,6 +152,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-start',
     flexGrow: 1,
+  },
+  menuContainerTablet: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   row: {
     flexDirection: 'row',

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, useWindowDimensions } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useScreenScale } from '../utils/screenScale';
 
@@ -13,22 +13,57 @@ const categories = [
 ];
 
 const HomeScreen = ({ onStartGame, onBackToMain }) => {
+  const { width, height } = useWindowDimensions();
   const { scale, moderateScale } = useScreenScale();
-  const menuButtonStyle = {
-    ...styles.menuButton,
-    maxWidth: scale(100),
-    marginHorizontal: scale(3),
-    borderRadius: scale(12),
-    padding: scale(8),
-  };
-  const rowStyle = {
-    ...styles.row,
-    marginBottom: scale(8),
-    gap: scale(6),
-  };
-  const iconStyle = { ...styles.icon, fontSize: moderateScale(28), marginBottom: scale(2) };
-  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(12) };
-  const menuContainerStyle = { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10) };
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 600;
+
+  const menuButtonStyle = isMobile
+    ? { ...styles.menuButton, maxWidth: scale(100), marginHorizontal: scale(3), borderRadius: scale(12), padding: scale(8) }
+    : { ...styles.menuButton, maxWidth: scale(180), marginHorizontal: scale(8), borderRadius: scale(20), padding: scale(18) };
+  const rowStyle = isMobile
+    ? { ...styles.row, marginBottom: scale(8), gap: scale(6) }
+    : { ...styles.row, marginBottom: scale(16), gap: scale(16) };
+  const iconStyle = isMobile
+    ? { ...styles.icon, fontSize: moderateScale(28), marginBottom: scale(2) }
+    : { ...styles.icon, fontSize: moderateScale(48), marginBottom: scale(8) };
+  const buttonTitleStyle = isMobile
+    ? { ...styles.buttonTitle, fontSize: moderateScale(12) }
+    : { ...styles.buttonTitle, fontSize: moderateScale(16) };
+  const menuContainerStyle = isMobile
+    ? { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10) }
+    : { ...styles.menuContainer, padding: scale(24) };
+
+  const content = (
+    <>
+      <View style={rowStyle}>
+        {categories.slice(0, 4).map((cat) => (
+          <TouchableOpacity
+            key={cat.id}
+            style={[menuButtonStyle, { backgroundColor: cat.color }]}
+            onPress={() => onStartGame(cat.id)}
+            activeOpacity={0.9}
+          >
+            <Text style={iconStyle}>{cat.emoji}</Text>
+            <Text style={buttonTitleStyle}>{cat.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <View style={rowStyle}>
+        {categories.slice(4, 7).map((cat) => (
+          <TouchableOpacity
+            key={cat.id}
+            style={[menuButtonStyle, { backgroundColor: cat.color }]}
+            onPress={() => onStartGame(cat.id)}
+            activeOpacity={0.9}
+          >
+            <Text style={iconStyle}>{cat.emoji}</Text>
+            <Text style={buttonTitleStyle}>{cat.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </>
+  );
 
   return (
     <View style={styles.container}>
@@ -38,47 +73,22 @@ const HomeScreen = ({ onStartGame, onBackToMain }) => {
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          <View style={styles.header}>
+          <View style={[styles.header, isMobile && styles.headerMobile, !isMobile && styles.headerTablet]}>
             <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <ChevronLeft size={22} color="#FFFFFF" />
+              <ChevronLeft size={isMobile ? 22 : 24} color="#FFFFFF" />
               <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
             <Text style={styles.title}>🗺️ Bölge Seç</Text>
             <Text style={styles.subtitle}>Hangi bölgeyi öğrenmek istersin?</Text>
           </View>
 
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={menuContainerStyle}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={rowStyle}>
-              {categories.slice(0, 4).map((cat) => (
-                <TouchableOpacity
-                  key={cat.id}
-                  style={[menuButtonStyle, { backgroundColor: cat.color }]}
-                  onPress={() => onStartGame(cat.id)}
-                  activeOpacity={0.9}
-                >
-                  <Text style={iconStyle}>{cat.emoji}</Text>
-                  <Text style={buttonTitleStyle}>{cat.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <View style={rowStyle}>
-              {categories.slice(4, 7).map((cat) => (
-                <TouchableOpacity
-                  key={cat.id}
-                  style={[menuButtonStyle, { backgroundColor: cat.color }]}
-                  onPress={() => onStartGame(cat.id)}
-                  activeOpacity={0.9}
-                >
-                  <Text style={iconStyle}>{cat.emoji}</Text>
-                  <Text style={buttonTitleStyle}>{cat.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
+          {isMobile ? (
+            <ScrollView style={styles.scroll} contentContainerStyle={menuContainerStyle} showsVerticalScrollIndicator={false}>
+              {content}
+            </ScrollView>
+          ) : (
+            <View style={menuContainerStyle}>{content}</View>
+          )}
         </View>
       </ImageBackground>
     </View>
@@ -103,6 +113,16 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
+  },
+  headerMobile: {
+    paddingTop: 44,
+    paddingBottom: 12,
+    paddingHorizontal: 20,
+  },
+  headerTablet: {
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
   },
   backButton: {
     flexDirection: 'row',

@@ -4,7 +4,6 @@ import { ChevronLeft, Home, Lock } from 'lucide-react-native';
 import { getUnlockedPremiumIds, isTurkeyItemLocked } from '../utils/premiumLock';
 import { useScreenScale } from '../utils/screenScale';
 
-const COLS = 4;
 const menuItems = [
   { id: 'cities', title: '81 İl', icon: '🏙️', style: 'citiesButton', onPress: 'onSelectCities' },
   { id: 'regions', title: '7 Bölge', icon: '🗺️', style: 'regionsButton', onPress: 'onSelectRegions' },
@@ -51,23 +50,32 @@ const TurkeyMenu = ({
     getUnlockedPremiumIds().then((ids) => setUnlockedPremiumIds(Array.isArray(ids) ? ids : [])).catch(() => setUnlockedPremiumIds([]));
   }, [refreshPremiumKey]);
 
-  // Dünya haritası sayfası (WorldMenu) ile aynı kutu stili
-  const menuButtonStyle = isMobile
-    ? { ...styles.menuButton, maxWidth: scale(92), minWidth: scale(70), marginHorizontal: scale(2), borderRadius: scale(10), padding: scale(6), aspectRatio: 1.5 }
-    : { ...styles.menuButton, maxWidth: scale(190), minWidth: scale(150), marginHorizontal: scale(6), borderRadius: scale(18), padding: scale(16) };
-  const rowStyle = isMobile ? { ...styles.row, marginBottom: scale(6), gap: scale(6) } : { ...styles.row, marginBottom: scale(14), gap: scale(14) };
-  const iconStyle = isMobile ? { ...styles.icon, fontSize: moderateScale(20), marginBottom: scale(2) } : { ...styles.icon, fontSize: moderateScale(38), marginBottom: scale(8) };
-  const buttonTitleStyle = isMobile ? { ...styles.buttonTitle, fontSize: moderateScale(10) } : { ...styles.buttonTitle, fontSize: moderateScale(15) };
+  // Tablet (orijinal cografyanew): isIOSTablet için ayrı stil ve View layout
+  const boxStyle = isIOSTablet
+    ? [styles.menuButtonIOSTablet, { maxWidth: scale(200), minWidth: scale(160), borderRadius: scale(18), padding: scale(16), marginHorizontal: scale(2) }]
+    : (isMobile
+      ? { ...styles.menuButtonMobile, maxWidth: scale(92), minWidth: scale(70), marginHorizontal: scale(2), borderRadius: scale(10), padding: scale(6), aspectRatio: 1.5 }
+      : styles.menuButton);
+  const iconStyle = isIOSTablet
+    ? [styles.iconIOSTablet, { fontSize: moderateScale(42), marginBottom: scale(8) }]
+    : (isMobile ? { ...styles.iconMobile, fontSize: moderateScale(20), marginBottom: scale(2) } : styles.icon);
+  const titleStyle = isIOSTablet
+    ? [styles.buttonTitleIOSTablet, { fontSize: moderateScale(15) }]
+    : (isMobile ? { ...styles.buttonTitleMobile, fontSize: moderateScale(10) } : styles.buttonTitle);
+  const menuContainerTabletStyle = isIOSTablet ? { padding: scale(20) } : null;
+  const rowTabletStyle = isIOSTablet ? { marginBottom: scale(14), gap: scale(14) } : null;
+
+  // Mobil: ScrollView + satırlar (Fay Hatları ortalanmış)
   const menuContainerStyle = isMobile
     ? { paddingHorizontal: scale(8), paddingTop: scale(20), paddingBottom: 24 }
-    : { paddingHorizontal: scale(20), paddingTop: scale(28), paddingBottom: 24 };
-
+    : null;
+  const COLS = 4;
   const renderBox = (item) => {
     const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
     return (
       <TouchableOpacity
         key={item.id}
-        style={[menuButtonStyle, styles[item.style], locked && styles.menuBoxLocked]}
+        style={[boxStyle, styles[item.style], locked && styles.menuBoxLocked]}
         onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
         activeOpacity={0.9}
       >
@@ -77,7 +85,7 @@ const TurkeyMenu = ({
           </View>
         )}
         <Text style={iconStyle}>{item.icon}</Text>
-        <Text style={buttonTitleStyle} numberOfLines={2}>{item.title}</Text>
+        <Text style={titleStyle} numberOfLines={isMobile ? 2 : 1}>{item.title}</Text>
       </TouchableOpacity>
     );
   };
@@ -88,16 +96,16 @@ const TurkeyMenu = ({
     const short = chunk.length < COLS;
     const emptyStart = short ? Math.floor((COLS - chunk.length) / 2) : 0;
     const emptyEnd = short ? Math.ceil((COLS - chunk.length) / 2) : 0;
-    // Son satır: Fay Hatları kutucuğunu biraz daha sağa almak için sol boşluk daha geniş
     const startFlex = short && emptyStart === 1 ? 2.0 : 1;
     const endFlex = short && emptyEnd === 1 ? 0.15 : 1;
+    const rowStyle = isMobile ? { ...styles.row, marginBottom: scale(6), gap: scale(6) } : { ...styles.row, marginBottom: scale(14), gap: scale(14) };
     rows.push(
       <View key={i} style={rowStyle}>
-        {emptyStart > 0 && Array.from({ length: emptyStart }).map((_, j) => (
+        {isMobile && emptyStart > 0 && Array.from({ length: emptyStart }).map((_, j) => (
           <View key={`empty-start-${i}-${j}`} style={{ flex: j === 0 ? startFlex : 1 }} />
         ))}
         {chunk.map((item) => renderBox(item))}
-        {emptyEnd > 0 && Array.from({ length: emptyEnd }).map((_, j) => (
+        {isMobile && emptyEnd > 0 && Array.from({ length: emptyEnd }).map((_, j) => (
           <View key={`empty-end-${i}-${j}`} style={{ flex: j === emptyEnd - 1 ? endFlex : 1 }} />
         ))}
       </View>
@@ -112,7 +120,7 @@ const TurkeyMenu = ({
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          <View style={[styles.header, isMobile && styles.headerMobile]}>
+          <View style={[styles.header, isMobile && styles.headerMobile, !isMobile && styles.headerTablet]}>
             <View style={styles.backButtonsColumn}>
               <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
                 <Home size={20} color="#FFFFFF" />
@@ -127,13 +135,30 @@ const TurkeyMenu = ({
             <Text style={[styles.subtitle, isMobile && styles.subtitleMobile]}>Öğrenmek istediğin konuyu seç</Text>
           </View>
 
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={[styles.menuScrollContent, menuContainerStyle]}
-            showsVerticalScrollIndicator={false}
-          >
-            {rows}
-          </ScrollView>
+          {isIOSTablet || !isMobile ? (
+            <View style={[styles.menuContainer, isIOSTablet && styles.menuContainerIOSTablet, menuContainerTabletStyle]}>
+              <View style={[styles.row, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
+                {menuItems.slice(0, 4).map((item) => renderBox(item))}
+              </View>
+              <View style={[styles.row, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
+                {menuItems.slice(4, 8).map((item) => renderBox(item))}
+              </View>
+              <View style={[styles.row, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
+                {menuItems.slice(8, 12).map((item) => renderBox(item))}
+              </View>
+              <View style={[styles.row, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
+                {menuItems.slice(12, 14).map((item) => renderBox(item))}
+              </View>
+            </View>
+          ) : (
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={[styles.menuScrollContent, menuContainerStyle]}
+              showsVerticalScrollIndicator={false}
+            >
+              {rows}
+            </ScrollView>
+          )}
         </View>
       </ImageBackground>
     </View>
@@ -163,6 +188,10 @@ const styles = StyleSheet.create({
     paddingTop: 44,
     paddingBottom: 6,
     paddingHorizontal: 12,
+  },
+  headerTablet: {
+    paddingTop: Platform.OS === 'ios' ? 64 : 52,
+    paddingBottom: 2,
   },
   backButtonsColumn: {
     flexDirection: 'column',
@@ -211,20 +240,65 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 24,
   },
+  menuContainer: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'center',
+  },
+  menuContainerIOSTablet: {
+    padding: 16,
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     marginBottom: 10,
     gap: 10,
   },
+  rowIOSTablet: {
+    marginBottom: 12,
+    gap: 12,
+  },
   menuButton: {
     flex: 1,
     aspectRatio: 1.5,
-    maxWidth: 160,
-    minWidth: 135,
-    marginHorizontal: 4,
+    maxWidth: 150,
+    minWidth: 115,
     borderRadius: 14,
     padding: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  menuButtonIOSTablet: {
+    flex: 1,
+    aspectRatio: 1.5,
+    maxWidth: 190,
+    minWidth: 150,
+    borderRadius: 15,
+    padding: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  menuButtonMobile: {
+    flex: 1,
+    aspectRatio: 1.5,
+    maxWidth: 52,
+    minWidth: 40,
+    borderRadius: 8,
+    padding: 3,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -302,8 +376,36 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     textAlign: 'center',
   },
+  iconIOSTablet: {
+    fontSize: 38,
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  iconMobile: {
+    fontSize: 18,
+    marginBottom: 1,
+    textAlign: 'center',
+  },
   buttonTitle: {
     fontSize: 13,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  buttonTitleIOSTablet: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  buttonTitleMobile: {
+    fontSize: 8,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',

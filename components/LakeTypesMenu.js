@@ -1,24 +1,57 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, useWindowDimensions } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useScreenScale } from '../utils/screenScale';
 
 const LakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
+  const { width, height } = useWindowDimensions();
   const { scale, moderateScale } = useScreenScale();
-  const menuButtonStyle = {
-    ...styles.menuButton,
-    maxWidth: scale(100),
-    marginHorizontal: scale(3),
-    borderRadius: scale(12),
-    padding: scale(8),
-  };
-  const rowStyle = {
-    ...styles.row,
-    marginBottom: scale(8),
-    gap: scale(6),
-  };
-  const iconStyle = { ...styles.icon, fontSize: moderateScale(28), marginBottom: scale(2) };
-  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(12) };
-  const menuContainerStyle = { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10), paddingTop: scale(28) };
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 600;
+
+  const menuButtonStyle = isMobile
+    ? { ...styles.menuButton, maxWidth: scale(100), marginHorizontal: scale(3), borderRadius: scale(12), padding: scale(8) }
+    : { ...styles.menuButton, maxWidth: scale(180), marginHorizontal: scale(8), borderRadius: scale(18), padding: scale(16) };
+  const rowStyle = isMobile
+    ? { ...styles.row, marginBottom: scale(8), gap: scale(6) }
+    : { ...styles.row, gap: scale(16) };
+  const iconStyle = isMobile
+    ? { ...styles.icon, fontSize: moderateScale(28), marginBottom: scale(2) }
+    : { ...styles.icon, fontSize: moderateScale(44), marginBottom: scale(8) };
+  const buttonTitleStyle = isMobile
+    ? { ...styles.buttonTitle, fontSize: moderateScale(12) }
+    : { ...styles.buttonTitle, fontSize: moderateScale(16) };
+  const menuContainerStyle = isMobile
+    ? { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10), paddingTop: scale(28) }
+    : { ...styles.menuContainer, padding: scale(24) };
+
+  const buttonsRow1 = (
+    <View style={rowStyle}>
+      <TouchableOpacity style={[menuButtonStyle, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
+        <Text style={iconStyle}>🌊</Text>
+        <Text style={buttonTitleStyle}>Tektonik</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[menuButtonStyle, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
+        <Text style={iconStyle}>🌋</Text>
+        <Text style={buttonTitleStyle}>Volkanik</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[menuButtonStyle, styles.karsticButton]} onPress={() => onSelectType('karstic')} activeOpacity={0.9}>
+        <Text style={iconStyle}>💧</Text>
+        <Text style={buttonTitleStyle}>Karstik</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[menuButtonStyle, styles.damButton]} onPress={() => onSelectType('dam')} activeOpacity={0.9}>
+        <Text style={iconStyle}>🏞️</Text>
+        <Text style={buttonTitleStyle}>Set</Text>
+      </TouchableOpacity>
+    </View>
+  );
+  const buttonsRow2 = (
+    <View style={rowStyle}>
+      <TouchableOpacity style={[menuButtonStyle, styles.glacialButton]} onPress={() => onSelectType('glacial')} activeOpacity={0.9}>
+        <Text style={iconStyle}>❄️</Text>
+        <Text style={buttonTitleStyle}>Buzul</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -28,45 +61,46 @@ const LakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          <View style={styles.header}>
+          <View style={[styles.header, isMobile && styles.headerMobile, !isMobile && styles.headerTablet]}>
             <TouchableOpacity style={styles.backButton} onPress={onBackToLakeMainMenu}>
-              <ChevronLeft size={22} color="#FFFFFF" />
+              <ChevronLeft size={isMobile ? 22 : 24} color="#FFFFFF" />
               <Text style={styles.backText}>Göller Menü</Text>
             </TouchableOpacity>
             <Text style={styles.title}>🏞️ Doğal Göller</Text>
             <Text style={styles.subtitle}>Göl tipini seç</Text>
           </View>
 
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={menuContainerStyle}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={rowStyle}>
-              <TouchableOpacity style={[menuButtonStyle, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
-                <Text style={iconStyle}>🌊</Text>
-                <Text style={buttonTitleStyle}>Tektonik</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[menuButtonStyle, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
-                <Text style={iconStyle}>🌋</Text>
-                <Text style={buttonTitleStyle}>Volkanik</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[menuButtonStyle, styles.karsticButton]} onPress={() => onSelectType('karstic')} activeOpacity={0.9}>
-                <Text style={iconStyle}>💧</Text>
-                <Text style={buttonTitleStyle}>Karstik</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[menuButtonStyle, styles.damButton]} onPress={() => onSelectType('dam')} activeOpacity={0.9}>
-                <Text style={iconStyle}>🏞️</Text>
-                <Text style={buttonTitleStyle}>Set</Text>
-              </TouchableOpacity>
+          {isMobile ? (
+            <ScrollView style={styles.scroll} contentContainerStyle={menuContainerStyle} showsVerticalScrollIndicator={false}>
+              {buttonsRow1}
+              {buttonsRow2}
+            </ScrollView>
+          ) : (
+            <View style={menuContainerStyle}>
+              <View style={rowStyle}>
+                <TouchableOpacity style={[menuButtonStyle, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
+                  <Text style={iconStyle}>🌊</Text>
+                  <Text style={buttonTitleStyle}>Tektonik</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[menuButtonStyle, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
+                  <Text style={iconStyle}>🌋</Text>
+                  <Text style={buttonTitleStyle}>Volkanik</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[menuButtonStyle, styles.karsticButton]} onPress={() => onSelectType('karstic')} activeOpacity={0.9}>
+                  <Text style={iconStyle}>💧</Text>
+                  <Text style={buttonTitleStyle}>Karstik</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[menuButtonStyle, styles.damButton]} onPress={() => onSelectType('dam')} activeOpacity={0.9}>
+                  <Text style={iconStyle}>🏞️</Text>
+                  <Text style={buttonTitleStyle}>Set</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[menuButtonStyle, styles.glacialButton]} onPress={() => onSelectType('glacial')} activeOpacity={0.9}>
+                  <Text style={iconStyle}>❄️</Text>
+                  <Text style={buttonTitleStyle}>Buzul</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <View style={rowStyle}>
-              <TouchableOpacity style={[menuButtonStyle, styles.glacialButton]} onPress={() => onSelectType('glacial')} activeOpacity={0.9}>
-                <Text style={iconStyle}>❄️</Text>
-                <Text style={buttonTitleStyle}>Buzul</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+          )}
         </View>
       </ImageBackground>
     </View>
@@ -91,6 +125,15 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
+  },
+  headerMobile: {
+    paddingTop: 44,
+    paddingBottom: 12,
+  },
+  headerTablet: {
+    paddingTop: 62,
+    paddingBottom: 8,
+    paddingHorizontal: 20,
   },
   backButton: {
     flexDirection: 'row',

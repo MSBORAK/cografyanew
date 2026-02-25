@@ -1,24 +1,45 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, useWindowDimensions } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useScreenScale } from '../utils/screenScale';
 
 const MountainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
+  const { width, height } = useWindowDimensions();
   const { scale, moderateScale } = useScreenScale();
-  const menuButtonStyle = {
-    ...styles.menuButton,
-    maxWidth: scale(100),
-    marginHorizontal: scale(3),
-    borderRadius: scale(12),
-    padding: scale(8),
-  };
-  const rowStyle = {
-    ...styles.row,
-    marginBottom: scale(8),
-    gap: scale(6),
-  };
-  const iconStyle = { ...styles.icon, fontSize: moderateScale(28), marginBottom: scale(2) };
-  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(12) };
-  const menuContainerStyle = { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10), paddingTop: scale(28) };
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 600;
+
+  const menuButtonStyle = isMobile
+    ? { ...styles.menuButton, maxWidth: scale(100), marginHorizontal: scale(3), borderRadius: scale(12), padding: scale(8) }
+    : { ...styles.menuButton, maxWidth: scale(220), marginHorizontal: scale(10), borderRadius: scale(18), padding: scale(18), aspectRatio: 1.2 };
+  const rowStyle = isMobile
+    ? { ...styles.row, marginBottom: scale(8), gap: scale(6) }
+    : { ...styles.row, gap: scale(16) };
+  const iconStyle = isMobile
+    ? { ...styles.icon, fontSize: moderateScale(28), marginBottom: scale(2) }
+    : { ...styles.icon, fontSize: moderateScale(48), marginBottom: scale(10) };
+  const buttonTitleStyle = isMobile
+    ? { ...styles.buttonTitle, fontSize: moderateScale(12) }
+    : { ...styles.buttonTitle, fontSize: moderateScale(17) };
+  const menuContainerStyle = isMobile
+    ? { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10), paddingTop: scale(28) }
+    : { ...styles.menuContainer, padding: scale(24) };
+
+  const content = (
+    <View style={rowStyle}>
+      <TouchableOpacity style={[menuButtonStyle, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
+        <Text style={iconStyle}>🌋</Text>
+        <Text style={buttonTitleStyle}>Volkanik</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[menuButtonStyle, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
+        <Text style={iconStyle}>⛰️</Text>
+        <Text style={buttonTitleStyle}>Kıvrımlı</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[menuButtonStyle, styles.faultButton]} onPress={() => onSelectType('fault')} activeOpacity={0.9}>
+        <Text style={iconStyle}>🏔️</Text>
+        <Text style={buttonTitleStyle}>Kırıklı</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -28,35 +49,22 @@ const MountainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          <View style={styles.header}>
+          <View style={[styles.header, isMobile && styles.headerMobile, !isMobile && styles.headerTablet]}>
             <TouchableOpacity style={styles.backButton} onPress={onBackToTurkeyMenu}>
-              <ChevronLeft size={22} color="#FFFFFF" />
+              <ChevronLeft size={isMobile ? 22 : 24} color="#FFFFFF" />
               <Text style={styles.backText}>Türkiye Menü</Text>
             </TouchableOpacity>
             <Text style={styles.title}>⛰️ Dağlar</Text>
             <Text style={styles.subtitle}>Dağ tipini seç</Text>
           </View>
 
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={menuContainerStyle}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={rowStyle}>
-              <TouchableOpacity style={[menuButtonStyle, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
-                <Text style={iconStyle}>🌋</Text>
-                <Text style={buttonTitleStyle}>Volkanik</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[menuButtonStyle, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
-                <Text style={iconStyle}>⛰️</Text>
-                <Text style={buttonTitleStyle}>Kıvrımlı</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[menuButtonStyle, styles.faultButton]} onPress={() => onSelectType('fault')} activeOpacity={0.9}>
-                <Text style={iconStyle}>🏔️</Text>
-                <Text style={buttonTitleStyle}>Kırıklı</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+          {isMobile ? (
+            <ScrollView style={styles.scroll} contentContainerStyle={menuContainerStyle} showsVerticalScrollIndicator={false}>
+              {content}
+            </ScrollView>
+          ) : (
+            <View style={menuContainerStyle}>{content}</View>
+          )}
         </View>
       </ImageBackground>
     </View>
@@ -81,6 +89,15 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
+  },
+  headerMobile: {
+    paddingTop: 44,
+    paddingBottom: 12,
+  },
+  headerTablet: {
+    paddingTop: 62,
+    paddingBottom: 8,
+    paddingHorizontal: 20,
   },
   backButton: {
     flexDirection: 'row',

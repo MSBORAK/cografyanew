@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   ImageBackground,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { countryCapitals } from '../constants/countryCapitals';
@@ -26,6 +27,10 @@ const shuffleArray = (array) => {
 
 const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
   console.warn('[DEBUG CapitalsQuiz] component body start');
+  const { width, height } = useWindowDimensions();
+  const shortSide = Math.min(width, height);
+  const isTablet = shortSide >= 600;
+
   const [quizItems, setQuizItems] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -133,44 +138,63 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
 
   return (
     <ImageBackground source={BACKGROUND_IMAGE} style={styles.container} blurRadius={3}>
-      <View style={styles.header}>
-        <View style={styles.backButtonsColumn}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Ionicons name="home" size={20} color="#60A5FA" />
-              <Text style={styles.backText}>Ana Menü</Text>
+      <View style={[styles.header, isTablet && styles.headerTablet]}>
+        <View style={styles.headerContent}>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Ionicons name="home" size={20} color={isTablet ? '#E2E8F0' : '#60A5FA'} />
+                <Text style={[styles.backText, isTablet && styles.backTextTablet]}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+              <Ionicons name="chevron-back" size={20} color={isTablet ? '#E2E8F0' : '#60A5FA'} />
+              <Text style={[styles.backText, isTablet && styles.backTextTablet]}>Geri</Text>
             </TouchableOpacity>
+          </View>
+          <View style={styles.headerLeft}>
+            <Text style={[styles.title, isTablet && styles.titleTablet]} numberOfLines={1}>Başkentler Quiz</Text>
+            <Text style={[styles.progressText, isTablet && styles.progressTextTablet]} numberOfLines={1}>
+              Soru {currentQuestionIndex + 1} / {quizItems.length}
+            </Text>
+          </View>
+          <View style={styles.headerSpacer} />
+          <Text style={[styles.headerScoreText, isTablet && styles.headerScoreTextTablet]}>Skor: {score}</Text>
+          {feedback && (
+            <View style={[
+              styles.feedbackIcon,
+              feedback === 'correct' ? styles.correctIcon : styles.wrongIcon,
+            ]}>
+              {feedback === 'correct' ? (
+                <Ionicons name="checkmark" size={20} color="#FFFFFF" />
+              ) : (
+                <Ionicons name="close" size={20} color="#FFFFFF" />
+              )}
+            </View>
           )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <Ionicons name="chevron-back" size={20} color="#60A5FA" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>
-            Soru {currentQuestionIndex + 1} / {quizItems.length}
-          </Text>
-          <Text style={styles.headerScoreText}>Skor: {score}</Text>
         </View>
       </View>
 
       <ScrollView
         style={styles.content}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentContainer,
+          isTablet && styles.contentContainerTablet,
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.questionCard}>
-          <Text style={styles.questionLabel}>
+        <View style={[styles.questionCard, isTablet && styles.questionCardTablet]}>
+          <Text style={[styles.questionLabel, isTablet && styles.questionLabelTablet]}>
             {currentItem?.country} başkenti neresidir?
           </Text>
-          <View style={styles.flagWrapper}>
-            <View style={styles.flagContainer}>
-              <Text style={styles.flagEmoji}>🏛️</Text>
+          <View style={[styles.flagWrapper, isTablet && styles.flagWrapperTablet]}>
+            <View style={[styles.flagContainer, isTablet && styles.flagContainerTablet]}>
+              <Text style={[styles.flagEmoji, isTablet && styles.flagEmojiTablet]}>🏛️</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.optionsContainer}>
+        <View style={[styles.optionsContainer, isTablet && styles.optionsContainerTablet]}>
           {(currentItem ? options : []).map((option, index) => {
             const isSelected = selectedAnswer === option;
             const isCorrect = currentItem && option === currentItem.capital;
@@ -198,7 +222,7 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
             return (
               <TouchableOpacity
                 key={option + index}
-                style={buttonStyle}
+                style={[buttonStyle, isTablet && styles.optionButtonTablet]}
                 onPress={() => setTimeout(() => handleAnswerPress(option), 0)}
                 disabled={!!feedback}
                 activeOpacity={0.8}
@@ -224,8 +248,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingTop: 24,
     paddingBottom: 4,
     paddingHorizontal: 12,
@@ -233,11 +255,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
   },
+  headerTablet: {
+    paddingHorizontal: 8,
+    paddingTop: 24,
+    paddingBottom: 4,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTablet: {
+    paddingHorizontal: 8,
+    paddingTop: 24,
+    paddingBottom: 4,
+  },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 4,
+    marginRight: 6,
     marginBottom: 4,
+    gap: 4,
   },
   backText: {
     fontSize: 12,
@@ -245,21 +283,58 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
-  progressContainer: {
+  backTextTablet: {
+    color: '#E2E8F0',
+  },
+  headerLeft: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexShrink: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#F8FAFC',
+    marginBottom: 2,
+  },
+  titleTablet: {
+    fontSize: 12,
+  },
+  headerSpacer: {
+    flex: 1,
   },
   progressText: {
     fontSize: 12,
     color: '#94A3B8',
     fontWeight: '600',
   },
+  progressTextTablet: {
+    fontSize: 9,
+    color: '#94A3B8',
+  },
   headerScoreText: {
     fontSize: 12,
     color: '#34D399',
     fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  headerScoreTextTablet: {
+    fontSize: 11,
+  },
+  feedbackIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 6,
+  },
+  correctIcon: {
+    backgroundColor: '#10B981',
+  },
+  wrongIcon: {
+    backgroundColor: '#000000',
   },
   content: {
     flex: 1,
@@ -271,6 +346,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     alignItems: 'center',
     justifyContent: 'flex-start',
+  },
+  contentContainerTablet: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    paddingBottom: 20,
+    alignItems: 'stretch',
   },
   questionCard: {
     backgroundColor: 'rgba(30, 41, 59, 0.92)',
@@ -289,6 +370,12 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
   },
+  questionCardTablet: {
+    maxWidth: '100%',
+    width: '100%',
+    padding: 12,
+    marginBottom: 10,
+  },
   questionLabel: {
     fontSize: 14,
     fontWeight: '700',
@@ -297,10 +384,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.3,
   },
+  questionLabelTablet: {
+    fontSize: 13,
+    marginBottom: 4,
+  },
   flagWrapper: {
     padding: 6,
     borderRadius: 16,
     backgroundColor: 'rgba(15, 23, 42, 0.5)',
+  },
+  flagWrapperTablet: {
+    padding: 4,
+    borderRadius: 12,
   },
   flagContainer: {
     width: 64,
@@ -313,8 +408,16 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(148, 163, 184, 0.25)',
     overflow: 'hidden',
   },
+  flagContainerTablet: {
+    width: 52,
+    height: 52,
+    borderRadius: 8,
+  },
   flagEmoji: {
     fontSize: 42,
+  },
+  flagEmojiTablet: {
+    fontSize: 32,
   },
   optionsContainer: {
     flex: 1,
@@ -322,6 +425,9 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: 0,
     justifyContent: 'flex-start',
+  },
+  optionsContainerTablet: {
+    gap: 6,
   },
   optionButton: {
     backgroundColor: 'rgba(30, 41, 59, 0.92)',
@@ -337,6 +443,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  optionButtonTablet: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   correctButton: {
     backgroundColor: '#10B981',
