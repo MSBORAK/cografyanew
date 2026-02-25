@@ -5,13 +5,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  ImageBackground,
 } from 'react-native';
-import { Home, ChevronLeft, BookOpen, TrendingUp, RotateCcw } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { getStatistics, clearWrongAnswers } from '../utils/practiceMode';
 import { useScreenScale } from '../utils/screenScale';
 
+console.warn('[DEBUG PracticeModeMenu] module loaded');
 const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
+  console.warn('[DEBUG PracticeModeMenu] component body start');
   const { scale, moderateScale } = useScreenScale();
   const contentContainerStyle = { ...styles.contentContainer, padding: scale(24) };
   const infoCardStyle = { ...styles.infoCard, borderRadius: scale(18), padding: scale(22), marginBottom: scale(24) };
@@ -59,22 +60,18 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
     { id: 'world_flags', name: 'Dünya Bayrakları', icon: '🚩', color: '#EC4899' },
   ];
 
-  return (
-    <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }}
-      style={styles.container}
-      blurRadius={3}
-    >
+  const content = (
+    <>
       <View style={styles.header}>
         <View style={styles.backButtonsColumn}>
           {onBackToMain && (
             <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#A78BFA" />
+              <Ionicons name="home" size={24} color="#A78BFA" />
               <Text style={styles.backText}>Ana Menü</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#A78BFA" />
+            <Ionicons name="chevron-back" size={24} color="#A78BFA" />
             <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
         </View>
@@ -84,7 +81,7 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
 
       <ScrollView style={styles.content} contentContainerStyle={contentContainerStyle}>
         <View style={infoCardStyle}>
-          <BookOpen size={32} color="#A78BFA" />
+          <Ionicons name="book" size={32} color="#A78BFA" />
           <Text style={infoTitleStyle}>Nasıl Çalışır?</Text>
           <Text style={infoTextStyle}>
             Oyunlarda yanlış cevapladığın sorular otomatik olarak kaydedilir.
@@ -126,7 +123,7 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
                       style={[practiceButtonStyle, { backgroundColor: category.color }]}
                       onPress={() => onSelectCategory(category.id)}
                     >
-                      <TrendingUp size={20} color="#FFFFFF" />
+                      <Ionicons name="trending-up" size={20} color="#FFFFFF" />
                       <Text style={practiceButtonTextStyle}>Pratik Yap</Text>
                     </TouchableOpacity>
 
@@ -134,7 +131,7 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
                       style={clearButtonStyle}
                       onPress={() => handleClearCategory(category.id)}
                     >
-                      <RotateCcw size={18} color="#6B7280" />
+                      <Ionicons name="refresh" size={18} color="#6B7280" />
                     </TouchableOpacity>
                   </View>
                 )}
@@ -165,7 +162,11 @@ const PracticeModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
           </Text>
         </View>
       </ScrollView>
-    </ImageBackground>
+    </>
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor: '#0f172a' }]}>{content}</View>
   );
 };
 

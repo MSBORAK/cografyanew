@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
   ScrollView,
   PanResponder,
   Animated,
@@ -18,9 +18,7 @@ import { unescoSites } from '../constants/unescoSites';
 import { getCityColor } from '../constants/cityColors';
 import { getCityCenter } from '../constants/cityCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
+import { useTurkeyMapLayout } from '../utils/useTurkeyMapLayout';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -65,6 +63,8 @@ const CityPath = ({ city, isSelected, isInRegion, isCorrect, isWrong, onPress, c
 
 // Main UNESCO Map Component
 const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { mapW, mapH, hasLayout, onLayout } = useTurkeyMapLayout();
   const [quizOrder, setQuizOrder] = useState(() => shuffleArray(unescoSites));
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [correctAnswers, setCorrectAnswers] = useState([]);
@@ -266,7 +266,7 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
           <View style={styles.headerSpacer} />
         </View>
         {currentQuestion && (
-          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+          <View style={[styles.questionOverlay, { width: Math.max(screenWidth, screenHeight) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
               <Text style={styles.questionText}>{currentQuestion.name} hangi şehirde?</Text>
             </View>
@@ -276,8 +276,10 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
 
       <View
         style={styles.mapContainer}
+        onLayout={onLayout}
         {...panResponder.panHandlers}
       >
+        {hasLayout && (
         <Animated.View
           style={[
             styles.mapWrapper,
@@ -292,9 +294,10 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
         >
           <View>
             <Svg
-              width={MAP_WIDTH}
-              height={MAP_WIDTH * 0.52}
+              width={mapW}
+              height={mapH}
               viewBox="0 0 1007.478 527.323"
+              preserveAspectRatio="xMidYMid meet"
               style={styles.svg}
             >
               <G>
@@ -372,6 +375,7 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
             </Svg>
           </View>
         </Animated.View>
+        )}
 
         {/* Doğru cevap - Yeşil tik */}
         {showCheckmark && (
@@ -422,9 +426,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 48,
-    paddingBottom: 2,
-    paddingHorizontal: 12,
+    paddingTop: 36,
+    paddingBottom: 4,
+    paddingHorizontal: 10,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
@@ -432,7 +436,7 @@ const styles = StyleSheet.create({
   },
   backButtonsColumn: {
     flexDirection: 'column',
-    marginRight: 12,
+    marginRight: 8,
   },
   headerContent: {
     flexDirection: 'row',
@@ -441,39 +445,39 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    marginRight: 8,
+    padding: 4,
+    marginRight: 6,
     gap: 4,
   },
   backText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#E2E8F0',
     fontWeight: '600',
   },
-  headerLeft: { justifyContent: 'center' },
+  headerLeft: { justifyContent: 'center', marginLeft: 6 },
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#F8FAFC',
   },
   questionBadge: {
     backgroundColor: '#FEF3C7',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1.5,
     borderColor: '#F59E0B',
-    marginTop: 48,
+    marginTop: 36,
   },
   questionText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#92400E',
   },
   subtitle: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#94A3B8',
   },
   mapContainer: {

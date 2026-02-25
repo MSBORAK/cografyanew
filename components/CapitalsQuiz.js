@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,25 @@ import {
   ScrollView,
   ImageBackground,
 } from 'react-native';
-import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { countryCapitals } from '../constants/countryCapitals';
-import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
+
+const BACKGROUND_IMAGE = { uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' };
+
+console.warn('[DEBUG CapitalsQuiz] module loaded, countryCapitals length=', countryCapitals?.length);
+const list = Array.isArray(countryCapitals) ? countryCapitals : [];
+
+const shuffleArray = (array) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
 
 const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
+  console.warn('[DEBUG CapitalsQuiz] component body start');
   const [quizItems, setQuizItems] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -22,59 +36,37 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
   const currentItem = quizItems[currentQuestionIndex];
   const isCompleted = currentQuestionIndex >= quizItems.length;
 
-  const shuffleArray = (array) => {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-  };
-
-  const generateOptions = (correctItem) => {
-    const wrongOptions = countryCapitals
-      .filter(c => c.id !== correctItem.id && c.capital !== correctItem.capital)
+  const generateOptions = useCallback((correctItem) => {
+    if (!correctItem || !correctItem.capital) return [];
+    const wrongOptions = list
+      .filter(c => c && c.id !== correctItem.id && c.capital && c.capital !== correctItem.capital)
       .sort(() => Math.random() - 0.5)
       .slice(0, 3)
       .map(c => c.capital);
-    
-    const allOptions = [correctItem.capital, ...wrongOptions];
+    const allOptions = [correctItem.capital, ...wrongOptions].filter(Boolean);
     return shuffleArray(allOptions);
-  };
+  }, []);
 
   useEffect(() => {
-    const shuffled = shuffleArray(countryCapitals);
+    console.warn('[DEBUG CapitalsQuiz] useEffect init, list.length=', list.length);
+    if (list.length === 0) return;
+    const shuffled = shuffleArray(list);
     setQuizItems(shuffled);
-    if (shuffled.length > 0) {
-      setOptions(generateOptions(shuffled[0]));
-    }
-  }, []);
+    if (shuffled.length > 0) setOptions(generateOptions(shuffled[0]));
+  }, [generateOptions]);
 
   useEffect(() => {
-    loadSounds();
-    return () => unloadSounds();
-  }, []);
-
-  useEffect(() => {
-    if (currentItem) {
+    if (currentItem && currentItem.capital) {
       setOptions(generateOptions(currentItem));
     }
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, currentItem, generateOptions]);
 
   const handleAnswerPress = (option) => {
-    if (feedback) return;
-
+    if (feedback || !currentItem) return;
+    const correct = option === currentItem.capital;
     setSelectedAnswer(option);
-
-    if (option === currentItem.capital) {
-      setFeedback('correct');
-      setScore(score + 1);
-      playCorrectSound();
-    } else {
-      setFeedback('wrong');
-      playWrongSound();
-    }
-
+    setFeedback(correct ? 'correct' : 'wrong');
+    if (correct) setScore((s) => s + 1);
     setTimeout(() => {
       setFeedback(null);
       setSelectedAnswer(null);
@@ -83,25 +75,22 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
   };
 
   const handleReset = () => {
-    const shuffled = shuffleArray(countryCapitals);
+    if (list.length === 0) return;
+    const shuffled = shuffleArray(list);
     setQuizItems(shuffled);
     setCurrentQuestionIndex(0);
     setScore(0);
     setSelectedAnswer(null);
     setFeedback(null);
-    if (shuffled.length > 0) {
-      setOptions(generateOptions(shuffled[0]));
-    }
+    if (shuffled.length > 0) setOptions(generateOptions(shuffled[0]));
   };
 
-  if (quizItems.length === 0) {
+  if (quizItems.length === 0 || !currentItem) {
     return (
-      <ImageBackground
-        source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }}
-        style={styles.container}
-        blurRadius={3}
-      >
-        <Text style={styles.loadingText}>Yükleniyor...</Text>
+      <ImageBackground source={BACKGROUND_IMAGE} style={styles.container} blurRadius={3}>
+        <View style={[styles.container, styles.loadingContainer]}>
+          <Text style={styles.loadingText}>Yükleniyor...</Text>
+        </View>
       </ImageBackground>
     );
   }
@@ -109,28 +98,23 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
   if (isCompleted) {
     const percentage = Math.round((score / quizItems.length) * 100);
     return (
-      <ImageBackground
-        source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }}
-        style={styles.container}
-        blurRadius={3}
-      >
+      <ImageBackground source={BACKGROUND_IMAGE} style={styles.container} blurRadius={3}>
         <View style={styles.header}>
           <View style={styles.backButtonsColumn}>
             {onBackToMain && (
               <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-                <Home size={24} color="#0EA5E9" />
+                <Ionicons name="home" size={20} color="#60A5FA" />
                 <Text style={styles.backText}>Ana Menü</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-              <ChevronLeft size={24} color="#0EA5E9" />
+              <Ionicons name="chevron-back" size={20} color="#60A5FA" />
               <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
           </View>
         </View>
-
         <View style={styles.completedContainer}>
-          <Text style={styles.completedEmoji}>🏛️</Text>
+          <Text style={styles.completedEmoji}>🎉</Text>
           <Text style={styles.completedTitle}>Quiz Tamamlandı!</Text>
           <Text style={styles.completedSub}>Başkentler</Text>
           <View style={styles.scoreCard}>
@@ -138,9 +122,8 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
             <Text style={styles.scoreNumber}>{score} / {quizItems.length}</Text>
             <Text style={styles.percentageText}>%{percentage}</Text>
           </View>
-          
           <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-            <RotateCcw size={20} color="#FFFFFF" />
+            <Ionicons name="refresh" size={20} color="#FFFFFF" />
             <Text style={styles.resetButtonText}>Yeniden Başla</Text>
           </TouchableOpacity>
         </View>
@@ -149,21 +132,17 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
   }
 
   return (
-    <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }}
-      style={styles.container}
-      blurRadius={3}
-    >
+    <ImageBackground source={BACKGROUND_IMAGE} style={styles.container} blurRadius={3}>
       <View style={styles.header}>
         <View style={styles.backButtonsColumn}>
           {onBackToMain && (
             <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#0EA5E9" />
+              <Ionicons name="home" size={20} color="#60A5FA" />
               <Text style={styles.backText}>Ana Menü</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#0EA5E9" />
+            <Ionicons name="chevron-back" size={20} color="#60A5FA" />
             <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
         </View>
@@ -175,19 +154,26 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
         </View>
       </View>
 
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.questionCard}>
-          <Text style={styles.questionLabel}>{currentItem?.country}</Text>
-          <Text style={styles.questionSub}>Başkenti neresidir?</Text>
-          <View style={styles.iconCircle}>
-            <Text style={styles.icon}>🏛️</Text>
+          <Text style={styles.questionLabel}>
+            {currentItem?.country} başkenti neresidir?
+          </Text>
+          <View style={styles.flagWrapper}>
+            <View style={styles.flagContainer}>
+              <Text style={styles.flagEmoji}>🏛️</Text>
+            </View>
           </View>
         </View>
 
         <View style={styles.optionsContainer}>
-          {options.map((option, index) => {
+          {(currentItem ? options : []).map((option, index) => {
             const isSelected = selectedAnswer === option;
-            const isCorrect = option === currentItem.capital;
+            const isCorrect = currentItem && option === currentItem.capital;
             
             let buttonStyle = styles.optionButton;
             let textStyle = styles.optionText;
@@ -197,29 +183,29 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
               if (feedback === 'correct') {
                 buttonStyle = [styles.optionButton, styles.correctButton];
                 textStyle = [styles.optionText, styles.correctText];
-                iconComponent = <Check size={24} color="#FFFFFF" strokeWidth={3} />;
+                iconComponent = <Ionicons name="checkmark" size={20} color="#FFFFFF" />;
               } else {
                 buttonStyle = [styles.optionButton, styles.wrongButton];
                 textStyle = [styles.optionText, styles.wrongText];
-                iconComponent = <X size={24} color="#FFFFFF" strokeWidth={3} />;
+                iconComponent = <Ionicons name="close" size={20} color="#FFFFFF" />;
               }
             } else if (feedback && isCorrect) {
               buttonStyle = [styles.optionButton, styles.correctButton];
               textStyle = [styles.optionText, styles.correctText];
-              iconComponent = <Check size={24} color="#FFFFFF" strokeWidth={3} />;
+              iconComponent = <Ionicons name="checkmark" size={20} color="#FFFFFF" />;
             }
 
             return (
               <TouchableOpacity
                 key={option + index}
                 style={buttonStyle}
-                onPress={() => handleAnswerPress(option)}
+                onPress={() => setTimeout(() => handleAnswerPress(option), 0)}
                 disabled={!!feedback}
                 activeOpacity={0.8}
               >
                 <Text style={styles.optionLetter}>{String.fromCharCode(65 + index)}</Text>
                 <Text style={textStyle}>{option}</Text>
-                {iconComponent && <View style={styles.iconWrapper}>{iconComponent}</View>}
+                {iconComponent && <View style={styles.iconContainer}>{iconComponent}</View>}
               </TouchableOpacity>
             );
           })}
@@ -235,12 +221,14 @@ const styles = StyleSheet.create({
   },
   backButtonsColumn: {
     flexDirection: 'column',
-    marginRight: 12,
+    marginRight: 8,
   },
   header: {
-    paddingTop: 62,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 24,
     paddingBottom: 4,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
@@ -248,41 +236,51 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    padding: 4,
+    marginBottom: 4,
   },
   backText: {
-    fontSize: 16,
-    color: '#0EA5E9',
+    fontSize: 12,
+    color: '#60A5FA',
     fontWeight: '600',
     marginLeft: 8,
   },
   progressContainer: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   progressText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#94A3B8',
     fontWeight: '600',
   },
   headerScoreText: {
-    fontSize: 14,
-    color: '#10B981',
+    fontSize: 12,
+    color: '#34D399',
     fontWeight: 'bold',
   },
   content: {
     flex: 1,
   },
   contentContainer: {
-    padding: 20,
+    flex: 1,
+    paddingHorizontal: 44,
+    paddingVertical: 6,
+    paddingBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   questionCard: {
     backgroundColor: 'rgba(30, 41, 59, 0.92)',
-    borderRadius: 20,
-    padding: 28,
+    borderRadius: 12,
+    padding: 10,
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 8,
+    width: '100%',
+    maxWidth: 240,
+    alignSelf: 'center',
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.2)',
     shadowColor: '#000',
@@ -292,39 +290,44 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   questionLabel: {
-    fontSize: 40,
-    fontWeight: '800',
-    color: '#F8FAFC',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#94A3B8',
     marginBottom: 6,
     textAlign: 'center',
+    letterSpacing: 0.3,
   },
-  questionSub: {
-    fontSize: 30,
-    fontWeight: '600',
-    color: '#94A3B8',
-    marginBottom: 20,
-    textAlign: 'center',
+  flagWrapper: {
+    padding: 6,
+    borderRadius: 16,
+    backgroundColor: 'rgba(15, 23, 42, 0.5)',
   },
-  iconCircle: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    backgroundColor: 'rgba(14, 165, 233, 0.2)',
+  flagContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(14, 165, 233, 0.5)',
+    borderColor: 'rgba(148, 163, 184, 0.25)',
+    overflow: 'hidden',
   },
-  icon: {
-    fontSize: 44,
+  flagEmoji: {
+    fontSize: 42,
   },
   optionsContainer: {
-    gap: 12,
+    flex: 1,
+    gap: 4,
+    width: '100%',
+    minHeight: 0,
+    justifyContent: 'flex-start',
   },
   optionButton: {
     backgroundColor: 'rgba(30, 41, 59, 0.92)',
-    borderRadius: 16,
-    padding: 18,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
@@ -332,7 +335,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowRadius: 4,
     elevation: 3,
   },
   correctButton: {
@@ -344,20 +347,20 @@ const styles = StyleSheet.create({
     borderColor: '#DC2626',
   },
   optionLetter: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: 'rgba(51, 65, 85, 0.8)',
     color: '#94A3B8',
-    fontSize: 16,
+    fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'center',
-    lineHeight: 32,
-    marginRight: 12,
+    lineHeight: 22,
+    marginRight: 6,
   },
   optionText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 12,
     color: '#F8FAFC',
     fontWeight: '600',
   },
@@ -367,82 +370,85 @@ const styles = StyleSheet.create({
   wrongText: {
     color: '#FFFFFF',
   },
-  iconWrapper: {
+  iconContainer: {
     marginLeft: 8,
   },
   completedContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 16,
   },
   completedEmoji: {
-    fontSize: 80,
-    marginBottom: 16,
+    fontSize: 56,
+    marginBottom: 12,
   },
   completedTitle: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#F8FAFC',
-    marginBottom: 4,
+    marginBottom: 2,
     textAlign: 'center',
   },
   completedSub: {
-    fontSize: 16,
+    fontSize: 12,
     color: '#94A3B8',
-    marginBottom: 28,
+    marginBottom: 20,
     textAlign: 'center',
   },
   scoreCard: {
     backgroundColor: 'rgba(30, 41, 59, 0.9)',
-    borderRadius: 24,
-    padding: 32,
+    borderRadius: 16,
+    padding: 20,
     alignItems: 'center',
     width: '100%',
-    maxWidth: 300,
-    marginBottom: 32,
+    maxWidth: 260,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.2)',
   },
   completedScoreLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#94A3B8',
   },
   scoreNumber: {
-    fontSize: 48,
+    fontSize: 36,
     fontWeight: 'bold',
-    color: '#0EA5E9',
-    marginVertical: 8,
+    color: '#3B82F6',
+    marginVertical: 6,
   },
   percentageText: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: '600',
     color: '#10B981',
   },
   resetButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0EA5E9',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 16,
-    gap: 8,
+    backgroundColor: '#3B82F6',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    gap: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowRadius: 6,
     elevation: 4,
   },
   resetButtonText: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   loadingText: {
-    fontSize: 18,
+    fontSize: 14,
     color: '#94A3B8',
     textAlign: 'center',
-    marginTop: 100,
   },
 });
 

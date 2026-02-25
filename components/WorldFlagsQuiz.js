@@ -6,14 +6,20 @@ import {
   StyleSheet,
   ScrollView,
   ImageBackground,
+  useWindowDimensions,
 } from 'react-native';
 import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { countryFlags } from '../constants/countryFlags';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
+import { useScreenScale } from '../utils/screenScale';
 
 const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
+  const { width, height } = useWindowDimensions();
+  const { scale, moderateScale } = useScreenScale();
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 700;
   const [quizFlags, setQuizFlags] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -111,6 +117,30 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
     }
   };
 
+  const headerMobileStyle = isMobile ? { paddingTop: scale(8), paddingBottom: scale(6), paddingHorizontal: scale(12) } : null;
+  const backButtonMobileStyle = isMobile ? { marginLeft: scale(24), marginBottom: scale(4) } : null;
+  const backTextMobileStyle = isMobile ? { fontSize: moderateScale(12) } : null;
+  const contentContainerMobileStyle = isMobile
+    ? { flex: 1, paddingHorizontal: scale(44), paddingVertical: scale(6), justifyContent: 'flex-start' }
+    : null;
+  const questionCardMobileStyle = isMobile
+    ? { maxWidth: scale(240), padding: scale(10), marginBottom: scale(8), borderRadius: scale(12), alignSelf: 'center' }
+    : null;
+  const questionLabelMobileStyle = isMobile ? { fontSize: moderateScale(14), marginBottom: scale(6) } : null;
+  const flagWrapperMobileStyle = isMobile ? { padding: scale(6) } : null;
+  const flagContainerMobileStyle = isMobile ? { width: scale(64), height: scale(64), borderRadius: scale(10) } : null;
+  const flagEmojiMobileStyle = isMobile ? { fontSize: moderateScale(42) } : null;
+  const optionsContainerMobileStyle = isMobile
+    ? { flex: 1, gap: scale(4), minHeight: 0, justifyContent: 'flex-start' }
+    : null;
+  const optionButtonMobileStyle = isMobile
+    ? { paddingHorizontal: scale(10), paddingVertical: scale(5), borderRadius: scale(8), marginVertical: 0 }
+    : null;
+  const optionLetterMobileStyle = isMobile
+    ? { width: scale(22), height: scale(22), borderRadius: scale(11), fontSize: moderateScale(11), lineHeight: scale(22), marginRight: scale(6) }
+    : null;
+  const optionTextMobileStyle = isMobile ? { fontSize: moderateScale(12) } : null;
+
   if (quizFlags.length === 0) {
     return (
       <ImageBackground
@@ -171,59 +201,111 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
       style={styles.container}
       blurRadius={3}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, headerMobileStyle]}>
         <View style={styles.backButtonsColumn}>
           {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#60A5FA" />
-              <Text style={styles.backText}>Ana Menü</Text>
+            <TouchableOpacity style={[styles.backButton, backButtonMobileStyle]} onPress={onBackToMain}>
+              <Home size={20} color="#60A5FA" />
+              <Text style={[styles.backText, backTextMobileStyle]}>Ana Menü</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#60A5FA" />
-            <Text style={styles.backText}>Geri</Text>
+          <TouchableOpacity style={[styles.backButton, backButtonMobileStyle]} onPress={onBackToMenu}>
+            <ChevronLeft size={20} color="#60A5FA" />
+            <Text style={[styles.backText, backTextMobileStyle]}>Geri</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>
+          <Text style={[styles.progressText, isMobile && { fontSize: moderateScale(12) }]}>
             Soru {currentQuestionIndex + 1} / {quizFlags.length}
           </Text>
-          <Text style={styles.scoreText}>Skor: {score}</Text>
+          <Text style={[styles.scoreText, isMobile && { fontSize: moderateScale(12) }]}>Skor: {score}</Text>
         </View>
       </View>
 
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.questionCard}>
-          <Text style={styles.questionLabel}>Bu bayrak hangi ülkeye ait?</Text>
-          <View style={styles.flagWrapper}>
-            <View style={styles.flagContainer}>
-              <Text style={styles.flagEmoji}>{currentFlag?.flag}</Text>
+      {isMobile ? (
+        <View style={[styles.content, styles.contentContainer, contentContainerMobileStyle]}>
+          <View style={[styles.questionCard, questionCardMobileStyle]}>
+            <Text style={[styles.questionLabel, questionLabelMobileStyle]}>Bu bayrak hangi ülkeye ait?</Text>
+            <View style={[styles.flagWrapper, flagWrapperMobileStyle]}>
+              <View style={[styles.flagContainer, flagContainerMobileStyle]}>
+                <Text style={[styles.flagEmoji, flagEmojiMobileStyle]}>{currentFlag?.flag}</Text>
+              </View>
             </View>
           </View>
+          <View style={[styles.optionsContainer, optionsContainerMobileStyle]}>
+            {options.map((option, index) => {
+            const isSelected = selectedAnswer === option.id;
+            const isCorrect = option.id === currentFlag.id;
+            const baseButtonStyle = [styles.optionButton, optionButtonMobileStyle].filter(Boolean);
+            const baseTextStyle = [styles.optionText, optionTextMobileStyle].filter(Boolean);
+            let buttonStyle = baseButtonStyle;
+            let textStyle = baseTextStyle;
+            let iconComponent = null;
+            if (feedback && isSelected) {
+              if (feedback === 'correct') {
+                buttonStyle = [...baseButtonStyle, styles.correctButton];
+                textStyle = [...baseTextStyle, styles.correctText];
+                iconComponent = <Check size={24} color="#FFFFFF" strokeWidth={3} />;
+              } else {
+                buttonStyle = [...baseButtonStyle, styles.wrongButton];
+                textStyle = [...baseTextStyle, styles.wrongText];
+                iconComponent = <X size={24} color="#FFFFFF" strokeWidth={3} />;
+              }
+            } else if (feedback && isCorrect) {
+              buttonStyle = [...baseButtonStyle, styles.correctButton];
+              textStyle = [...baseTextStyle, styles.correctText];
+              iconComponent = <Check size={24} color="#FFFFFF" strokeWidth={3} />;
+            }
+            return (
+              <TouchableOpacity
+                key={option.id}
+                style={buttonStyle}
+                onPress={() => handleAnswerPress(option)}
+                disabled={!!feedback}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.optionLetter, optionLetterMobileStyle]}>{String.fromCharCode(65 + index)}</Text>
+                <Text style={textStyle}>{option.name}</Text>
+                {iconComponent && <View style={styles.iconContainer}>{iconComponent}</View>}
+              </TouchableOpacity>
+            );
+          })}
+          </View>
         </View>
-
-        <View style={styles.optionsContainer}>
+      ) : (
+        <ScrollView style={styles.content} contentContainerStyle={[styles.contentContainer, contentContainerMobileStyle]}>
+          <View style={[styles.questionCard, questionCardMobileStyle]}>
+            <Text style={[styles.questionLabel, questionLabelMobileStyle]}>Bu bayrak hangi ülkeye ait?</Text>
+            <View style={[styles.flagWrapper, flagWrapperMobileStyle]}>
+              <View style={[styles.flagContainer, flagContainerMobileStyle]}>
+                <Text style={[styles.flagEmoji, flagEmojiMobileStyle]}>{currentFlag?.flag}</Text>
+              </View>
+            </View>
+          </View>
+          <View style={[styles.optionsContainer, optionsContainerMobileStyle]}>
           {options.map((option, index) => {
             const isSelected = selectedAnswer === option.id;
             const isCorrect = option.id === currentFlag.id;
             
-            let buttonStyle = styles.optionButton;
-            let textStyle = styles.optionText;
+            const baseButtonStyle = [styles.optionButton, optionButtonMobileStyle].filter(Boolean);
+            const baseTextStyle = [styles.optionText, optionTextMobileStyle].filter(Boolean);
+            let buttonStyle = baseButtonStyle;
+            let textStyle = baseTextStyle;
             let iconComponent = null;
 
             if (feedback && isSelected) {
               if (feedback === 'correct') {
-                buttonStyle = [styles.optionButton, styles.correctButton];
-                textStyle = [styles.optionText, styles.correctText];
+                buttonStyle = [...baseButtonStyle, styles.correctButton];
+                textStyle = [...baseTextStyle, styles.correctText];
                 iconComponent = <Check size={24} color="#FFFFFF" strokeWidth={3} />;
               } else {
-                buttonStyle = [styles.optionButton, styles.wrongButton];
-                textStyle = [styles.optionText, styles.wrongText];
+                buttonStyle = [...baseButtonStyle, styles.wrongButton];
+                textStyle = [...baseTextStyle, styles.wrongText];
                 iconComponent = <X size={24} color="#FFFFFF" strokeWidth={3} />;
               }
             } else if (feedback && isCorrect) {
-              buttonStyle = [styles.optionButton, styles.correctButton];
-              textStyle = [styles.optionText, styles.correctText];
+              buttonStyle = [...baseButtonStyle, styles.correctButton];
+              textStyle = [...baseTextStyle, styles.correctText];
               iconComponent = <Check size={24} color="#FFFFFF" strokeWidth={3} />;
             }
 
@@ -235,7 +317,7 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
                 disabled={!!feedback}
                 activeOpacity={0.8}
               >
-                <Text style={styles.optionLetter}>{String.fromCharCode(65 + index)}</Text>
+                <Text style={[styles.optionLetter, optionLetterMobileStyle]}>{String.fromCharCode(65 + index)}</Text>
                 <Text style={textStyle}>{option.name}</Text>
                 {iconComponent && <View style={styles.iconContainer}>{iconComponent}</View>}
               </TouchableOpacity>
@@ -243,6 +325,7 @@ const WorldFlagsQuiz = ({ onBackToMenu, onBackToMain, practiceIds = null }) => {
           })}
         </View>
       </ScrollView>
+      )}
     </ImageBackground>
   );
 };

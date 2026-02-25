@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
   Animated,
   PanResponder,
   ImageBackground,
@@ -16,13 +16,23 @@ import { worldPaths, countryNames } from '../constants/worldPaths';
 import { getCountryCenter } from '../constants/countryCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
+const NEIGHBORS_ASPECT = 160 / 112;
 
 // Türkiye'nin komşu ülkeleri
 const neighborCountries = ['GRC', 'BGR', 'GEO', 'ARM', 'IRN', 'IRQ', 'SYR', 'CYP'];
 
 const NeighborsMap = ({ onBackToMenu, onBackToMain }) => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const [layout, setLayout] = useState({ w: 0, h: 0 });
+  const onLayout = (e) => {
+    const { width, height } = e.nativeEvent.layout;
+    if (width > 10 && height > 10) setLayout({ w: width, h: height });
+  };
+  const mapW = layout.w > 0 && layout.h > 0
+    ? (layout.w / layout.h > NEIGHBORS_ASPECT ? layout.h * NEIGHBORS_ASPECT : layout.w)
+    : 0;
+  const mapH = mapW > 0 ? mapW / NEIGHBORS_ASPECT : 0;
+  const hasLayout = mapW > 0 && mapH > 0;
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundCountries, setFoundCountries] = useState([]);
   const [feedback, setFeedback] = useState(null);
@@ -187,7 +197,7 @@ const NeighborsMap = ({ onBackToMenu, onBackToMain }) => {
           )}
         </View>
         {!isCompleted && currentCountry && (
-          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+          <View style={[styles.questionOverlay, { width: Math.max(screenWidth, screenHeight) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
               <Text style={styles.questionText}>{countryNames[currentCountry?.id] || currentCountry?.id} nerede?</Text>
             </View>
@@ -195,9 +205,10 @@ const NeighborsMap = ({ onBackToMenu, onBackToMain }) => {
         )}
       </View>
 
-      <View style={styles.mapContainer}>
+      <View style={styles.mapContainer} onLayout={onLayout}>
+        {hasLayout && (
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
-          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.7} viewBox="525 100 160 112" style={[styles.svg, { opacity: 1 }]}>
+          <Svg width={mapW} height={mapH} viewBox="525 100 160 112" preserveAspectRatio="xMidYMid meet" style={[styles.svg, { opacity: 1 }]}>
             {/* Arka plan boş – çerçeve yok, koyu tema arkada görünsün */}
             <G>
               {worldPaths.map((country) => {
@@ -278,6 +289,7 @@ const NeighborsMap = ({ onBackToMenu, onBackToMain }) => {
             </G>
           </Svg>
         </Animated.View>
+        )}
         <TouchableOpacity style={styles.zoomResetButton} onPress={resetZoom}>
           <RotateCcw size={20} color="#FFFFFF" />
         </TouchableOpacity>
@@ -296,28 +308,28 @@ const NeighborsMap = ({ onBackToMenu, onBackToMain }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 48, paddingBottom: 2, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
-  backButtonsColumn: { flexDirection: 'column', marginRight: 12 },
+  header: { paddingTop: 36, paddingBottom: 4, paddingHorizontal: 10, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
+  backButtonsColumn: { flexDirection: 'column', marginRight: 8 },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    marginRight: 8,
+    padding: 4,
+    marginRight: 6,
     gap: 4,
   },
   backText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#E2E8F0',
     fontWeight: '600',
   },
-  headerLeft: { justifyContent: 'center' },
+  headerLeft: { justifyContent: 'center', marginLeft: 6 },
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#D1FAE5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginTop: 48, marginBottom: 3 },
-  questionText: { fontSize: 16, fontWeight: '600', color: '#065F46' },
-  progressText: { fontSize: 10, color: '#94A3B8' },
+  questionBadge: { backgroundColor: '#D1FAE5', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, alignSelf: 'center', marginTop: 36, marginBottom: 3 },
+  questionText: { fontSize: 14, fontWeight: '600', color: '#065F46' },
+  progressText: { fontSize: 9, color: '#94A3B8' },
   completedText: { fontSize: 12, fontWeight: '600', color: '#10B981' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },
   correctIcon: { backgroundColor: '#10B981' },

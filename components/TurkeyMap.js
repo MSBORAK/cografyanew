@@ -69,7 +69,7 @@ const CityPath = ({ city, isSelected, isInRegion, isCorrect, isWrong, onPress, c
 // Main Turkey Map Component
 const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learningMode = false, practiceCityIds = null }) => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const [layout, setLayout] = useState({ w: screenWidth, h: Math.max(screenHeight - 50, 300) });
+  const [layout, setLayout] = useState({ w: 0, h: 0 });
   const [selectedCities, setSelectedCities] = useState([]);
 
   const onLayout = (e) => {
@@ -77,8 +77,11 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
     if (width > 10 && height > 10) setLayout({ w: width, h: height });
   };
 
-  const mapW = layout.w / layout.h > MAP_ASPECT_RATIO ? layout.h * MAP_ASPECT_RATIO : layout.w;
-  const mapH = mapW / MAP_ASPECT_RATIO;
+  const mapW = layout.w > 0 && layout.h > 0
+    ? (layout.w / layout.h > MAP_ASPECT_RATIO ? layout.h * MAP_ASPECT_RATIO : layout.w)
+    : 0;
+  const mapH = mapW > 0 ? mapW / MAP_ASPECT_RATIO : 0;
+  const hasLayout = mapW > 0 && mapH > 0;
   const [lastSelectedCity, setLastSelectedCity] = useState(null);
   const [quizOrder, setQuizOrder] = useState([]); // Her girişte karışık soru sırası
   const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -371,6 +374,7 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
       </View>
 
       <View style={styles.mapContainer} onLayout={onLayout} {...panResponder.panHandlers}>
+        {hasLayout && (
         <Animated.View
           style={[
             styles.mapWrapper,
@@ -457,6 +461,7 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
             </Svg>
           </View>
         </Animated.View>
+        )}
 
         {/* Doğru cevap - Yeşil tik */}
         {showCheckmark && (
@@ -534,9 +539,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 48,
-    paddingBottom: 2,
-    paddingHorizontal: 12,
+    paddingTop: 36,
+    paddingBottom: 4,
+    paddingHorizontal: 10,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
@@ -544,7 +549,7 @@ const styles = StyleSheet.create({
   },
   backButtonsColumn: {
     flexDirection: 'column',
-    marginRight: 12,
+    marginRight: 8,
   },
   headerContent: {
     flexDirection: 'row',
@@ -553,23 +558,23 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    marginRight: 8,
+    padding: 4,
+    marginRight: 6,
     gap: 4,
   },
   mainMenuButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    marginRight: 8,
+    padding: 4,
+    marginRight: 6,
     gap: 4,
   },
   backText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#E2E8F0',
     fontWeight: '600',
   },
-  headerLeft: { justifyContent: 'center', marginLeft: 8 },
+  headerLeft: { justifyContent: 'center', marginLeft: 6 },
   headerSpacer: { flex: 1 },
   questionOverlay: {
     position: 'absolute',
@@ -580,26 +585,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#F8FAFC',
   },
   questionBadge: {
     backgroundColor: '#FEF3C7',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1.5,
     borderColor: '#F59E0B',
-    marginTop: 48,
+    marginTop: 36,
   },
   questionText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#92400E',
   },
   subtitle: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#94A3B8',
   },
   mapContainer: {

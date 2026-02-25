@@ -1,9 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, useWindowDimensions, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, useWindowDimensions, Platform, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
 import { ChevronLeft, Home, Lock } from 'lucide-react-native';
 import { getUnlockedPremiumIds, isTurkeyItemLocked } from '../utils/premiumLock';
 import { useScreenScale } from '../utils/screenScale';
 
+const COLS = 4;
 const menuItems = [
   { id: 'cities', title: '81 İl', icon: '🏙️', style: 'citiesButton', onPress: 'onSelectCities' },
   { id: 'regions', title: '7 Bölge', icon: '🗺️', style: 'regionsButton', onPress: 'onSelectRegions' },
@@ -20,13 +21,13 @@ const menuItems = [
   { id: 'faultLines', title: 'Fay Hatları', icon: '⛰️', style: 'faultLinesButton', onPress: 'onSelectFaultLines' },
 ];
 
-const TurkeyMenu = ({ 
-  onSelectCities, 
-  onSelectRegions, 
-  onSelectRegionsOnly, 
-  onSelectMountains, 
-  onSelectPlains, 
-  onSelectLakes, 
+const TurkeyMenu = ({
+  onSelectCities,
+  onSelectRegions,
+  onSelectRegionsOnly,
+  onSelectMountains,
+  onSelectPlains,
+  onSelectLakes,
   onSelectUnesco,
   onSelectMassifs,
   onSelectCoasts,
@@ -50,17 +51,58 @@ const TurkeyMenu = ({
     getUnlockedPremiumIds().then((ids) => setUnlockedPremiumIds(Array.isArray(ids) ? ids : [])).catch(() => setUnlockedPremiumIds([]));
   }, [refreshPremiumKey]);
 
-  const boxStyle = isIOSTablet
-    ? [styles.menuButtonIOSTablet, { maxWidth: scale(200), minWidth: scale(160), borderRadius: scale(18), padding: scale(16), marginHorizontal: scale(2) }]
-    : (isMobile ? styles.menuButtonMobile : styles.menuButton);
-  const iconStyle = isIOSTablet
-    ? [styles.iconIOSTablet, { fontSize: moderateScale(42), marginBottom: scale(8) }]
-    : (isMobile ? styles.iconMobile : styles.icon);
-  const titleStyle = isIOSTablet
-    ? [styles.buttonTitleIOSTablet, { fontSize: moderateScale(15) }]
-    : (isMobile ? styles.buttonTitleMobile : styles.buttonTitle);
-  const menuContainerTabletStyle = isIOSTablet ? { padding: scale(20) } : null;
-  const rowTabletStyle = isIOSTablet ? { marginBottom: scale(14), gap: scale(14) } : null;
+  // Dünya haritası sayfası (WorldMenu) ile aynı kutu stili
+  const menuButtonStyle = isMobile
+    ? { ...styles.menuButton, maxWidth: scale(92), minWidth: scale(70), marginHorizontal: scale(2), borderRadius: scale(10), padding: scale(6), aspectRatio: 1.5 }
+    : { ...styles.menuButton, maxWidth: scale(190), minWidth: scale(150), marginHorizontal: scale(6), borderRadius: scale(18), padding: scale(16) };
+  const rowStyle = isMobile ? { ...styles.row, marginBottom: scale(6), gap: scale(6) } : { ...styles.row, marginBottom: scale(14), gap: scale(14) };
+  const iconStyle = isMobile ? { ...styles.icon, fontSize: moderateScale(20), marginBottom: scale(2) } : { ...styles.icon, fontSize: moderateScale(38), marginBottom: scale(8) };
+  const buttonTitleStyle = isMobile ? { ...styles.buttonTitle, fontSize: moderateScale(10) } : { ...styles.buttonTitle, fontSize: moderateScale(15) };
+  const menuContainerStyle = isMobile
+    ? { paddingHorizontal: scale(8), paddingTop: scale(20), paddingBottom: 24 }
+    : { paddingHorizontal: scale(20), paddingTop: scale(28), paddingBottom: 24 };
+
+  const renderBox = (item) => {
+    const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
+    return (
+      <TouchableOpacity
+        key={item.id}
+        style={[menuButtonStyle, styles[item.style], locked && styles.menuBoxLocked]}
+        onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
+        activeOpacity={0.9}
+      >
+        {locked && (
+          <View style={[styles.lockBadge, isMobile && styles.lockBadgeMobile]}>
+            <Lock size={isMobile ? 12 : 16} color="#1E293B" strokeWidth={2.5} />
+          </View>
+        )}
+        <Text style={iconStyle}>{item.icon}</Text>
+        <Text style={buttonTitleStyle} numberOfLines={2}>{item.title}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const rows = [];
+  for (let i = 0; i < menuItems.length; i += COLS) {
+    const chunk = menuItems.slice(i, i + COLS);
+    const short = chunk.length < COLS;
+    const emptyStart = short ? Math.floor((COLS - chunk.length) / 2) : 0;
+    const emptyEnd = short ? Math.ceil((COLS - chunk.length) / 2) : 0;
+    // Son satır: Fay Hatları kutucuğunu biraz daha sağa almak için sol boşluk daha geniş
+    const startFlex = short && emptyStart === 1 ? 2.0 : 1;
+    const endFlex = short && emptyEnd === 1 ? 0.15 : 1;
+    rows.push(
+      <View key={i} style={rowStyle}>
+        {emptyStart > 0 && Array.from({ length: emptyStart }).map((_, j) => (
+          <View key={`empty-start-${i}-${j}`} style={{ flex: j === 0 ? startFlex : 1 }} />
+        ))}
+        {chunk.map((item) => renderBox(item))}
+        {emptyEnd > 0 && Array.from({ length: emptyEnd }).map((_, j) => (
+          <View key={`empty-end-${i}-${j}`} style={{ flex: j === emptyEnd - 1 ? endFlex : 1 }} />
+        ))}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -70,7 +112,7 @@ const TurkeyMenu = ({
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          <View style={styles.header}>
+          <View style={[styles.header, isMobile && styles.headerMobile]}>
             <View style={styles.backButtonsColumn}>
               <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
                 <Home size={20} color="#FFFFFF" />
@@ -81,96 +123,17 @@ const TurkeyMenu = ({
                 <Text style={styles.backText}>Geri</Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.title}>🇹🇷 Türkiye Haritası</Text>
-            <Text style={styles.subtitle}>Öğrenmek istediğin konuyu seç</Text>
+            <Text style={[styles.title, isMobile && styles.titleMobile]}>🇹🇷 Türkiye Haritası</Text>
+            <Text style={[styles.subtitle, isMobile && styles.subtitleMobile]}>Öğrenmek istediğin konuyu seç</Text>
           </View>
 
-          <View style={[styles.menuContainer, isMobile && styles.menuContainerMobile, isIOSTablet && styles.menuContainerIOSTablet, menuContainerTabletStyle]}>
-            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
-              {menuItems.slice(0, 4).map((item) => {
-                const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={[boxStyle, styles[item.style], locked && styles.menuBoxLocked]}
-                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
-                    activeOpacity={0.9}
-                  >
-                    {locked && (
-                      <View style={styles.lockBadge}>
-                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
-                      </View>
-                    )}
-                    <Text style={iconStyle}>{item.icon}</Text>
-                    <Text style={titleStyle}>{item.title}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
-              {menuItems.slice(4, 8).map((item) => {
-                const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={[boxStyle, styles[item.style], locked && styles.menuBoxLocked]}
-                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
-                    activeOpacity={0.9}
-                  >
-                    {locked && (
-                      <View style={styles.lockBadge}>
-                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
-                      </View>
-                    )}
-                    <Text style={iconStyle}>{item.icon}</Text>
-                    <Text style={titleStyle}>{item.title}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
-              {menuItems.slice(8, 12).map((item) => {
-                const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={[boxStyle, styles[item.style], locked && styles.menuBoxLocked]}
-                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
-                    activeOpacity={0.9}
-                  >
-                    {locked && (
-                      <View style={styles.lockBadge}>
-                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
-                      </View>
-                    )}
-                    <Text style={iconStyle}>{item.icon}</Text>
-                    <Text style={titleStyle}>{item.title}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            <View style={[styles.row, isMobile && styles.rowMobile, isIOSTablet && styles.rowIOSTablet, rowTabletStyle]}>
-              {menuItems.slice(12, 14).map((item) => {
-                const locked = isTurkeyItemLocked(item.id, unlockedPremiumIds);
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={[boxStyle, styles[item.style], locked && styles.menuBoxLocked]}
-                    onPress={locked ? (onRequestUnlock ? () => onRequestUnlock('premium') : handlers[item.onPress]) : handlers[item.onPress]}
-                    activeOpacity={0.9}
-                  >
-                    {locked && (
-                      <View style={styles.lockBadge}>
-                        <Lock size={16} color="#1E293B" strokeWidth={2.5} />
-                      </View>
-                    )}
-                    <Text style={iconStyle}>{item.icon}</Text>
-                    <Text style={titleStyle}>{item.title}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={[styles.menuScrollContent, menuContainerStyle]}
+            showsVerticalScrollIndicator={false}
+          >
+            {rows}
+          </ScrollView>
         </View>
       </ImageBackground>
     </View>
@@ -191,10 +154,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 64 : 52,
-    paddingBottom: 2,
+    paddingTop: Platform.OS === 'ios' ? 56 : 48,
+    paddingBottom: 8,
     paddingHorizontal: 16,
     alignItems: 'center',
+  },
+  headerMobile: {
+    paddingTop: 44,
+    paddingBottom: 6,
+    paddingHorizontal: 12,
   },
   backButtonsColumn: {
     flexDirection: 'column',
@@ -215,35 +183,33 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   title: {
-    fontSize: 34,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginTop: -50,
-    marginBottom: 0,
+    marginBottom: 2,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
   },
+  titleMobile: {
+    fontSize: 22,
+  },
   subtitle: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#94A3B8',
     textAlign: 'center',
-    marginTop: 2,
+  },
+  subtitleMobile: {
+    fontSize: 12,
   },
   scrollView: {
     flex: 1,
   },
-  menuContainer: {
-    flex: 1,
-    padding: 12,
-    justifyContent: 'center',
-  },
-  menuContainerMobile: {
-    padding: 6,
-  },
-  menuContainerIOSTablet: {
-    padding: 16,
+  menuScrollContent: {
+    flexGrow: 1,
+    paddingBottom: 24,
   },
   row: {
     flexDirection: 'row',
@@ -251,55 +217,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     gap: 10,
   },
-  rowMobile: {
-    marginBottom: 5,
-    gap: 5,
-  },
-  rowIOSTablet: {
-    marginBottom: 12,
-    gap: 12,
-  },
   menuButton: {
     flex: 1,
     aspectRatio: 1.5,
-    maxWidth: 150,
-    minWidth: 115,
+    maxWidth: 160,
+    minWidth: 135,
+    marginHorizontal: 4,
     borderRadius: 14,
     padding: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  menuButtonIOSTablet: {
-    flex: 1,
-    aspectRatio: 1.5,
-    maxWidth: 190,
-    minWidth: 150,
-    borderRadius: 15,
-    padding: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  menuButtonMobile: {
-    flex: 1,
-    aspectRatio: 1.5,
-    maxWidth: 52,
-    minWidth: 40,
-    borderRadius: 8,
-    padding: 3,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -325,6 +250,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.1)',
+  },
+  lockBadgeMobile: {
+    top: 4,
+    right: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
   },
   citiesButton: {
     backgroundColor: '#EF4444',
@@ -368,35 +300,10 @@ const styles = StyleSheet.create({
   icon: {
     fontSize: 32,
     marginBottom: 5,
-  },
-  iconIOSTablet: {
-    fontSize: 38,
-    marginBottom: 6,
-  },
-  iconMobile: {
-    fontSize: 18,
-    marginBottom: 1,
+    textAlign: 'center',
   },
   buttonTitle: {
     fontSize: 13,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  buttonTitleIOSTablet: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  buttonTitleMobile: {
-    fontSize: 8,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',

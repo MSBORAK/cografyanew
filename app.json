@@ -6,6 +6,7 @@
     "orientation": "landscape",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "jsEngine": "jsc",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -33,7 +34,8 @@
           "initialOrientation": "LANDSCAPE"
         }
       ],
-      "expo-notifications"
+      "expo-notifications",
+      "expo-audio"
     ],
     "android": {
       "adaptiveIcon": {

@@ -1,8 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
-import { ChevronLeft, Home } from 'lucide-react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useScreenScale } from '../utils/screenScale';
 
+console.warn('[DEBUG QuizMenu] module loaded');
 const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onSelectMixedQuiz, onBackToMain }) => {
+  console.warn('[DEBUG QuizMenu] component body start');
   const { scale, moderateScale } = useScreenScale();
   const menuButtonStyle = {
     ...styles.menuButton,
@@ -17,22 +19,16 @@ const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onSelectMixedQuiz, on
   const iconStyle = { ...styles.icon, fontSize: moderateScale(44) };
   const textContainerStyle = { ...styles.textContainer, paddingRight: scale(18) };
 
-  return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }}
-        style={styles.background}
-        blurRadius={3}
-      >
-        <View style={styles.overlay}>
+  const overlayContent = (
+    <View style={styles.overlay}>
           <View style={styles.header}>
             <View style={styles.backButtonsColumn}>
               <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-                <Home size={24} color="#FFFFFF" />
+                <Ionicons name="home" size={24} color="#FFFFFF" />
                 <Text style={styles.backText}>Ana Menü</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-                <ChevronLeft size={24} color="#FFFFFF" />
+                <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
                 <Text style={styles.backText}>Geri</Text>
               </TouchableOpacity>
             </View>
@@ -78,10 +74,14 @@ const QuizMenu = ({ onSelectTurkeyQuiz, onSelectWorldQuiz, onSelectMixedQuiz, on
             </TouchableOpacity>
           </View>
         </View>
-      </ImageBackground>
+  );
+
+  return (
+    <View style={[styles.container, styles.background, { backgroundColor: '#0f172a' }]}>
+      {overlayContent}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

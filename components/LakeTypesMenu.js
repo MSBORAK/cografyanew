@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useScreenScale } from '../utils/screenScale';
 
@@ -6,15 +6,19 @@ const LakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
   const { scale, moderateScale } = useScreenScale();
   const menuButtonStyle = {
     ...styles.menuButton,
-    maxWidth: scale(180),
-    marginHorizontal: scale(8),
-    borderRadius: scale(18),
-    padding: scale(16),
+    maxWidth: scale(100),
+    marginHorizontal: scale(3),
+    borderRadius: scale(12),
+    padding: scale(8),
   };
-  const rowStyle = { ...styles.row, gap: scale(16) };
-  const iconStyle = { ...styles.icon, fontSize: moderateScale(44), marginBottom: scale(8) };
-  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(16) };
-  const menuContainerStyle = { ...styles.menuContainer, padding: scale(24) };
+  const rowStyle = {
+    ...styles.row,
+    marginBottom: scale(8),
+    gap: scale(6),
+  };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(28), marginBottom: scale(2) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(12) };
+  const menuContainerStyle = { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10), paddingTop: scale(28) };
 
   return (
     <View style={styles.container}>
@@ -26,14 +30,18 @@ const LakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
         <View style={styles.overlay}>
           <View style={styles.header}>
             <TouchableOpacity style={styles.backButton} onPress={onBackToLakeMainMenu}>
-              <ChevronLeft size={24} color="#FFFFFF" />
+              <ChevronLeft size={22} color="#FFFFFF" />
               <Text style={styles.backText}>Göller Menü</Text>
             </TouchableOpacity>
             <Text style={styles.title}>🏞️ Doğal Göller</Text>
             <Text style={styles.subtitle}>Göl tipini seç</Text>
           </View>
 
-          <View style={menuContainerStyle}>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={menuContainerStyle}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={rowStyle}>
               <TouchableOpacity style={[menuButtonStyle, styles.tectonicButton]} onPress={() => onSelectType('tectonic')} activeOpacity={0.9}>
                 <Text style={iconStyle}>🌊</Text>
@@ -51,12 +59,14 @@ const LakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
                 <Text style={iconStyle}>🏞️</Text>
                 <Text style={buttonTitleStyle}>Set</Text>
               </TouchableOpacity>
+            </View>
+            <View style={rowStyle}>
               <TouchableOpacity style={[menuButtonStyle, styles.glacialButton]} onPress={() => onSelectType('glacial')} activeOpacity={0.9}>
                 <Text style={iconStyle}>❄️</Text>
                 <Text style={buttonTitleStyle}>Buzul</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </ImageBackground>
     </View>
@@ -77,8 +87,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
   },
   header: {
-    paddingTop: 62,
-    paddingBottom: 8,
+    paddingTop: 44,
+    paddingBottom: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
   },
@@ -86,49 +96,45 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    marginBottom: 20,
-    paddingVertical: 8,
+    marginBottom: 10,
+    paddingVertical: 6,
   },
   backText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#FFFFFF',
     fontWeight: '600',
     marginLeft: 4,
   },
   title: {
-    fontSize: 36,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 4,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#94A3B8',
     textAlign: 'center',
   },
-  menuContainer: {
+  scroll: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
+  },
+  menuContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexGrow: 1,
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-evenly',
   },
   menuButton: {
     flex: 1,
-    aspectRatio: 1.2,
-    maxWidth: 140,
-    marginHorizontal: 6,
-    borderRadius: 16,
-    padding: 12,
+    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -155,11 +161,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#3B82F6',
   },
   icon: {
-    fontSize: 40,
     marginBottom: 6,
   },
   buttonTitle: {
-    fontSize: 14,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',

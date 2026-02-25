@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Platform, useWindowDimensions } from 'react-native';
 import { useState, useEffect } from 'react';
 import { ChevronLeft, Lock } from 'lucide-react-native';
 import { getUnlockedPremiumIds, isWorldItemLocked } from '../utils/premiumLock';
@@ -30,22 +30,24 @@ const WorldMenu = ({
   onRequestUnlock,
   refreshPremiumKey = 0,
 }) => {
+  const { width, height } = useWindowDimensions();
   const { scale, moderateScale } = useScreenScale();
+  const shortSide = Math.min(width, height);
+  const isMobile = shortSide < 600;
   const handlers = { onSelectWorldMap, onSelectContinents, onSelectEurope, onSelectAsia, onSelectAfrica, onSelectAmerica, onSelectOceania, onSelectAntarctica, onSelectFlags };
 
   const [unlockedPremiumIds, setUnlockedPremiumIds] = useState([]);
-  const menuButtonStyle = {
-    ...styles.menuButton,
-    maxWidth: scale(190),
-    minWidth: scale(150),
-    marginHorizontal: scale(6),
-    borderRadius: scale(18),
-    padding: scale(16),
-  };
-  const rowStyle = { ...styles.row, marginBottom: scale(14), gap: scale(14) };
-  const iconStyle = { ...styles.icon, fontSize: moderateScale(38), marginBottom: scale(8) };
-  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(15) };
-  const menuContainerStyle = { ...styles.menuContainer, padding: scale(20) };
+  const menuButtonStyle = isMobile
+    ? { ...styles.menuButton, maxWidth: scale(92), minWidth: scale(70), marginHorizontal: scale(2), borderRadius: scale(10), padding: scale(6), aspectRatio: 1.5 }
+    : { ...styles.menuButton, maxWidth: scale(190), minWidth: scale(150), marginHorizontal: scale(6), borderRadius: scale(18), padding: scale(16) };
+  const rowStyle = isMobile ? { ...styles.row, marginBottom: scale(6), gap: scale(6) } : { ...styles.row, marginBottom: scale(14), gap: scale(14) };
+  const iconStyle = isMobile ? { ...styles.icon, fontSize: moderateScale(20), marginBottom: scale(2) } : { ...styles.icon, fontSize: moderateScale(38), marginBottom: scale(8) };
+  const buttonTitleStyle = isMobile ? { ...styles.buttonTitle, fontSize: moderateScale(10) } : { ...styles.buttonTitle, fontSize: moderateScale(15) };
+  const menuContainerStyle = isMobile ? { ...styles.menuContainer, padding: scale(8), paddingRight: scale(12), justifyContent: 'center' } : { ...styles.menuContainer, padding: scale(20) };
+  const headerMobileStyle = isMobile ? { paddingTop: scale(12), paddingBottom: scale(12), paddingHorizontal: scale(12) } : null;
+  const titleMobileStyle = isMobile ? { fontSize: moderateScale(24), marginTop: 0, marginBottom: scale(2) } : null;
+  const subtitleMobileStyle = isMobile ? { fontSize: moderateScale(11), marginTop: 0, marginBottom: scale(4) } : null;
+  const backButtonMobileStyle = isMobile ? { marginLeft: scale(24), alignSelf: 'flex-start' } : null;
   useEffect(() => {
     getUnlockedPremiumIds().then((ids) => setUnlockedPremiumIds(Array.isArray(ids) ? ids : [])).catch(() => setUnlockedPremiumIds([]));
   }, [refreshPremiumKey]);
@@ -58,13 +60,13 @@ const WorldMenu = ({
         blurRadius={3}
       >
         <View style={styles.overlay}>
-          <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+          <View style={[styles.header, headerMobileStyle]}>
+            <TouchableOpacity style={[styles.backButton, backButtonMobileStyle]} onPress={onBackToMain}>
               <ChevronLeft size={24} color="#FFFFFF" />
               <Text style={styles.backText}>Ana Menü</Text>
             </TouchableOpacity>
-            <Text style={styles.title}>🌍 Dünya Haritası</Text>
-            <Text style={styles.subtitle}>Keşfetmek istediğin bölgeyi seç</Text>
+            <Text style={[styles.title, titleMobileStyle]}>🌍 Dünya Haritası</Text>
+            <Text style={[styles.subtitle, subtitleMobileStyle]}>Keşfetmek istediğin bölgeyi seç</Text>
           </View>
 
           <View style={menuContainerStyle}>

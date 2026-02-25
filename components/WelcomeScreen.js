@@ -1,9 +1,33 @@
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Image, Platform } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
+import { useScreenScale } from '../utils/screenScale';
 
 const welcomeImage = require('../assets/welcome-geo.png');
 
 export default function WelcomeScreen({ onStart }) {
+  const { scale, moderateScale, isMobile } = useScreenScale();
+
+  const cardStyle = [
+    styles.card,
+    isMobile && {
+      maxWidth: scale(280),
+      paddingVertical: scale(16),
+      paddingHorizontal: scale(20),
+      borderRadius: scale(18),
+    },
+  ];
+  const logoRingStyle = [styles.logoRing, isMobile && { padding: scale(6), marginBottom: scale(10), borderRadius: scale(14) }];
+  const welcomeImageStyle = [styles.welcomeImage, isMobile && { width: scale(88), height: scale(88), borderRadius: scale(10) }];
+  const titleStyle = [styles.title, isMobile && { fontSize: moderateScale(24), marginBottom: scale(4) }];
+  const titleAccentStyle = [styles.titleAccent, isMobile && { fontSize: moderateScale(12), marginBottom: scale(6) }];
+  const subtitleStyle = [styles.subtitle, isMobile && { fontSize: moderateScale(13), lineHeight: scale(18), marginBottom: scale(10), paddingHorizontal: scale(4) }];
+  const dividerStyle = [styles.divider, isMobile && { marginBottom: scale(12) }];
+  const startButtonStyle = [styles.startButton, isMobile && { maxWidth: scale(220), paddingVertical: scale(4), paddingHorizontal: scale(4) }];
+  const startButtonInnerStyle = [styles.startButtonInner, isMobile && { paddingVertical: scale(10), paddingHorizontal: scale(22) }];
+  const startButtonTextStyle = [styles.startButtonText, isMobile && { fontSize: moderateScale(15) }];
+  const overlayStyle = [styles.overlay, isMobile && { padding: scale(14) }];
+  const footerStyle = [styles.footer, isMobile && { bottom: scale(12), fontSize: moderateScale(12) }];
+
   return (
     <View style={styles.wrapper}>
       <ImageBackground
@@ -14,27 +38,27 @@ export default function WelcomeScreen({ onStart }) {
         <View style={styles.overlayDark} />
         <View style={styles.overlayVignette} />
 
-        <View style={styles.overlay}>
-          <View style={styles.card}>
-            <View style={styles.logoRing}>
-              <Image source={welcomeImage} style={styles.welcomeImage} resizeMode="contain" />
+        <View style={overlayStyle}>
+          <View style={cardStyle}>
+            <View style={logoRingStyle}>
+              <Image source={welcomeImage} style={welcomeImageStyle} resizeMode="contain" />
             </View>
 
-            <Text style={styles.title}>Coğrafya</Text>
-            <Text style={styles.titleAccent}>Keşfet • Öğren • Test Et</Text>
-            <Text style={styles.subtitle}>Haritalar, quizler ve daha fazlasıyla dünyayı keşfet.</Text>
+            <Text style={titleStyle}>Coğrafya</Text>
+            <Text style={titleAccentStyle}>Keşfet • Öğren • Test Et</Text>
+            <Text style={subtitleStyle}>Haritalar, quizler ve daha fazlasıyla dünyayı keşfet.</Text>
 
-            <View style={styles.divider} />
+            <View style={dividerStyle} />
 
-            <TouchableOpacity style={styles.startButton} onPress={onStart} activeOpacity={0.88}>
-              <View style={styles.startButtonInner}>
-                <Text style={styles.startButtonText}>Başla</Text>
+            <TouchableOpacity style={startButtonStyle} onPress={onStart} activeOpacity={0.88}>
+              <View style={startButtonInnerStyle}>
+                <Text style={startButtonTextStyle}>Başla</Text>
                 <ChevronRight size={20} color="#fff" strokeWidth={2.5} style={styles.buttonIcon} />
               </View>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.footer}>Eğlenerek öğren</Text>
+          <Text style={footerStyle}>Eğlenerek öğren</Text>
         </View>
       </ImageBackground>
     </View>

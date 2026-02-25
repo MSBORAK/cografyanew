@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { AppState } from 'react-native';
 import { setupDailyReminder, rescheduleAndroidReminder } from './utils/notificationSetup';
-import { StyleSheet, View, BackHandler } from 'react-native';
+import { StyleSheet, View, Text, BackHandler } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import WelcomeScreen from './components/WelcomeScreen';
 import MainMenu from './components/MainMenu';
@@ -40,16 +40,16 @@ import BorderGatesMap from './components/BorderGatesMap';
 import FaultLinesScreen from './components/FaultLinesScreen';
 import WorldFlagsQuiz from './components/WorldFlagsQuiz';
 import CapitalsQuiz from './components/CapitalsQuiz';
-import ExamCountdown from './components/ExamCountdown';
 import QuizMenu from './components/QuizMenu';
+import PracticeModeMenu from './components/PracticeModeMenu';
+import LearningModeMenu from './components/LearningModeMenu';
+import GeographyKeywords from './components/GeographyKeywords';
+import ExamCountdown from './components/ExamCountdown';
 import MixedQuiz from './components/MixedQuiz';
 import TurkeyQuiz from './components/TurkeyQuiz';
 import WorldQuiz from './components/WorldQuiz';
 import QuizDifficultyScreen from './components/QuizDifficultyScreen';
-import PracticeModeMenu from './components/PracticeModeMenu';
-import LearningModeMenu from './components/LearningModeMenu';
 import { getWrongAnswers } from './utils/practiceMode';
-import GeographyKeywords from './components/GeographyKeywords';
 import DidYouKnowTrivia from './components/DidYouKnowTrivia';
 import AppLogicScreen from './components/AppLogicScreen';
 import PaywallModal from './components/PaywallModal';
@@ -181,8 +181,8 @@ export default function App() {
     }
   };
 
-  // Uygulama açılışında ve her ekran değişiminde yatay mod (iOS için kritik)
-  useEffect(() => {
+  // Açıldığı gibi yatay ekran – dikey kullanılmıyor
+  useLayoutEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
   }, []);
 
@@ -338,7 +338,7 @@ export default function App() {
   };
 
   const handleSelectCapitalsQuiz = () => {
-    // Başkentler Quiz
+    console.warn('[DEBUG App] handleSelectCapitalsQuiz called');
     setCurrentScreen('capitals-quiz');
   };
 
@@ -348,7 +348,7 @@ export default function App() {
   };
 
   const handleSelectQuizMode = () => {
-    // Quiz Menü
+    console.warn('[DEBUG App] handleSelectQuizMode called');
     setCurrentScreen('quiz-menu');
   };
 
@@ -358,6 +358,7 @@ export default function App() {
   };
 
   const handleSelectPracticeMode = () => {
+    console.warn('[DEBUG App] handleSelectPracticeMode called');
     setCurrentScreen('practice-mode');
   };
 
@@ -399,11 +400,12 @@ export default function App() {
   };
 
   const handleSelectLearningMode = () => {
-    // Öğrenme Modu
+    console.warn('[DEBUG App] handleSelectLearningMode called');
     setCurrentScreen('learning-mode');
   };
 
   const handleSelectGeographyKeywords = () => {
+    console.warn('[DEBUG App] handleSelectGeographyKeywords called');
     setCurrentScreen('geography-keywords');
   };
 
@@ -919,6 +921,7 @@ export default function App() {
 
   // Başkentler Quiz
   if (currentScreen === 'capitals-quiz') {
+    console.warn('[DEBUG App] Rendering capitals-quiz');
     return (
       <View style={styles.container}>
         <CapitalsQuiz
@@ -945,6 +948,7 @@ export default function App() {
 
   // Quiz Menü
   if (currentScreen === 'quiz-menu') {
+    console.warn('[DEBUG App] Rendering quiz-menu');
     return (
       <View style={styles.container}>
         <QuizMenu 
@@ -1018,6 +1022,7 @@ export default function App() {
 
   // Pratik Modu
   if (currentScreen === 'practice-mode') {
+    console.warn('[DEBUG App] Rendering practice-mode');
     return (
       <View style={styles.container}>
         <PracticeModeMenu
@@ -1042,6 +1047,7 @@ export default function App() {
 
   // Coğrafya Anahtar Kelimeler
   if (currentScreen === 'geography-keywords') {
+    console.warn('[DEBUG App] Rendering geography-keywords');
     return (
       <View style={styles.container}>
         <GeographyKeywords onBackToMenu={isLearningMode ? handleBackToLearningMode : handleBackToMain} onBackToMain={handleBackToMain} />
@@ -1052,24 +1058,25 @@ export default function App() {
 
   // Öğrenme Modu
   if (currentScreen === 'learning-mode') {
+    console.warn('[DEBUG App] Rendering learning-mode');
     return (
       <View style={styles.container}>
         <LearningModeMenu
-          onBackToMenu={handleBackToMain}
-          onBackToMain={handleBackToMain}
-          onSelectCategory={(category) => {
-            // Öğrenme modunu aktif et
-            setIsLearningMode(true);
-            
-            // Kategoriye göre ilgili ekranı aç
-            if (category === 'turkey_cities') {
-              setCurrentScreen('turkey-learning');
-            } else if (category === 'turkey_geography') {
-              setCurrentScreen('turkey-menu');
-            } else if (category === 'world_countries') {
-              setCurrentScreen('world-map');
-            } else if (category === 'world_flags') {
-              setCurrentScreen('world-flags-quiz');
+            onBackToMenu={handleBackToMain}
+            onBackToMain={handleBackToMain}
+            onSelectCategory={(category) => {
+              // Öğrenme modunu aktif et
+              setIsLearningMode(true);
+              
+              // Kategoriye göre ilgili ekranı aç
+              if (category === 'turkey_cities') {
+                setCurrentScreen('turkey-learning');
+              } else if (category === 'turkey_geography') {
+                setCurrentScreen('turkey-menu');
+              } else if (category === 'world_countries') {
+                setCurrentScreen('world-map');
+              } else if (category === 'world_flags') {
+                setCurrentScreen('world-flags-quiz');
             } else if (category === 'geography_keywords') {
               setCurrentScreen('geography-keywords');
             }

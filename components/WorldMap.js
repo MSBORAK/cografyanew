@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
   Animated,
   PanResponder,
   ImageBackground,
@@ -18,11 +18,9 @@ import { oceans, getOceanColor } from '../constants/oceans';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
-const MAP_HEIGHT = MAP_WIDTH * 0.482;
 const VIEWBOX_W = 1000;
 const VIEWBOX_H = 482;
+const MAP_ASPECT = VIEWBOX_W / VIEWBOX_H;
 
 // Diziyi karıştıran fonksiyon
 const shuffleArray = (array) => {
@@ -35,12 +33,24 @@ const shuffleArray = (array) => {
 };
 
 const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const [layout, setLayout] = useState({ w: 0, h: 0 });
   const [quizCountries, setQuizCountries] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundCountries, setFoundCountries] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [wrongCountInRow, setWrongCountInRow] = useState(0);
+
+  const onMapLayout = (e) => {
+    const { width, height } = e.nativeEvent.layout;
+    if (width > 10 && height > 10) setLayout({ w: width, h: height });
+  };
+  const mapW = layout.w > 0 && layout.h > 0
+    ? (layout.w / layout.h > MAP_ASPECT ? layout.h * MAP_ASPECT : layout.w)
+    : 0;
+  const mapH = mapW > 0 ? mapW / MAP_ASPECT : 0;
+  const hasLayout = mapW > 0 && mapH > 0;
 
   // Zoom ve Pan: Animated değerler + SVG transform için state (dokunma hassasiyeti için transform SVG içinde)
   const scale = useRef(new Animated.Value(1)).current;
@@ -77,12 +87,13 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
 
   // Zoom/pan değerlerini state'e senkronize et – SVG içi transform ile dokunma doğru eşleşsin
   useEffect(() => {
+    if (mapW <= 0 || mapH <= 0) return;
     const update = () => {
       const s = scale._value;
       const vx = translateX._value;
       const vy = translateY._value;
-      const txVb = vx * (VIEWBOX_W / MAP_WIDTH);
-      const tyVb = vy * (VIEWBOX_H / MAP_HEIGHT);
+      const txVb = vx * (VIEWBOX_W / mapW);
+      const tyVb = vy * (VIEWBOX_H / mapH);
       setMapTransform({ s, tx: txVb, ty: tyVb });
     };
     const id1 = scale.addListener(update);
@@ -94,7 +105,7 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
       translateX.removeListener(id2);
       translateY.removeListener(id3);
     };
-  }, []);
+  }, [mapW, mapH]);
 
   const currentCountry = quizCountries[currentQuestionIndex];
   const isCompleted = foundCountries.length === quizCountries.length;
@@ -263,12 +274,12 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
           <View style={styles.backButtonsColumn}>
             {onBackToMain && (
               <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-                <Home size={24} color="#E2E8F0" />
+                <Home size={20} color="#E2E8F0" />
                 <Text style={styles.backText}>Ana Menü</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-              <ChevronLeft size={24} color="#E2E8F0" />
+              <ChevronLeft size={20} color="#E2E8F0" />
               <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
           </View>
@@ -291,15 +302,15 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
               feedback === 'correct' ? styles.correctIcon : styles.wrongIcon
             ]}>
               {feedback === 'correct' ? (
-                <Check size={24} color="#FFFFFF" strokeWidth={3} />
+                <Check size={20} color="#FFFFFF" strokeWidth={3} />
               ) : (
-                <X size={24} color="#FFFFFF" strokeWidth={3} />
+                <X size={20} color="#FFFFFF" strokeWidth={3} />
               )}
             </View>
           )}
         </View>
         {!isCompleted && currentCountry && (
-          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+          <View style={[styles.questionOverlay, { width: Math.max(screenWidth, screenHeight) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
               <Text style={styles.questionText}>{countryNames[currentCountry.id] || currentCountry.id} nerede?</Text>
             </View>
@@ -307,14 +318,15 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
         )}
       </View>
 
-      <View style={styles.mapContainer}>
+      <View style={styles.mapContainer} onLayout={onMapLayout}>
         <Animated.View 
           style={styles.mapWrapper}
           {...panResponder.panHandlers}
         >
+          {hasLayout && (
           <Svg
-            width={MAP_WIDTH}
-            height={MAP_HEIGHT}
+            width={mapW}
+            height={mapH}
             viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
             preserveAspectRatio="xMidYMid meet"
             style={styles.svg}
@@ -386,6 +398,7 @@ const WorldMap = ({ onBackToMenu, onBackToMain, practiceCountryIds = null }) => 
 
             {/* Ülke isimleri gösterilmiyor - karışıklığı önlemek için (soru üstte: "X nerede?") */}
           </Svg>
+          )}
         </Animated.View>
 
         {/* Sağ alt: Türkiye haritası gibi — üstte mavi (zoom geri al), altta kırmızı (soru değiştir) */}
@@ -423,9 +436,9 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   header: {
-    paddingTop: 48,
-    paddingBottom: 2,
-    paddingHorizontal: 12,
+    paddingTop: 24,
+    paddingBottom: 4,
+    paddingHorizontal: 8,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
@@ -433,7 +446,7 @@ const styles = StyleSheet.create({
   },
   backButtonsColumn: {
     flexDirection: 'column',
-    marginRight: 12,
+    marginRight: 8,
   },
   headerContent: {
     flexDirection: 'row',
@@ -442,12 +455,12 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    marginRight: 8,
+    padding: 4,
+    marginRight: 6,
     gap: 4,
   },
   backText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#E2E8F0',
     fontWeight: '600',
   },
@@ -455,38 +468,38 @@ const styles = StyleSheet.create({
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#F8FAFC',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   questionBadge: {
     backgroundColor: '#FCD34D',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
     alignSelf: 'center',
-    marginTop: 48,
-    marginBottom: 3,
+    marginTop: 24,
+    marginBottom: 2,
   },
   questionText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#92400E',
   },
   progressText: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#94A3B8',
   },
   completedText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     color: '#34D399',
   },
   feedbackIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 6,

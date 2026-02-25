@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useScreenScale } from '../utils/screenScale';
 
@@ -16,19 +16,19 @@ const HomeScreen = ({ onStartGame, onBackToMain }) => {
   const { scale, moderateScale } = useScreenScale();
   const menuButtonStyle = {
     ...styles.menuButton,
-    maxWidth: scale(180),
-    marginHorizontal: scale(8),
-    borderRadius: scale(20),
-    padding: scale(18),
+    maxWidth: scale(100),
+    marginHorizontal: scale(3),
+    borderRadius: scale(12),
+    padding: scale(8),
   };
   const rowStyle = {
     ...styles.row,
-    marginBottom: scale(16),
-    gap: scale(16),
+    marginBottom: scale(8),
+    gap: scale(6),
   };
-  const iconStyle = { ...styles.icon, fontSize: moderateScale(48), marginBottom: scale(8) };
-  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(16) };
-  const menuContainerStyle = { ...styles.menuContainer, padding: scale(24) };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(28), marginBottom: scale(2) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(12) };
+  const menuContainerStyle = { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10) };
 
   return (
     <View style={styles.container}>
@@ -40,14 +40,18 @@ const HomeScreen = ({ onStartGame, onBackToMain }) => {
         <View style={styles.overlay}>
           <View style={styles.header}>
             <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <ChevronLeft size={24} color="#FFFFFF" />
+              <ChevronLeft size={22} color="#FFFFFF" />
               <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
             <Text style={styles.title}>🗺️ Bölge Seç</Text>
             <Text style={styles.subtitle}>Hangi bölgeyi öğrenmek istersin?</Text>
           </View>
 
-          <View style={menuContainerStyle}>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={menuContainerStyle}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={rowStyle}>
               {categories.slice(0, 4).map((cat) => (
                 <TouchableOpacity
@@ -74,7 +78,7 @@ const HomeScreen = ({ onStartGame, onBackToMain }) => {
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          </ScrollView>
         </View>
       </ImageBackground>
     </View>
@@ -95,8 +99,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
   },
   header: {
-    paddingTop: 50,
-    paddingBottom: 20,
+    paddingTop: 44,
+    paddingBottom: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
   },
@@ -104,34 +108,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    marginBottom: 20,
-    paddingVertical: 8,
+    marginBottom: 10,
+    paddingVertical: 6,
   },
   backText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#FFFFFF',
     fontWeight: '600',
     marginLeft: 4,
   },
   title: {
-    fontSize: 36,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 4,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#94A3B8',
     textAlign: 'center',
   },
-  menuContainer: {
+  scroll: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
+  },
+  menuContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexGrow: 1,
   },
   row: {
     flexDirection: 'row',
@@ -139,7 +146,7 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     flex: 1,
-    aspectRatio: 1.2,
+    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

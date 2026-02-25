@@ -27,8 +27,9 @@ export default function PaywallModal({ visible, featureId, onUnlock, onClose }) 
   if (!visible) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal visible={visible} transparent animationType="fade" supportedOrientations={['landscape-left', 'landscape-right']}>
       <View style={styles.backdrop}>
+        <View style={styles.cardWrap}>
         <View style={styles.card}>
           <TouchableOpacity style={styles.closeBtn} onPress={onClose} hitSlop={12}>
             <X size={24} color="#94A3B8" />
@@ -56,10 +57,13 @@ export default function PaywallModal({ visible, featureId, onUnlock, onClose }) 
           </TouchableOpacity>
           <Text style={styles.note}>Ödeme sonrası tüm premium bölümler kalıcı olarak açılır.</Text>
         </View>
+        </View>
       </View>
     </Modal>
   );
 }
+
+const CARD_MAX_WIDTH = 320;
 
 const styles = StyleSheet.create({
   backdrop: {
@@ -67,82 +71,87 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: 20,
+  },
+  cardWrap: {
+    width: '100%',
+    maxWidth: CARD_MAX_WIDTH,
+    alignItems: 'center',
   },
   card: {
     backgroundColor: '#1E293B',
     borderRadius: 20,
-    padding: 28,
+    padding: 24,
     width: '100%',
-    maxWidth: 340,
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.2)',
   },
   closeBtn: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 12,
+    right: 12,
     zIndex: 1,
   },
   iconWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: 'rgba(245, 158, 11, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   title: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '700',
     color: '#F8FAFC',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   desc: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#94A3B8',
     textAlign: 'center',
-    marginBottom: 20,
+    lineHeight: 18,
+    marginBottom: 14,
   },
   priceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'rgba(51, 65, 85, 0.6)',
-    padding: 14,
+    padding: 12,
     borderRadius: 12,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   priceLabel: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#94A3B8',
   },
   price: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#F8FAFC',
   },
   unlockButton: {
     backgroundColor: '#10B981',
-    paddingVertical: 16,
-    borderRadius: 14,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: 'center',
   },
   unlockButtonDisabled: {
     opacity: 0.7,
   },
   unlockButtonText: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '700',
     color: '#fff',
   },
   note: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#64748B',
     textAlign: 'center',
-    marginTop: 12,
+    marginTop: 8,
   },
 });

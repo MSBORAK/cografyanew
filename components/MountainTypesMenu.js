@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useScreenScale } from '../utils/screenScale';
 
@@ -6,16 +6,19 @@ const MountainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
   const { scale, moderateScale } = useScreenScale();
   const menuButtonStyle = {
     ...styles.menuButton,
-    maxWidth: scale(220),
-    marginHorizontal: scale(10),
-    borderRadius: scale(18),
-    padding: scale(18),
-    aspectRatio: 1.2,
+    maxWidth: scale(100),
+    marginHorizontal: scale(3),
+    borderRadius: scale(12),
+    padding: scale(8),
   };
-  const rowStyle = { ...styles.row, gap: scale(16) };
-  const iconStyle = { ...styles.icon, fontSize: moderateScale(48), marginBottom: scale(10) };
-  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(17) };
-  const menuContainerStyle = { ...styles.menuContainer, padding: scale(24) };
+  const rowStyle = {
+    ...styles.row,
+    marginBottom: scale(8),
+    gap: scale(6),
+  };
+  const iconStyle = { ...styles.icon, fontSize: moderateScale(28), marginBottom: scale(2) };
+  const buttonTitleStyle = { ...styles.buttonTitle, fontSize: moderateScale(12) };
+  const menuContainerStyle = { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10), paddingTop: scale(28) };
 
   return (
     <View style={styles.container}>
@@ -27,14 +30,18 @@ const MountainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
         <View style={styles.overlay}>
           <View style={styles.header}>
             <TouchableOpacity style={styles.backButton} onPress={onBackToTurkeyMenu}>
-              <ChevronLeft size={24} color="#FFFFFF" />
+              <ChevronLeft size={22} color="#FFFFFF" />
               <Text style={styles.backText}>Türkiye Menü</Text>
             </TouchableOpacity>
             <Text style={styles.title}>⛰️ Dağlar</Text>
             <Text style={styles.subtitle}>Dağ tipini seç</Text>
           </View>
 
-          <View style={menuContainerStyle}>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={menuContainerStyle}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={rowStyle}>
               <TouchableOpacity style={[menuButtonStyle, styles.volcanicButton]} onPress={() => onSelectType('volcanic')} activeOpacity={0.9}>
                 <Text style={iconStyle}>🌋</Text>
@@ -49,7 +56,7 @@ const MountainTypesMenu = ({ onSelectType, onBackToTurkeyMenu }) => {
                 <Text style={buttonTitleStyle}>Kırıklı</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </ImageBackground>
     </View>
@@ -70,8 +77,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
   },
   header: {
-    paddingTop: 62,
-    paddingBottom: 8,
+    paddingTop: 44,
+    paddingBottom: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
   },
@@ -79,49 +86,45 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    marginBottom: 20,
-    paddingVertical: 8,
+    marginBottom: 10,
+    paddingVertical: 6,
   },
   backText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#FFFFFF',
     fontWeight: '600',
     marginLeft: 4,
   },
   title: {
-    fontSize: 36,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 4,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#94A3B8',
     textAlign: 'center',
   },
-  menuContainer: {
+  scroll: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
+  },
+  menuContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexGrow: 1,
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-evenly',
   },
   menuButton: {
     flex: 1,
-    aspectRatio: 1.2,
-    maxWidth: 200,
-    marginHorizontal: 8,
-    borderRadius: 16,
-    padding: 16,
+    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -131,9 +134,6 @@ const styles = StyleSheet.create({
     elevation: 6,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  singleButton: {
-    maxWidth: 130,
   },
   volcanicButton: {
     backgroundColor: '#EF4444',
@@ -145,11 +145,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#8B5CF6',
   },
   icon: {
-    fontSize: 48,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   buttonTitle: {
-    fontSize: 16,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',

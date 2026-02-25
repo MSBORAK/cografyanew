@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
   Animated,
   PanResponder,
   ImageBackground,
@@ -18,14 +18,25 @@ import { continentViewBox } from '../constants/continentViewBox';
 import { getCountryColor } from '../constants/worldColors';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
+const MAP_ASPECT = 1000 / 507;
 
 const AfricaMap = ({ onBackToMenu, onBackToMain }) => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const [layout, setLayout] = useState({ w: 0, h: 0 });
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundCountries, setFoundCountries] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
+
+  const onMapLayout = (e) => {
+    const { width, height } = e.nativeEvent.layout;
+    if (width > 10 && height > 10) setLayout({ w: width, h: height });
+  };
+  const mapW = layout.w > 0 && layout.h > 0
+    ? (layout.w / layout.h > MAP_ASPECT ? layout.h * MAP_ASPECT : layout.w)
+    : 0;
+  const mapH = mapW > 0 ? mapW / MAP_ASPECT : 0;
+  const hasLayout = mapW > 0 && mapH > 0;
 
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -155,12 +166,12 @@ const AfricaMap = ({ onBackToMenu, onBackToMain }) => {
           <View style={styles.backButtonsColumn}>
             {onBackToMain && (
               <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-                <Home size={24} color="#E2E8F0" />
+                <Home size={20} color="#E2E8F0" />
                 <Text style={styles.backText}>Ana Menü</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-              <ChevronLeft size={24} color="#E2E8F0" />
+              <ChevronLeft size={20} color="#E2E8F0" />
               <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
           </View>
@@ -177,12 +188,12 @@ const AfricaMap = ({ onBackToMenu, onBackToMain }) => {
           <View style={styles.headerSpacer} />
           {feedback && (
             <View style={[styles.feedbackIcon, feedback === 'correct' ? styles.correctIcon : styles.wrongIcon]}>
-              {feedback === 'correct' ? <Check size={24} color="#FFFFFF" strokeWidth={3} /> : <X size={24} color="#FFFFFF" strokeWidth={3} />}
+              {feedback === 'correct' ? <Check size={20} color="#FFFFFF" strokeWidth={3} /> : <X size={20} color="#FFFFFF" strokeWidth={3} />}
             </View>
           )}
         </View>
         {!isCompleted && currentCountry && (
-          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+          <View style={[styles.questionOverlay, { width: Math.max(screenWidth, screenHeight) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
               <Text style={styles.questionText}>{countryNames[currentCountry.id] || currentCountry.id} nerede?</Text>
             </View>
@@ -190,9 +201,10 @@ const AfricaMap = ({ onBackToMenu, onBackToMain }) => {
         )}
       </View>
 
-      <View style={styles.mapContainer}>
+      <View style={styles.mapContainer} onLayout={onMapLayout}>
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
-          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.507} viewBox={continentViewBox.africa.viewBox} preserveAspectRatio={continentViewBox.africa.preserveAspectRatio} style={styles.svg}>
+          {hasLayout && (
+          <Svg width={mapW} height={mapH} viewBox={continentViewBox.africa.viewBox} preserveAspectRatio={continentViewBox.africa.preserveAspectRatio} style={styles.svg}>
             {/* Arka plan boş – çerçeve yok */}
             <G>
               {worldPaths
@@ -226,6 +238,7 @@ const AfricaMap = ({ onBackToMenu, onBackToMain }) => {
             
             {/* Ülke isimleri gösterilmiyor - karışıklığı önlemek için */}
           </Svg>
+          )}
         </Animated.View>
         <TouchableOpacity style={styles.zoomResetButton} onPress={resetZoom}>
           <RotateCcw size={20} color="#FFFFFF" />
@@ -245,30 +258,30 @@ const AfricaMap = ({ onBackToMenu, onBackToMain }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 48, paddingBottom: 2, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
-  backButtonsColumn: { flexDirection: 'column', marginRight: 12 },
+  header: { paddingTop: 24, paddingBottom: 4, paddingHorizontal: 8, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
+  backButtonsColumn: { flexDirection: 'column', marginRight: 8 },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    marginRight: 8,
+    padding: 4,
+    marginRight: 6,
     gap: 4,
   },
   backText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#E2E8F0',
     fontWeight: '600',
   },
   headerLeft: { justifyContent: 'center' },
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginTop: 48, marginBottom: 3 },
-  questionText: { fontSize: 16, fontWeight: '600', color: '#92400E' },
-  progressText: { fontSize: 10, color: '#94A3B8' },
-  completedText: { fontSize: 12, fontWeight: '600', color: '#34D399' },
-  feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },
+  title: { fontSize: 12, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 2 },
+  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, alignSelf: 'center', marginTop: 24, marginBottom: 2 },
+  questionText: { fontSize: 14, fontWeight: '600', color: '#92400E' },
+  progressText: { fontSize: 9, color: '#94A3B8' },
+  completedText: { fontSize: 11, fontWeight: '600', color: '#34D399' },
+  feedbackIcon: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },
   correctIcon: { backgroundColor: '#10B981' },
   wrongIcon: { backgroundColor: '#000000' },
   mapContainer: { flex: 1, overflow: 'hidden' },

@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
   Animated,
   PanResponder,
   ImageBackground,
@@ -16,9 +16,7 @@ import { turkeyPaths } from '../constants/turkeyPaths';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { massifs, getMassifColor } from '../constants/massifs';
 import MassifsMapManualAdjust from './MassifsMapManualAdjust';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
+import { useTurkeyMapLayout } from '../utils/useTurkeyMapLayout';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -30,6 +28,8 @@ function shuffleArray(arr) {
 }
 
 const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { mapW, mapH, hasLayout, onLayout } = useTurkeyMapLayout();
   const [quizOrder, setQuizOrder] = useState(() => shuffleArray(massifs));
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundMassifs, setFoundMassifs] = useState([]);
@@ -199,7 +199,7 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
           )}
         </View>
         {!isCompleted && currentMassif && (
-          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+          <View style={[styles.questionOverlay, { width: Math.max(screenWidth, screenHeight) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
               <Text style={styles.questionText}>{currentMassif.name} nerede?</Text>
             </View>
@@ -207,9 +207,10 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
         )}
       </View>
 
-      <View style={styles.mapContainer}>
+      <View style={styles.mapContainer} onLayout={onLayout}>
+        {hasLayout && (
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
-          <Svg width={MAP_WIDTH} height={MAP_WIDTH * 0.52} viewBox="0 0 1007.478 527.323" style={styles.svg}>
+          <Svg width={mapW} height={mapH} viewBox="0 0 1007.478 527.323" preserveAspectRatio="xMidYMid meet" style={styles.svg}>
             <G>
               {turkeyPaths.map((city) => (
                 <Path key={city.id} d={city.d} fill="#F3F4F6" stroke="#E5E7EB" strokeWidth="0.3" opacity={1} />
@@ -247,6 +248,7 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
             </G>
           </Svg>
         </Animated.View>
+        )}
         <TouchableOpacity style={styles.zoomResetButton} onPress={resetZoom}>
           <RotateCcw size={20} color="#FFFFFF" />
         </TouchableOpacity>
@@ -265,29 +267,29 @@ const MassifsMap = ({ onBackToMenu, onBackToMain }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 48, paddingBottom: 2, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
-  backButtonsColumn: { flexDirection: 'column', marginRight: 12 },
+  header: { paddingTop: 36, paddingBottom: 4, paddingHorizontal: 10, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
+  backButtonsColumn: { flexDirection: 'column', marginRight: 8 },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    marginRight: 8,
+    padding: 4,
+    marginRight: 6,
     gap: 4,
   },
   backText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#E2E8F0',
     fontWeight: '600',
   },
-  settingsButton: { padding: 6, marginLeft: 8 },
-  headerLeft: { justifyContent: 'center' },
+  settingsButton: { padding: 4, marginLeft: 6 },
+  headerLeft: { justifyContent: 'center', marginLeft: 6 },
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'center', marginTop: 48, marginBottom: 3 },
-  questionText: { fontSize: 16, fontWeight: '600', color: '#92400E' },
-  progressText: { fontSize: 10, color: '#94A3B8' },
+  questionBadge: { backgroundColor: '#FCD34D', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, alignSelf: 'center', marginTop: 36, marginBottom: 3 },
+  questionText: { fontSize: 14, fontWeight: '600', color: '#92400E' },
+  progressText: { fontSize: 9, color: '#94A3B8' },
   completedText: { fontSize: 12, fontWeight: '600', color: '#10B981' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },
   correctIcon: { backgroundColor: '#10B981' },

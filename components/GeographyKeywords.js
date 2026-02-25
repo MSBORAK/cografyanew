@@ -5,13 +5,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  ImageBackground,
   Animated,
 } from 'react-native';
-import { Home, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { GEOGRAPHY_KEYWORDS } from '../constants/geographyKeywords';
 
+console.warn('[DEBUG GeographyKeywords] module loaded');
 const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
+  console.warn('[DEBUG GeographyKeywords] component body start');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showDefinition, setShowDefinition] = useState(false);
   const flipAnim = useRef(new Animated.Value(0)).current;
@@ -48,21 +49,17 @@ const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
   };
 
   return (
-    <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }}
-      style={styles.container}
-      blurRadius={3}
-    >
+    <View style={[styles.container, { backgroundColor: '#0f172a' }]}>
       <View style={styles.header}>
         <View style={styles.backButtonsColumn}>
           {onBackToMain && (
             <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#F59E0B" />
+              <Ionicons name="home" size={24} color="#F59E0B" />
               <Text style={styles.backText}>Ana Menü</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#F59E0B" />
+            <Ionicons name="chevron-back" size={24} color="#F59E0B" />
             <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
         </View>
@@ -133,7 +130,7 @@ const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
           onPress={handlePrev}
           activeOpacity={0.8}
         >
-          <ChevronLeft size={28} color="#F59E0B" />
+          <Ionicons name="chevron-back" size={28} color="#F59E0B" />
           <Text style={styles.navText}>Önceki</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -142,7 +139,7 @@ const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
           activeOpacity={0.8}
         >
           <Text style={styles.navText}>Sonraki</Text>
-          <ChevronRight size={28} color="#F59E0B" />
+          <Ionicons name="chevron-forward" size={28} color="#F59E0B" />
         </TouchableOpacity>
       </View>
 
@@ -159,7 +156,7 @@ const GeographyKeywords = ({ onBackToMenu, onBackToMain }) => {
           </View>
         ))}
       </ScrollView>
-    </ImageBackground>
+    </View>
   );
 };
 

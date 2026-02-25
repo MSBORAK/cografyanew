@@ -6,7 +6,7 @@ export default function BadgeUnlockModal({ badgeIds, onClose }) {
   const badges = badgeIds.map((id) => getBadgeById(id)).filter(Boolean);
 
   return (
-    <Modal visible={badges.length > 0} transparent animationType="fade">
+    <Modal visible={badges.length > 0} transparent animationType="fade" supportedOrientations={['landscape-left', 'landscape-right']}>
       <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={styles.card}>
           <Text style={styles.title}>🎉 Rozet Açıldı!</Text>

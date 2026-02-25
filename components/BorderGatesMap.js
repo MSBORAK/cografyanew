@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
   Animated,
   PanResponder,
   ImageBackground,
@@ -15,11 +15,9 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { borderGates } from '../constants/borderGates';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
+import { useTurkeyMapLayout } from '../utils/useTurkeyMapLayout';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const TURKEY_VIEWBOX = { w: 1007.478, h: 527.323 };
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
-const MAP_HEIGHT = MAP_WIDTH * (TURKEY_VIEWBOX.h / TURKEY_VIEWBOX.w);
 
 // Sınır kapısı koordinatlarını Türkiye haritası (0–1007 x 0–527) üzerine eşle
 const gateToMap = (gate) => ({
@@ -28,6 +26,8 @@ const gateToMap = (gate) => ({
 });
 
 const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { mapW, mapH, hasLayout, onLayout } = useTurkeyMapLayout();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [foundGates, setFoundGates] = useState([]);
   const [feedback, setFeedback] = useState(null);
@@ -185,7 +185,7 @@ const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
           )}
         </View>
         {!isCompleted && currentGate && (
-          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+          <View style={[styles.questionOverlay, { width: Math.max(screenWidth, screenHeight) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
               <Text style={styles.questionText}>{currentGate.name} nerede?</Text>
               <Text style={styles.instructionText}>Sorulan sınır kapısına tıklayın</Text>
@@ -194,10 +194,11 @@ const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
         )}
       </View>
 
-      <View style={styles.mapContainer}>
+      <View style={styles.mapContainer} onLayout={onLayout}>
+        {hasLayout && (
         <Animated.View style={[styles.mapWrapper, { transform: [{ scale }, { translateX }, { translateY }] }]} {...panResponder.panHandlers}>
-          <View style={[styles.mapFrame, { width: MAP_WIDTH, height: MAP_HEIGHT }]}>
-            <Svg width={MAP_WIDTH} height={MAP_HEIGHT} viewBox={`0 0 ${TURKEY_VIEWBOX.w} ${TURKEY_VIEWBOX.h}`} preserveAspectRatio="xMidYMid meet" style={styles.svg}>
+          <View style={[styles.mapFrame, { width: mapW, height: mapH }]}>
+            <Svg width={mapW} height={mapH} viewBox={`0 0 ${TURKEY_VIEWBOX.w} ${TURKEY_VIEWBOX.h}`} preserveAspectRatio="xMidYMid meet" style={styles.svg}>
               {/* Deniz / arka plan (açık mavi) */}
               <G>
                 <Path d={`M0,0 L${TURKEY_VIEWBOX.w},0 L${TURKEY_VIEWBOX.w},${TURKEY_VIEWBOX.h} L0,${TURKEY_VIEWBOX.h} Z`} fill="#BFDBFE" fillOpacity={0.5} />
@@ -237,6 +238,7 @@ const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
             </Svg>
           </View>
         </Animated.View>
+        )}
         <TouchableOpacity style={styles.zoomResetButton} onPress={resetZoom}>
           <RotateCcw size={20} color="#FFFFFF" />
         </TouchableOpacity>
@@ -255,29 +257,29 @@ const BorderGatesMap = ({ onBackToMenu, onBackToMain }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 48, paddingBottom: 2, paddingHorizontal: 12, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
-  backButtonsColumn: { flexDirection: 'column', marginRight: 12 },
+  header: { paddingTop: 36, paddingBottom: 4, paddingHorizontal: 10, backgroundColor: 'rgba(15, 23, 42, 0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(148, 163, 184, 0.2)', position: 'relative' },
+  backButtonsColumn: { flexDirection: 'column', marginRight: 8 },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    marginRight: 8,
+    padding: 4,
+    marginRight: 6,
     gap: 4,
   },
   backText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#E2E8F0',
     fontWeight: '600',
   },
-  headerLeft: { justifyContent: 'center' },
+  headerLeft: { justifyContent: 'center', marginLeft: 6 },
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 14, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  questionBadge: { backgroundColor: '#FEE2E2', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, alignSelf: 'center', marginTop: 48, marginBottom: 3 },
-  questionText: { fontSize: 16, fontWeight: '600', color: '#991B1B' },
+  questionBadge: { backgroundColor: '#FEE2E2', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, alignSelf: 'center', marginTop: 36, marginBottom: 3 },
+  questionText: { fontSize: 14, fontWeight: '600', color: '#991B1B' },
   instructionText: { fontSize: 9, color: '#B91C1C', marginTop: 4, textAlign: 'center' },
-  progressText: { fontSize: 10, color: '#94A3B8' },
+  progressText: { fontSize: 9, color: '#94A3B8' },
   completedText: { fontSize: 12, fontWeight: '600', color: '#10B981' },
   feedbackIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6 },
   correctIcon: { backgroundColor: '#10B981' },

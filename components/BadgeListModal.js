@@ -17,7 +17,7 @@ export default function BadgeListModal({ visible, onClose }) {
   }, [visible]);
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
+    <Modal visible={visible} transparent animationType="slide" supportedOrientations={['landscape-left', 'landscape-right']}>
       <View style={styles.backdrop}>
         <View style={styles.card}>
           <View style={styles.header}>

@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
   Animated,
   PanResponder,
   ImageBackground,
@@ -17,9 +17,8 @@ import { getCityCenter } from '../constants/cityCenters';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
 import { getMountainsByType, getMountainTypeName } from '../constants/mountainTypes';
 import { saveWrongAnswer, removeWrongAnswer } from '../utils/practiceMode';
+import { useTurkeyMapLayout } from '../utils/useTurkeyMapLayout';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAP_WIDTH = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92;
 const VIEWBOX_W = 1007.478;
 const VIEWBOX_H = 527.323;
 
@@ -33,6 +32,8 @@ const shuffleArray = (array) => {
 };
 
 const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practiceIds = null }) => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { mapW, mapH, hasLayout, onLayout } = useTurkeyMapLayout();
   const mountainTypeName = getMountainTypeName(mountainType);
   const [mountains, setMountains] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -253,7 +254,7 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
           )}
         </View>
         {!hasNoMountains && !isCompleted && currentMountain && (
-          <View style={[styles.questionOverlay, { width: Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) }]} pointerEvents="box-none">
+          <View style={[styles.questionOverlay, { width: Math.max(screenWidth, screenHeight) }]} pointerEvents="box-none">
             <View style={styles.questionBadge}>
               <Text style={styles.questionText}>{currentMountain.name} hangi ilde?</Text>
             </View>
@@ -261,8 +262,9 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
         )}
       </View>
 
-      <View style={styles.mapContainer}>
-        <Animated.View 
+      <View style={styles.mapContainer} onLayout={onLayout}>
+        {hasLayout && (
+        <Animated.View
           style={[
             styles.mapWrapper,
             {
@@ -275,11 +277,12 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
           ]}
           {...panResponder.panHandlers}
         >
-          <View style={{ width: MAP_WIDTH, height: MAP_WIDTH * 0.52 }}>
+          <View style={{ width: mapW, height: mapH }}>
             <Svg
-              width={MAP_WIDTH}
-              height={MAP_WIDTH * 0.52}
+              width={mapW}
+              height={mapH}
               viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
+              preserveAspectRatio="xMidYMid meet"
               style={styles.svg}
             >
             {/* Türkiye haritası – ile tıklayarak dağın bulunduğu ili seç */}
@@ -369,6 +372,7 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
           </Svg>
           </View>
         </Animated.View>
+        )}
 
         {/* Zoom Reset Butonu */}
         <TouchableOpacity 
@@ -398,16 +402,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 48,
-    paddingBottom: 2,
-    paddingHorizontal: 12,
+    paddingTop: 36,
+    paddingBottom: 4,
+    paddingHorizontal: 10,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
   },
   backButtonsColumn: {
     flexDirection: 'column',
-    marginRight: 12,
+    marginRight: 8,
   },
   headerContent: {
     flexDirection: 'row',
@@ -416,31 +420,31 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    marginRight: 8,
+    padding: 4,
+    marginRight: 6,
     gap: 4,
   },
   backText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#E2E8F0',
     fontWeight: '600',
   },
-  headerLeft: { justifyContent: 'center' },
+  headerLeft: { justifyContent: 'center', marginLeft: 6 },
   headerSpacer: { flex: 1 },
   questionOverlay: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#F8FAFC',
     marginBottom: 4,
   },
   questionBadge: {
     backgroundColor: '#FCD34D',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 14,
     alignSelf: 'center',
-    marginTop: 48,
+    marginTop: 36,
     marginBottom: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -449,12 +453,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   questionText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
     color: '#92400E',
   },
   progressText: {
-    fontSize: 12,
+    fontSize: 9,
     color: '#94A3B8',
     fontWeight: '600',
   },

@@ -26,7 +26,7 @@ const colorById = Object.fromEntries(FAULT_LINE_PATHS.map((f) => [f.id, f.color]
 
 export default function FaultLinesScreen({ onBackToMenu, onBackToMain }) {
   const { width: screenWidth } = useWindowDimensions();
-  const mapWidth = screenWidth - 32;
+  const mapWidth = screenWidth - 12;
   const mapHeight = mapWidth / MAP_ASPECT;
   const [selectedFaultId, setSelectedFaultId] = useState(null);
 
@@ -44,20 +44,25 @@ export default function FaultLinesScreen({ onBackToMenu, onBackToMain }) {
       blurRadius={3}
     >
       <View style={styles.header}>
-        <View style={styles.backButtonsColumn}>
-          {onBackToMain && (
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#DC2626" />
-              <Text style={styles.backText}>Ana Menü</Text>
+        <View style={styles.headerRow}>
+          <View style={styles.backButtonsColumn}>
+            {onBackToMain && (
+              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
+                <Home size={18} color="#DC2626" />
+                <Text style={styles.backText}>Ana Menü</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
+              <ChevronLeft size={18} color="#DC2626" />
+              <Text style={styles.backText}>Geri</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#DC2626" />
-            <Text style={styles.backText}>Geri</Text>
-          </TouchableOpacity>
+          </View>
+          <View style={styles.headerCenter}>
+            <Text style={styles.title}>⛰️ Fay Hatları</Text>
+            <Text style={styles.subtitle}>Türkiye'deki başlıca fay hatları</Text>
+          </View>
+          <View style={styles.headerSpacer} />
         </View>
-        <Text style={styles.title}>⛰️ Fay Hatları</Text>
-        <Text style={styles.subtitle}>Türkiye'deki başlıca fay hatları</Text>
       </View>
 
       <ScrollView
@@ -70,6 +75,7 @@ export default function FaultLinesScreen({ onBackToMenu, onBackToMain }) {
             width={mapWidth}
             height={mapHeight}
             viewBox={TURKEY_VIEWBOX}
+            preserveAspectRatio="xMidYMid meet"
           >
             <G>
               {turkeyPaths.map((city) => (
@@ -121,6 +127,7 @@ export default function FaultLinesScreen({ onBackToMenu, onBackToMain }) {
         transparent
         animationType="fade"
         onRequestClose={() => setSelectedFaultId(null)}
+        supportedOrientations={['landscape-left', 'landscape-right']}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setSelectedFaultId(null)}>
           <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
@@ -147,46 +154,58 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 62,
+    paddingTop: 20,
     paddingBottom: 4,
-    paddingHorizontal: 20,
+    paddingHorizontal: 8,
     backgroundColor: 'rgba(15, 23, 42, 0.92)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   backButtonsColumn: {
     flexDirection: 'column',
-    marginRight: 12,
+    marginRight: 6,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 0,
+    paddingVertical: 2,
+    paddingRight: 4,
   },
   backText: {
-    fontSize: 16,
+    fontSize: 11,
     color: '#DC2626',
     fontWeight: '600',
-    marginLeft: 8,
+    marginLeft: 2,
   },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerSpacer: { width: 60 },
   title: {
-    fontSize: 28,
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#F8FAFC',
-    marginTop: 2,
+    marginBottom: 0,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 9,
     color: '#94A3B8',
-    marginTop: 4,
+    marginTop: 1,
     textAlign: 'center',
   },
   scroll: { flex: 1 },
-  scrollContent: { padding: 16, paddingBottom: 40 },
+  scrollContent: { padding: 8, paddingBottom: 32 },
   mapWrapper: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   mapCaption: {
     fontSize: 11,

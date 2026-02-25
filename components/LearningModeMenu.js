@@ -5,13 +5,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  ImageBackground,
   Platform,
 } from 'react-native';
-import { Home, ChevronLeft, BookOpen, Lightbulb, Brain, Globe, ChevronRight } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useScreenScale } from '../utils/screenScale';
 
+console.warn('[DEBUG LearningModeMenu] module loaded');
 const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
+  console.warn('[DEBUG LearningModeMenu] component body start');
   const { scale, moderateScale } = useScreenScale();
   const contentContainerStyle = { ...styles.contentContainer, padding: scale(20), paddingBottom: scale(28) };
   const howItWorksCardStyle = { ...styles.howItWorksCard, borderRadius: scale(22), padding: scale(22), marginBottom: scale(18) };
@@ -70,22 +71,18 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
     },
   ];
 
-  return (
-    <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800' }}
-      style={styles.container}
-      blurRadius={3}
-    >
+  const content = (
+    <>
       <View style={styles.header}>
         <View style={styles.backButtonsColumn}>
           {onBackToMain && (
             <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-              <Home size={24} color="#10B981" />
+              <Ionicons name="home" size={24} color="#10B981" />
               <Text style={styles.backText}>Ana Menü</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-            <ChevronLeft size={24} color="#10B981" />
+            <Ionicons name="chevron-back" size={24} color="#10B981" />
             <Text style={styles.backText}>Geri</Text>
           </TouchableOpacity>
         </View>
@@ -96,7 +93,7 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
       <ScrollView style={styles.content} contentContainerStyle={contentContainerStyle} showsVerticalScrollIndicator={false}>
         <View style={howItWorksCardStyle}>
           <View style={brainIconWrapStyle}>
-            <Brain size={36} color="#10B981" />
+            <Ionicons name="school" size={36} color="#10B981" />
           </View>
           <Text style={infoTitleStyle}>Nasıl Çalışır?</Text>
           <Text style={infoTextStyle}>
@@ -106,7 +103,7 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
           <View style={styles.featureDivider} />
           <View style={styles.featureRow}>
             <View style={[styles.featureIconWrap, { backgroundColor: 'rgba(252, 211, 77, 0.2)' }]}>
-              <Lightbulb size={22} color="#FCD34D" />
+              <Ionicons name="bulb" size={22} color="#FCD34D" />
             </View>
             <View style={styles.featureText}>
               <Text style={styles.featureTitle}>İlginç Bilgiler</Text>
@@ -115,7 +112,7 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
           </View>
           <View style={styles.featureRow}>
             <View style={[styles.featureIconWrap, { backgroundColor: 'rgba(59, 130, 246, 0.2)' }]}>
-              <BookOpen size={22} color="#3B82F6" />
+              <Ionicons name="book" size={22} color="#3B82F6" />
             </View>
             <View style={styles.featureText}>
               <Text style={styles.featureTitle}>Görsel Öğrenme</Text>
@@ -124,7 +121,7 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
           </View>
           <View style={styles.featureRow}>
             <View style={[styles.featureIconWrap, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
-              <Globe size={22} color="#10B981" />
+              <Ionicons name="globe" size={22} color="#10B981" />
             </View>
             <View style={styles.featureText}>
               <Text style={styles.featureTitle}>Farklı Kategoriler</Text>
@@ -153,7 +150,7 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
               </View>
               <View style={[startButtonStyle, { backgroundColor: category.color }]}>
                 <Text style={startButtonTextStyle}>Başla</Text>
-                <ChevronRight size={18} color="#FFFFFF" />
+                <Ionicons name="chevron-forward" size={18} color="#FFFFFF" />
               </View>
             </TouchableOpacity>
           ))}
@@ -170,7 +167,11 @@ const LearningModeMenu = ({ onBackToMenu, onBackToMain, onSelectCategory }) => {
           </Text>
         </View>
       </ScrollView>
-    </ImageBackground>
+    </>
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor: '#0f172a' }]}>{content}</View>
   );
 };
 
