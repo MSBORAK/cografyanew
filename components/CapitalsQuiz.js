@@ -140,20 +140,22 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
     <ImageBackground source={BACKGROUND_IMAGE} style={styles.container} blurRadius={3}>
       <View style={[styles.header, isTablet && styles.headerTablet]}>
         <View style={styles.headerContent}>
-          <View style={styles.backButtonsColumn}>
+          <View style={[styles.backButtonsColumn, isTablet && styles.backButtonsColumnTablet]}>
             {onBackToMain && (
-              <TouchableOpacity style={styles.backButton} onPress={onBackToMain}>
-                <Ionicons name="home" size={20} color={isTablet ? '#E2E8F0' : '#60A5FA'} />
+              <TouchableOpacity style={[styles.backButton, isTablet && styles.backButtonTablet]} onPress={onBackToMain}>
+                <Ionicons name="home" size={20} color="#60A5FA" />
                 <Text style={[styles.backText, isTablet && styles.backTextTablet]}>Ana Menü</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity style={styles.backButton} onPress={onBackToMenu}>
-              <Ionicons name="chevron-back" size={20} color={isTablet ? '#E2E8F0' : '#60A5FA'} />
+            <TouchableOpacity style={[styles.backButton, isTablet && styles.backButtonTablet]} onPress={onBackToMenu}>
+              <Ionicons name="chevron-back" size={20} color="#60A5FA" />
               <Text style={[styles.backText, isTablet && styles.backTextTablet]}>Geri</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.headerLeft}>
-            <Text style={[styles.title, isTablet && styles.titleTablet]} numberOfLines={1}>Başkentler Quiz</Text>
+          <View style={[styles.headerLeft, isTablet && styles.headerLeftTablet]}>
+            {!isTablet && (
+              <Text style={styles.title} numberOfLines={1}>Başkentler Quiz</Text>
+            )}
             <Text style={[styles.progressText, isTablet && styles.progressTextTablet]} numberOfLines={1}>
               Soru {currentQuestionIndex + 1} / {quizItems.length}
             </Text>
@@ -227,8 +229,8 @@ const CapitalsQuiz = ({ onBackToMenu, onBackToMain }) => {
                 disabled={!!feedback}
                 activeOpacity={0.8}
               >
-                <Text style={styles.optionLetter}>{String.fromCharCode(65 + index)}</Text>
-                <Text style={textStyle}>{option}</Text>
+                <Text style={[styles.optionLetter, isTablet && styles.optionLetterTablet]}>{String.fromCharCode(65 + index)}</Text>
+                <Text style={[textStyle, isTablet && styles.optionTextTablet]}>{option}</Text>
                 {iconComponent && <View style={styles.iconContainer}>{iconComponent}</View>}
               </TouchableOpacity>
             );
@@ -247,6 +249,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     marginRight: 8,
   },
+  backButtonsColumnTablet: {
+    marginRight: 12,
+  },
   header: {
     paddingTop: 24,
     paddingBottom: 4,
@@ -256,18 +261,13 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(148, 163, 184, 0.2)',
   },
   headerTablet: {
-    paddingHorizontal: 8,
-    paddingTop: 24,
+    paddingTop: 62,
     paddingBottom: 4,
+    paddingHorizontal: 20,
   },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  headerTablet: {
-    paddingHorizontal: 8,
-    paddingTop: 24,
-    paddingBottom: 4,
   },
   backButton: {
     flexDirection: 'row',
@@ -277,6 +277,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     gap: 4,
   },
+  backButtonTablet: {
+    marginBottom: 12,
+  },
   backText: {
     fontSize: 12,
     color: '#60A5FA',
@@ -284,13 +287,17 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   backTextTablet: {
-    color: '#E2E8F0',
+    color: '#60A5FA',
+    fontSize: 16,
   },
   headerLeft: {
     flex: 1,
     flexShrink: 1,
     minWidth: 0,
     justifyContent: 'center',
+  },
+  headerLeftTablet: {
+    alignItems: 'center',
   },
   title: {
     fontSize: 12,
@@ -310,7 +317,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   progressTextTablet: {
-    fontSize: 9,
+    fontSize: 14,
     color: '#94A3B8',
   },
   headerScoreText: {
@@ -320,7 +327,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   headerScoreTextTablet: {
-    fontSize: 11,
+    fontSize: 14,
   },
   feedbackIcon: {
     width: 32,
@@ -348,10 +355,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   contentContainerTablet: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    paddingBottom: 20,
-    alignItems: 'stretch',
+    padding: 20,
+    paddingBottom: 24,
+    alignItems: 'center',
   },
   questionCard: {
     backgroundColor: 'rgba(30, 41, 59, 0.92)',
@@ -371,10 +377,18 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   questionCardTablet: {
-    maxWidth: '100%',
     width: '100%',
-    padding: 12,
-    marginBottom: 10,
+    maxWidth: 560,
+    borderRadius: 20,
+    padding: 28,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
   },
   questionLabel: {
     fontSize: 14,
@@ -385,8 +399,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   questionLabelTablet: {
-    fontSize: 13,
-    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 20,
   },
   flagWrapper: {
     padding: 6,
@@ -394,8 +409,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.5)',
   },
   flagWrapperTablet: {
-    padding: 4,
-    borderRadius: 12,
+    padding: 16,
+    borderRadius: 24,
+    backgroundColor: 'rgba(15, 23, 42, 0.5)',
   },
   flagContainer: {
     width: 64,
@@ -409,15 +425,18 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   flagContainerTablet: {
-    width: 52,
-    height: 52,
-    borderRadius: 8,
+    width: 130,
+    height: 130,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 2,
+    borderColor: 'rgba(148, 163, 184, 0.25)',
   },
   flagEmoji: {
     fontSize: 42,
   },
   flagEmojiTablet: {
-    fontSize: 32,
+    fontSize: 88,
   },
   optionsContainer: {
     flex: 1,
@@ -427,7 +446,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   optionsContainerTablet: {
-    gap: 6,
+    width: '100%',
+    maxWidth: 560,
+    gap: 12,
   },
   optionButton: {
     backgroundColor: 'rgba(30, 41, 59, 0.92)',
@@ -445,8 +466,26 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   optionButtonTablet: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderRadius: 16,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.25)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  optionLetterTablet: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    fontSize: 16,
+    lineHeight: 32,
+    marginRight: 12,
+  },
+  optionTextTablet: {
+    fontSize: 16,
   },
   correctButton: {
     backgroundColor: '#10B981',

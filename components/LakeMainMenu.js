@@ -71,8 +71,8 @@ const LakeMainMenu = ({ onSelectNatural, onSelectArtificial, onBackToTurkeyMenu 
               <ChevronLeft size={isMobile ? 22 : 24} color="#FFFFFF" />
               <Text style={styles.backText}>Türkiye Menü</Text>
             </TouchableOpacity>
-            <Text style={styles.title}>🌊 Göller</Text>
-            <Text style={styles.subtitle}>Göl kategorisini seç</Text>
+            <Text style={[styles.title, !isMobile && styles.titleTablet]}>🌊 Göller</Text>
+            <Text style={[styles.subtitle, !isMobile && styles.subtitleTablet]}>Göl kategorisini seç</Text>
           </View>
 
           {isMobile ? (
@@ -139,10 +139,17 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 4,
   },
+  titleTablet: {
+    fontSize: 38,
+    marginBottom: 8,
+  },
   subtitle: {
     fontSize: 14,
     color: '#94A3B8',
     textAlign: 'center',
+  },
+  subtitleTablet: {
+    fontSize: 18,
   },
   scroll: {
     flex: 1,

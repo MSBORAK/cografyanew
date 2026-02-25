@@ -22,7 +22,7 @@ const LakeTypesMenu = ({ onSelectType, onBackToLakeMainMenu }) => {
     : { ...styles.buttonTitle, fontSize: moderateScale(16) };
   const menuContainerStyle = isMobile
     ? { ...styles.menuContainer, paddingHorizontal: scale(14), paddingVertical: scale(10), paddingTop: scale(28) }
-    : { ...styles.menuContainer, padding: scale(24) };
+    : { ...styles.menuContainer, ...styles.menuContainerTablet, padding: scale(24) };
 
   const buttonsRow1 = (
     <View style={rowStyle}>
@@ -170,6 +170,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     flexGrow: 1,
+  },
+  menuContainerTablet: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   row: {
     flexDirection: 'row',
