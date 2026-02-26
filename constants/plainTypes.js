@@ -4,7 +4,7 @@
 export const deltaPlains = [
   { id: 1, name: 'Bafra Ovası', x: 525, y: 78, type: 'delta' },   // Samsun (batı)
   { id: 2, name: 'Ergene Ovası', x: 98, y: 72, type: 'delta' },   // Tekirdağ
-  { id: 3, name: 'Çarşamba Ovası', x: 535, y: 84, type: 'delta' }, // Samsun (doğu)
+  { id: 3, name: 'Çarşamba Ovası', x: 545, y: 84, type: 'delta' }, // Samsun (doğu)
   { id: 4, name: 'Çukurova', x: 502, y: 345, type: 'delta' },     // Adana
   { id: 5, name: 'Silifke Ovası', x: 416, y: 378, type: 'delta' }, // Mersin
   { id: 6, name: 'B. Menderes Ovası', x: 106, y: 295, type: 'delta' }, // Aydın

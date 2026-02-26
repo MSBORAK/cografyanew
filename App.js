@@ -63,6 +63,7 @@ export default function App() {
   const [selectedMountainType, setSelectedMountainType] = useState(null);
   const [selectedPlainType, setSelectedPlainType] = useState(null);
   const [selectedLakeType, setSelectedLakeType] = useState(null);
+  const [lakesScreenKey, setLakesScreenKey] = useState(0); // Her girişte sıra karışsın diye
   const [isLearningMode, setIsLearningMode] = useState(false);
   const [practiceIds, setPracticeIds] = useState(null);
   const [fromPracticeMode, setFromPracticeMode] = useState(false);
@@ -272,14 +273,14 @@ export default function App() {
   };
 
   const handleSelectArtificialLakeType = (type) => {
-    // Seçilen yapay göl tipine göre haritayı göster
     setSelectedLakeType(type);
+    setLakesScreenKey((k) => k + 1);
     setCurrentScreen('lakes');
   };
 
   const handleSelectLakeType = (type) => {
-    // Seçilen göl tipine göre haritayı göster
     setSelectedLakeType(type);
+    setLakesScreenKey((k) => k + 1);
     setCurrentScreen('lakes');
   };
 
@@ -388,6 +389,7 @@ export default function App() {
         break;
       case 'turkey_lakes':
         setSelectedLakeType('all');
+        setLakesScreenKey((k) => k + 1);
         setCurrentScreen('lakes');
         break;
       case 'world_flags':
@@ -799,11 +801,12 @@ export default function App() {
     );
   }
 
-  // Göller Haritası
+  // Göller Haritası (key ile her girişte yeni sıra)
   if (currentScreen === 'lakes') {
     return (
       <View style={styles.container}>
         <LakesMap
+          key={lakesScreenKey}
           onBackToMenu={fromPracticeMode ? handleBackToPracticeMode : handleBackToLakeTypesMenu}
           onBackToMain={handleBackToMain}
           lakeType={selectedLakeType ?? 'all'}

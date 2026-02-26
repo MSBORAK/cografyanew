@@ -8,7 +8,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
-import { Home, ChevronLeft, Check, X } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, ZoomOut, RefreshCw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { regions, regionColors } from '../constants/regions';
@@ -132,6 +132,7 @@ const RegionsMap = ({ onBackToMenu, onBackToMain }) => {
       style={styles.container}
       blurRadius={3}
     >
+      <View style={styles.wrapper}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.backButtonsColumn}>
@@ -273,6 +274,17 @@ const RegionsMap = ({ onBackToMenu, onBackToMain }) => {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Sağ alt: üstte zoom, altta yeniden başlat – her zaman görünsün */}
+      <View style={styles.floatingButtonsContainer} pointerEvents="box-none">
+        <TouchableOpacity style={styles.zoomResetButton} onPress={() => {}} activeOpacity={0.8}>
+          <ZoomOut size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.restartFloatingButton} onPress={handleReset} activeOpacity={0.8}>
+          <RefreshCw size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+      </View>
     </ImageBackground>
   );
 };
@@ -280,6 +292,10 @@ const RegionsMap = ({ onBackToMenu, onBackToMain }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  wrapper: {
+    flex: 1,
+    position: 'relative',
   },
   header: {
     paddingTop: 36,
@@ -388,6 +404,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  floatingButtonsContainer: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    flexDirection: 'column',
+    gap: 12,
+    zIndex: 999,
+    elevation: 999,
+  },
+  zoomResetButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#2563EB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 16,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
+  },
+  restartFloatingButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#10B981',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 16,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
   },
 });
 

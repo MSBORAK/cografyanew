@@ -130,7 +130,7 @@ const TurkeyMap = ({ onBackToHome, onBackToMain, selectedRegion = 'all', learnin
   const regionColor = regionColors[selectedRegion] || '#2563EB';
   const regionName = (selectedRegion && selectedRegion !== 'all' && regions[selectedRegion]?.name)
   ? regions[selectedRegion].name
-  : '7 Bölge';
+  : '81 İl';
 
   // İlk yüklemede tüm haritayı göster
   useEffect(() => {

@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
-import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, ZoomOut, RefreshCw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { loadSounds, unloadSounds, playCorrectSound, playWrongSound } from '../utils/soundEffects';
@@ -187,6 +187,7 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
       style={styles.container}
       blurRadius={3}
     >
+      <View style={styles.wrapper}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.backButtonsColumn}>
@@ -272,9 +273,15 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
               ))}
             </G>
 
-            {/* Ovalar */}
+            {/* Ovalar: sorulan ova (currentPlain) en sonda çizilsin ki örtüşen bölgede onun tıklaması alınsın */}
             <G>
-              {quizOrder.map((plain) => {
+              {[...quizOrder]
+                .sort((a, b) => {
+                  if (currentPlain && a.id === currentPlain.id) return 1;
+                  if (currentPlain && b.id === currentPlain.id) return -1;
+                  return 0;
+                })
+                .map((plain) => {
                 const isFound = foundPlains.includes(plain.id);
                 const isSelected = selectedPlain === plain.id;
                 
@@ -323,14 +330,6 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
           </Svg>
         </Animated.View>
         )}
-
-        {/* Zoom Reset Butonu */}
-        <TouchableOpacity 
-          style={styles.zoomResetButton}
-          onPress={resetZoom}
-        >
-          <RotateCcw size={20} color="#FFFFFF" />
-        </TouchableOpacity>
       </View>
 
       {isCompleted && (
@@ -343,6 +342,25 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Sağ alt: üstte zoom, altta yeniden başlat */}
+      <View style={styles.floatingButtonsContainer}>
+        <TouchableOpacity
+          style={styles.zoomResetButton}
+          onPress={resetZoom}
+          activeOpacity={0.8}
+        >
+          <ZoomOut size={22} color="#FFFFFF" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.restartFloatingButton}
+          onPress={handleReset}
+          activeOpacity={0.8}
+        >
+          <RefreshCw size={22} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+      </View>
     </ImageBackground>
   );
 };
@@ -350,6 +368,10 @@ const PlainsMap = ({ onBackToMenu, onBackToMain, plainType = 'all' }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  wrapper: {
+    flex: 1,
+    position: 'relative',
   },
   header: {
     paddingTop: 36,
@@ -459,21 +481,43 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  zoomResetButton: {
+  floatingButtonsContainer: {
     position: 'absolute',
-    bottom: 16,
-    right: 16,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    bottom: 20,
+    right: 20,
+    flexDirection: 'column',
+    gap: 10,
+    zIndex: 100,
+  },
+  zoomResetButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#2563EB',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  restartFloatingButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
 });
 

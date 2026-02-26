@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path } from 'react-native-svg';
-import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, ZoomOut, RefreshCw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { worldPaths } from '../constants/worldPaths';
 import { continents, getContinentByCountry, getContinentColor } from '../constants/continents';
@@ -317,12 +317,23 @@ const ContinentsMap = ({ onBackToMenu, onBackToMain }) => {
           )}
         </Animated.View>
 
-        <TouchableOpacity 
-          style={styles.zoomResetButton}
-          onPress={resetZoom}
-        >
-          <RotateCcw size={20} color="#FFFFFF" />
-        </TouchableOpacity>
+        {/* Sağ alt: zoom + yeniden başlat (diğer haritalarla aynı) */}
+        <View style={styles.floatingButtonsContainer} pointerEvents="box-none">
+          <TouchableOpacity
+            style={styles.zoomResetButton}
+            onPress={resetZoom}
+            activeOpacity={0.8}
+          >
+            <ZoomOut size={22} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.restartFloatingButton}
+            onPress={handleReset}
+            activeOpacity={0.8}
+          >
+            <RefreshCw size={22} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {isCompleted && (
@@ -455,21 +466,43 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  zoomResetButton: {
+  floatingButtonsContainer: {
     position: 'absolute',
-    bottom: 16,
-    right: 16,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#8B5CF6',
+    bottom: 20,
+    right: 20,
+    flexDirection: 'column',
+    gap: 10,
+    zIndex: 100,
+  },
+  zoomResetButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#2563EB',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  restartFloatingButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
 });
 

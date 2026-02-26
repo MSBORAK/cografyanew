@@ -11,7 +11,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
-import { RotateCcw, Home, ChevronLeft, Maximize2, Check, X } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, ZoomOut, RefreshCw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { unescoSites } from '../constants/unescoSites';
@@ -203,6 +203,17 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
     }
   };
 
+  const resetZoom = () => {
+    Animated.parallel([
+      Animated.timing(scale, { toValue: 1, duration: 300, useNativeDriver: true }),
+      Animated.timing(translateX, { toValue: 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
+    ]).start();
+    gestureState.current.lastScale = 1;
+    gestureState.current.lastTranslateX = 0;
+    gestureState.current.lastTranslateY = 0;
+  };
+
   const handleReset = () => {
     setQuizOrder(shuffleArray(unescoSites));
     setCurrentQuestion(null);
@@ -210,22 +221,7 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
     setWrongAttempts([]);
     setShowCheckmark(false);
     setShowCross(false);
-    
-    Animated.spring(scale, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
-    Animated.spring(translateX, {
-      toValue: 0,
-      useNativeDriver: true,
-    }).start();
-    Animated.spring(translateY, {
-      toValue: 0,
-      useNativeDriver: true,
-    }).start();
-    gestureState.current.lastScale = 1;
-    gestureState.current.lastTranslateX = 0;
-    gestureState.current.lastTranslateY = 0;
+    resetZoom();
   };
 
   const isCityCorrect = (cityId) => {
@@ -406,17 +402,23 @@ const UnescoMap = ({ onBackToMenu, onBackToMain }) => {
         )}
       </View>
 
-      {/* Floating Buttons */}
-      <View style={styles.floatingButtonsContainer}>
+      {/* Sağ alt: zoom + yeniden başlat (diğer haritalarla aynı) */}
+      <View style={styles.floatingButtonsContainer} pointerEvents="box-none">
         <TouchableOpacity
-          style={[styles.floatingButton, styles.resetFloatingButton]}
-          onPress={handleReset}
+          style={styles.zoomResetButton}
+          onPress={resetZoom}
+          activeOpacity={0.8}
         >
-          <RotateCcw size={20} color="#FFFFFF" />
+          <ZoomOut size={22} color="#FFFFFF" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.restartFloatingButton}
+          onPress={handleReset}
+          activeOpacity={0.8}
+        >
+          <RefreshCw size={22} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
-
-
     </ImageBackground>
   );
 };
@@ -561,26 +563,41 @@ const styles = StyleSheet.create({
   },
   floatingButtonsContainer: {
     position: 'absolute',
-    bottom: 12,
-    right: 12,
+    bottom: 20,
+    right: 20,
     flexDirection: 'column',
-    gap: 8,
+    gap: 10,
+    zIndex: 100,
   },
-  floatingButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  zoomResetButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#2563EB',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.35,
     shadowRadius: 6,
-    elevation: 6,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
-  resetFloatingButton: {
-    backgroundColor: '#EF4444',
+  restartFloatingButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
 });
 

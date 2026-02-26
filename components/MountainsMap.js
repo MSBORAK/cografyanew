@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
-import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
+import { Home, ChevronLeft, Check, X, ZoomOut } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { getCityCenter } from '../constants/cityCenters';
@@ -69,6 +69,12 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
   const hasNoMountains = mountains.length === 0;
 
   const mountainEmoji = mountainType === 'volcanic' ? '🌋' : mountainType === 'tectonic' ? '⛰️' : '🏔️';
+
+  // Bulunan dağların illeri – yeşil kalsın
+  const foundCityIds = new Set(
+    mountains.filter((m) => foundMountains.includes(m.id)).map((m) => m.cityId)
+  );
+  const foundMountainList = mountains.filter((m) => foundMountains.includes(m.id));
 
   // Tek parmak tap il seçimi için child (Path) alabilsin; iki parmak / pan için biz alalım
   const panResponder = useRef(
@@ -211,6 +217,7 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
       style={styles.container}
       blurRadius={3}
     >
+      <View style={styles.wrapper}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.backButtonsColumn}>
@@ -288,7 +295,7 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
             {/* Türkiye haritası – ile tıklayarak dağın bulunduğu ili seç */}
             <G>
               {turkeyPaths.map((city) => {
-                const isCorrectCity = showCorrectCityId === city.id;
+                const isCorrectCity = showCorrectCityId === city.id || foundCityIds.has(city.id);
                 const fill = isCorrectCity ? '#22C55E' : '#E2E8F0';
                 return (
                   <G key={city.id} onPress={() => handleCityTap(city.id)}>
@@ -345,8 +352,8 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
                 </SvgText>
               </G>
             )}
-            {/* Tamamlanınca bulunan dağları göster */}
-            {isCompleted && mountains.map((mountain) => (
+            {/* Bulunduğu andan itibaren her bulunan dağ yeşil il + dağ adı ile kalsın */}
+            {foundMountainList.map((mountain) => (
               <G key={mountain.id}>
                 <SvgText
                   x={mountain.x}
@@ -373,14 +380,6 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
           </View>
         </Animated.View>
         )}
-
-        {/* Zoom Reset Butonu */}
-        <TouchableOpacity 
-          style={styles.zoomResetButton}
-          onPress={resetZoom}
-        >
-          <RotateCcw size={20} color="#FFFFFF" />
-        </TouchableOpacity>
       </View>
 
       {(isCompleted || hasNoMountains) && (
@@ -393,6 +392,16 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Zoom geri al – sağ alt, her zaman görünsün */}
+      <TouchableOpacity
+        style={styles.zoomResetButton}
+        onPress={resetZoom}
+        activeOpacity={0.8}
+      >
+        <ZoomOut size={22} color="#FFFFFF" />
+      </TouchableOpacity>
+      </View>
     </ImageBackground>
   );
 };
@@ -400,6 +409,10 @@ const MountainsMap = ({ onBackToMenu, onBackToMain, mountainType = 'all', practi
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  wrapper: {
+    flex: 1,
+    position: 'relative',
   },
   header: {
     paddingTop: 36,
@@ -516,20 +529,22 @@ const styles = StyleSheet.create({
   },
   zoomResetButton: {
     position: 'absolute',
-    bottom: 16,
-    right: 16,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    bottom: 20,
+    right: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#2563EB',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 8,
-    zIndex: 10,
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 12,
+    zIndex: 100,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
 });
 

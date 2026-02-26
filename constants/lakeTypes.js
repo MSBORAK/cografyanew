@@ -54,24 +54,24 @@ export const tectonicLakes = [
   { id: 50, name: 'Marmara Gölü', x: 121, y: 221, rx: 10, ry: 8, type: 'tectonic', category: 'natural', cityId: '45' },
 ];
 
-// Karstik Göller
+// Karstik Göller (2 farklı Karagöl — soruda ayırt edilsin diye il adıyla)
 export const karsticLakes = [
-  { id: 51, name: 'Karagöl', x: 199, y: 201, rx: 10, ry: 8, type: 'karstic', category: 'natural', cityId: '43' },
-  { id: 52, name: 'Karagöl', x: 424, y: 278, rx: 10, ry: 8, type: 'karstic', category: 'natural', cityId: '68' },
+  { id: 51, name: 'Karagöl (Kütahya)', x: 199, y: 201, rx: 10, ry: 8, type: 'karstic', category: 'natural', cityId: '43' },
+  { id: 52, name: 'Karagöl (Aksaray)', x: 424, y: 278, rx: 10, ry: 8, type: 'karstic', category: 'natural', cityId: '68' },
 ];
 
-// Volkanik Göller (krater)
+// Volkanik Göller (krater) — koordinatlar tektonik eşdeğerleriyle aynı (emoji doğru yerde görünsün)
 export const volcanicLakes = [
-  { id: 53, name: 'Nemrut Krater Gölü', x: 856, y: 264, rx: 10, ry: 8, type: 'volcanic', category: 'natural', cityId: '13' },
-  { id: 54, name: 'Meke Gölü', x: 503, y: 278, rx: 10, ry: 8, type: 'volcanic', category: 'natural', cityId: '42' },
-  { id: 55, name: 'Acıgöl', x: 522, y: 292, rx: 10, ry: 8, type: 'volcanic', category: 'natural', cityId: '50' },
+  { id: 53, name: 'Nemrut Krater Gölü', x: 850, y: 258, rx: 10, ry: 8, type: 'volcanic', category: 'natural', cityId: '13' },
+  { id: 54, name: 'Meke Gölü', x: 518, y: 280, rx: 10, ry: 8, type: 'volcanic', category: 'natural', cityId: '42' },
+  { id: 55, name: 'Acıgöl', x: 520, y: 290, rx: 10, ry: 8, type: 'volcanic', category: 'natural', cityId: '50' },
 ];
 
-// Set Göller (heyelan set)
+// Set Göller (heyelan set) — koordinatlar tektonik eşdeğerleriyle aynı (emoji doğru yerde görünsün)
 export const damLakes = [
-  { id: 56, name: 'Tortum Gölü', x: 819, y: 158, rx: 10, ry: 8, type: 'dam', category: 'natural', cityId: '25' },
-  { id: 57, name: 'Abant Gölü', x: 338, y: 160, rx: 10, ry: 8, type: 'dam', category: 'natural', cityId: '14' },
-  { id: 58, name: 'Yedigöller', x: 358, y: 142, rx: 10, ry: 8, type: 'dam', category: 'natural', cityId: '14' },
+  { id: 56, name: 'Tortum Gölü', x: 816, y: 156, rx: 10, ry: 8, type: 'dam', category: 'natural', cityId: '25' },
+  { id: 57, name: 'Abant Gölü', x: 335, y: 158, rx: 10, ry: 8, type: 'dam', category: 'natural', cityId: '14' },
+  { id: 58, name: 'Yedigöller', x: 355, y: 138, rx: 10, ry: 8, type: 'dam', category: 'natural', cityId: '14' },
 ];
 
 // Buzul Gölleri

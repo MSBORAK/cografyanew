@@ -9,8 +9,8 @@ import {
   PanResponder,
   ImageBackground,
 } from 'react-native';
-import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
-import { Home, ChevronLeft, Check, X, RotateCcw } from 'lucide-react-native';
+import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
+import { Home, ChevronLeft, Check, X, ZoomOut, RefreshCw } from 'lucide-react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { turkeyPaths } from '../constants/turkeyPaths';
 import { getCityCenter } from '../constants/cityCenters';
@@ -21,6 +21,24 @@ import { useTurkeyMapLayout } from '../utils/useTurkeyMapLayout';
 
 const VIEWBOX_W = 1007.478;
 const VIEWBOX_H = 527.323;
+
+// Bazı göllerin işaretçi konumu kayıyor; gösterme anında düzeltme (viewBox birimi)
+const LAKE_DISPLAY_OFFSET = {
+  54: { dx: 28, dy: 0 },   // Meke Gölü (volkanik) — sağa
+  53: { dx: 0, dy: 0 },   // Nemrut Krater
+  55: { dx: 0, dy: 0 },   // Acıgöl (volkanik)
+  56: { dx: 0, dy: 0 },   // Tortum (set)
+  57: { dx: 0, dy: 0 },   // Abant (set)
+  58: { dx: 0, dy: 0 },   // Yedigöller (set)
+};
+
+function getLakeDisplayPos(lake) {
+  if (!lake) return { px: 0, py: 0 };
+  if (lake.id === 54) { const pos = getCityCenter('42'); return { px: pos.x, py: pos.y }; }
+  if (lake.id === 55) { const pos = getCityCenter('50'); return { px: pos.x, py: pos.y }; }
+  const off = LAKE_DISPLAY_OFFSET[lake.id] || { dx: 0, dy: 0 };
+  return { px: lake.x + off.dx, py: lake.y + off.dy };
+}
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -42,6 +60,8 @@ const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = 
   const [feedback, setFeedback] = useState(null);
   const [showCorrectLocation, setShowCorrectLocation] = useState(null);
   const [showCorrectCityId, setShowCorrectCityId] = useState(null);
+  // Tüm göl tipleri (volkanik, karstik, set vb.) aynı geçiş mantığı: { delay, nextIndex, lakeId, isCorrect }
+  const [scheduledAdvance, setScheduledAdvance] = useState(null);
 
   // Her girişte / tip veya pratik listesi değişince soru sırasını karıştır
   useEffect(() => {
@@ -54,6 +74,7 @@ const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = 
     setFeedback(null);
     setShowCorrectLocation(null);
     setShowCorrectCityId(null);
+    setScheduledAdvance(null);
   }, [lakeType, practiceIds?.length]);
 
   const scale = useRef(new Animated.Value(1)).current;
@@ -64,6 +85,8 @@ const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = 
   const lastTranslateY = useRef(0);
   const tapStart = useRef(null);
   const mapContainerRef = useRef(null);
+  const pendingAnswerRef = useRef(false);
+  const lastTapTimeRef = useRef(0);
 
   const currentLake = quizOrder[currentQuestionIndex];
   const isCompleted = quizOrder.length > 0 && foundLakes.length === quizOrder.length;
@@ -133,39 +156,65 @@ const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = 
     };
   }, []);
 
-  // İl tıklanınca: göl bu ilde mi kontrol et (göl hangi ilde?)
+  // Cevap sonrası geçiş — volkanik/karstik/set vb. hepsi aynı: state'teki bilgiyle timeout
+  useEffect(() => {
+    if (scheduledAdvance == null) return;
+    const { delay, nextIndex, lakeId, isCorrect } = scheduledAdvance;
+    const timer = setTimeout(() => {
+      setFoundLakes((prev) => (isCorrect && lakeId != null && !prev.includes(lakeId) ? [...prev, lakeId] : prev));
+      setFeedback(null);
+      setShowCorrectLocation(null);
+      setShowCorrectCityId(null);
+      setCurrentQuestionIndex(nextIndex);
+      setScheduledAdvance(null);
+      pendingAnswerRef.current = false;
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [scheduledAdvance]);
+
+  // Yanlış cevap sonrası zamanlayıcı çalışmadıysa: tekrar tıklayınca geçiş (yedek)
+  const applyPendingTransition = () => {
+    if (scheduledAdvance == null) return;
+    const { nextIndex } = scheduledAdvance;
+    setFeedback(null);
+    setShowCorrectLocation(null);
+    setShowCorrectCityId(null);
+    setCurrentQuestionIndex(nextIndex);
+    setScheduledAdvance(null);
+    pendingAnswerRef.current = false;
+  };
+
+  // İl tıklanınca: göl bu ilde mi? (Tüm göl tipleri aynı mantık)
   const handleCityTap = (cityId) => {
-    if (isCompleted || feedback || !currentLake || !currentLake.cityId) return;
-    const isCorrect = currentLake.cityId === String(cityId);
+    if (isCompleted || !currentLake || !currentLake.cityId) return;
+    if (feedback === 'wrong' && scheduledAdvance != null && Date.now() - lastTapTimeRef.current > 2000) {
+      applyPendingTransition();
+      return;
+    }
+    if (pendingAnswerRef.current) return;
+    if (feedback) return;
+
+    lastTapTimeRef.current = Date.now();
+    const isCorrect = String(currentLake.cityId) === String(cityId);
+    const lakeId = currentLake.id;
+    const delay = isCorrect ? 1000 : 1800;
+    const nextIndex =
+      currentQuestionIndex < quizOrder.length - 1 ? currentQuestionIndex + 1 : currentQuestionIndex;
+
+    pendingAnswerRef.current = true;
 
     if (isCorrect) {
       removeWrongAnswer('turkey_lakes', currentLake.id);
       setFeedback('correct');
       playCorrectSound();
-      setTimeout(() => {
-        setFoundLakes((prev) => [...prev, currentLake.id]);
-        setFeedback(null);
-        setShowCorrectLocation(null);
-        setShowCorrectCityId(null);
-        setCurrentQuestionIndex((prev) =>
-          prev < quizOrder.length - 1 ? prev + 1 : prev
-        );
-      }, 1000);
     } else {
       saveWrongAnswer('turkey_lakes', currentLake.id, currentLake.name);
       setFeedback('wrong');
       setShowCorrectLocation(currentLake);
       setShowCorrectCityId(currentLake.cityId);
       playWrongSound();
-      setTimeout(() => {
-        setFeedback(null);
-        setShowCorrectLocation(null);
-        setShowCorrectCityId(null);
-        setCurrentQuestionIndex((prev) =>
-          prev < quizOrder.length - 1 ? prev + 1 : prev
-        );
-      }, 1800);
     }
+    setScheduledAdvance({ delay, nextIndex, lakeId, isCorrect });
   };
 
 
@@ -180,6 +229,8 @@ const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = 
     setFeedback(null);
     setShowCorrectLocation(null);
     setShowCorrectCityId(null);
+    setScheduledAdvance(null);
+    pendingAnswerRef.current = false;
     resetZoom();
   };
 
@@ -286,10 +337,12 @@ const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = 
             preserveAspectRatio="xMidYMid meet"
             style={styles.svg}
           >
-            {/* Türkiye haritası – ile tıklayarak gölün bulunduğu ili seç */}
+            {/* Türkiye haritası – ile tıklayarak gölün bulunduğu ili seç; doğru bilinen göllerin ili yeşil kalır */}
             <G>
               {turkeyPaths.map((city) => {
-                const isCorrectCity = showCorrectCityId === city.id;
+                const isCorrectCity =
+                  showCorrectCityId === city.id ||
+                  baseLakes.some((l) => foundLakes.includes(l.id) && l.cityId === city.id);
                 const fill = isCorrectCity ? '#22C55E' : '#E2E8F0';
                 return (
                   <G key={city.id} onPress={() => handleCityTap(city.id)}>
@@ -323,41 +376,56 @@ const LakesMap = ({ onBackToMenu, onBackToMain, lakeType = 'all', practiceIds = 
               );
             })()}
             {/* Yanlış cevapta doğru yeri göster */}
-            {showCorrectLocation && (
-              <G>
-                <SvgText
-                  x={showCorrectLocation.x}
-                  y={showCorrectLocation.y}
-                  fontSize="24"
-                  textAnchor="middle"
-                  alignmentBaseline="middle"
-                >
-                  🌊
-                </SvgText>
-                <SvgText
-                  x={showCorrectLocation.x}
-                  y={showCorrectLocation.y + 28}
-                  fontSize="11"
-                  fill="#1E293B"
-                  textAnchor="middle"
-                  fontWeight="700"
-                >
-                  {showCorrectLocation.name}
-                </SvgText>
-              </G>
-            )}
+            {showCorrectLocation && (() => {
+              const { px, py } = getLakeDisplayPos(showCorrectLocation);
+              return (
+                <G>
+                  <Circle cx={px} cy={py} r={14} fill="#0EA5E9" opacity={0.9} stroke="#0369A1" strokeWidth="2" />
+                  <SvgText x={px} y={py} fontSize="24" textAnchor="middle" alignmentBaseline="middle">🌊</SvgText>
+                  <SvgText x={px} y={py + 28} fontSize="11" fill="#1E293B" textAnchor="middle" fontWeight="700">
+                    {showCorrectLocation.name}
+                  </SvgText>
+                </G>
+              );
+            })()}
+            {/* Doğru bilinen göller — emoji ve isim kalır, ili zaten yeşil */}
+            {foundLakes.map((id) => {
+              const lake = baseLakes.find((l) => l.id === id);
+              if (!lake) return null;
+              const { px, py } = getLakeDisplayPos(lake);
+              return (
+                <G key={lake.id}>
+                  <Circle cx={px} cy={py} r={14} fill="#0EA5E9" opacity={0.9} stroke="#0369A1" strokeWidth="2" />
+                  <SvgText x={px} y={py} fontSize="24" textAnchor="middle" alignmentBaseline="middle">🌊</SvgText>
+                  <SvgText x={px} y={py + 28} fontSize="11" fill="#1E293B" textAnchor="middle" fontWeight="700">
+                    {lake.name}
+                  </SvgText>
+                </G>
+              );
+            })}
           </Svg>
         </Animated.View>
         )}
 
-        {/* Zoom Reset Butonu */}
-        <TouchableOpacity 
-          style={styles.zoomResetButton}
-          onPress={resetZoom}
-        >
-          <RotateCcw size={20} color="#FFFFFF" />
-        </TouchableOpacity>
-
+        {/* Sağ alt: üstte zoom, altta yeniden başlat (diğer haritalarla aynı) */}
+        <View style={styles.floatingButtonsContainer} pointerEvents="box-none">
+          <TouchableOpacity
+            style={styles.zoomResetButton}
+            onPress={resetZoom}
+            activeOpacity={0.8}
+          >
+            <ZoomOut size={22} color="#FFFFFF" />
+          </TouchableOpacity>
+          {!hasNoLakes && (
+            <TouchableOpacity
+              style={styles.restartFloatingButton}
+              onPress={handleReset}
+              activeOpacity={0.8}
+            >
+              <RefreshCw size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {(isCompleted || hasNoLakes) && (
@@ -486,21 +554,43 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  zoomResetButton: {
+  floatingButtonsContainer: {
     position: 'absolute',
-    bottom: 16,
-    right: 16,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    bottom: 20,
+    right: 20,
+    flexDirection: 'column',
+    gap: 10,
+    zIndex: 100,
+  },
+  zoomResetButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#2563EB',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  restartFloatingButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
 });
 
